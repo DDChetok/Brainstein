@@ -1,6 +1,7 @@
 # Brainstein
 ## 1. Introducción
 Este documento tiene como objetivo principal plasmar el diseño y los elementos que debe incluir el videojuego Brainstein. Este videojuego esta pensado para ser jugado en navegadores web de ordenadores.
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/brainstein%203.png)
 ### 1.1 Concepto del juego
 Brainstein es un juego multijugador cooperativo para dos jugadores en el que ambos jugadores controlan a dos científicos, Erwin y Darwin, y deberán trabajar para defender el cerebro de Einstein de las hordas de zombis que han arrasado la civilización. Para ello, los jugadores dispondrán tanto de un abanico de armas como de sus habilidades de construcción para intentar impedir el paso de los zombis.
 ### 1.2 Características principales
