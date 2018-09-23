@@ -70,3 +70,4 @@ Comienza la primera oleada, la más sencilla de todas, y comienza la acción. Lo
 Al acabar tendrán la opción de empezar otra partida o salir del juego.
 
 ## 4.Interfaz
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/flujo%20de%20pantallas.png)
