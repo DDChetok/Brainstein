@@ -127,5 +127,5 @@ Como se ha dicho más arriba, estas expansiones solo se plantearían, diseñarí
 ## 7. Equipo desarrollador
 ### Numbah004
 Pablo Martínez Domingo Correo:p.martinezd.2016@alumnos.urjc.es
-Daniel Dávila Pérez Correo:p.martinezd.2016@alumnos.urjc.es
-Pablo Velilla Álvarez Correo:p.martinezd.2016@alumnos.urjc.es
+Daniel Dávila Pérez Correo:d.davila.2016@alumnos.urjc.es
+Pablo Velilla Álvarez Correo:p.velilla.2016@alumnos.urjc.es
