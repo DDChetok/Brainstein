@@ -58,6 +58,7 @@ Si ambos jugadores están muertos a la vez, pierden. Sin embargo, puede darse la
 La cámara será completamente cenital, teniendo visión en todo momento de la totalidad de la pantalla. Para jugar se necesitará ratón y teclado. El teclado se utilizará para el movimiento y para cambiar de arma y de construcción mientras que el ratón se utilizará para apuntar, disparar y construir.
 
 ## 3. El flujo de juego
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/ingame%20demo.png)
 A lo largo de esta sección se detallará el transcurso de una partida típica de
 Brainstein. Se comentarán los pasos que ha de seguir el Jugador desde el
 Inicio de una partida hasta finalizarla. Poco a poco vamos desgranando el funcionamiento exacto del juego. 
