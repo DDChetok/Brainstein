@@ -114,7 +114,7 @@ En todo momento se podrá acceder a la pantalla de opciones, desde la que se pod
 - Salir al menú principal.
 
 ## 5. Arte
-*Brainstein* debe tener un carácter desenfadado, con un estilo más bien caricaturésco, recalcando el absurdo de la situación. La música y los sonidos también deberán ir acorde con este tono.
+*Brainstein* debe tener un carácter desenfadado, con un estilo más bien caricaturésco, recalcando el absurdo de la situación. La música y los sonidos también deberán ir acorde con este tono. Crearemos recursos propios como sprites de zombis o personajes pero también utilizaremos assets de Kenney.
 
 ## 6. Posibles ampliaciones
 Aunque las mecánicas del juego son bastantes simples, el juego puede ser expandido si se ve que sobra tiempo o recursos. Posibles ampliaciones que se podrían efectuar son, por ejemplo:
