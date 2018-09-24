@@ -56,10 +56,10 @@ Las construcciones disponibles en *Brainstein* son:
 
 ### 2.4 Zombis
 Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso cerebro de Einstein. Hay varios tipos de zombi en el juego, cada uno con una vida o habilidades distintas. Cuando la vida de un zombi llega a cero, este zombi muere y otorga al jugador que le ha derrotado una cantidad de dinero definida por el tipo de zombi. Todos los zombis atacan cuerpo a cuerpo salvo una excepción.
-- Normie: el zombi más común. Tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra su camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura.
-- Tankie: es un zombi con una gran cantidad de vida. Si ve su camino obstaculizado, los más probable es que ataque a las estructuras, infligiendo un daño elevado.
-- Zombi a propulsión: tiene una vida media, pero cuando se encuentra una estructura bloqueando el camino, en vez de atacarla, la saltará.
-- Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia.
+- Normie: el zombi más común. Tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra su camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura. El camino que escogerá se decidirá mediante un algoritmo de "Pathfinding", el A*, hasta que lleguen a golpear a los jugadores o al cerebro.
+- Tankie: es un zombi con una gran cantidad de vida. Se dirige en línea recta hacia el cerebro de Einstein, destruyendo cualquier estructura que se encuentre en su camino.
+- Zombi a propulsión: tiene una vida media, pero cuando se encuentra una estructura bloqueando el camino, en vez de atacarla, la saltará. Se dirigirá en línea recta saltando estructuras hasta el objetivo más cercano, es decir, el cerebro o alguno de los 2 jugadores.
+- Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia. El camino que recorrerá será igual que el de los "normies" ya que no puede saltar ni destruir estructuras. Será implementado por el algoritmo A*. Su recorrido terminará cuando lleguen a una distancia a la cual sus proyectiles alcancen a los jugadores o al cerebro. Si los jugadores salen de su rango de disparo, el escupidor volverá a perseguirlos.
 
 ### 2.5 El cerebro de Einstein 
 El preciado cerebro de Einstein es lo que ambos jugadores deben defender con sus vidas. Tiene una cantidad de vida predefinida, y si esta llega a cero los jugadores pierden. Si los jugadores consideran que el cerebro está en una zona peligrosa o poco ventajosa, tienen la opción de moverlo. Para ello, uno de los jugadores tendrá que cogerlo para llevarlo a otro lugar. Mientras lo tenga cogido, se moverá más lento, no podrá disparar ni podrá abrir o cerrar puertas. Siempre tiene la opción de dejarlo en un punto arbitrario del camino para recogerlo más tarde.
@@ -117,7 +117,10 @@ En todo momento se podrá acceder a la pantalla de opciones, desde la que se pod
 ## 5. Arte
 *Brainstein* debe tener un carácter desenfadado, con un estilo más bien caricaturésco, recalcando el absurdo de la situación. La música y los sonidos también deberán ir acorde con este tono. Crearemos recursos propios como sprites de zombis o personajes pero también utilizaremos assets de Kenney.
 
-## 6. Posibles ampliaciones
+## 6. Matchmaking
+El emparejamiento entre jugadores se hará teniendo en cuenta el mayor récord de rondas que hayan hecho. Si un jugador ha llegado como mucho a 10 rondas, se buscarán jugadores que hayan llegado a sobrevivir entre 8 y 12 rondas. Si un jugador es la primera vez que juega y por lo tanto su máxima puntuación no está registrada, se le asignará como compañero otro nuevo jugador. Si en cualquier caso no se encontrase otro jugador con una puntuación similar al usuario, el emparejamiento se realizaría teniendo en cuenta la distancia física entre ambos, es decir, se asignará como compañero el jugador que esté más cerca del usuario (y con puntuación mas parecida) para evitar en la medida de lo posible problemas de conexión.
+
+## 7. Posibles ampliaciones
 Aunque las mecánicas del juego son bastantes simples, el juego puede ser expandido si se ve que sobra tiempo o recursos. Posibles ampliaciones que se podrían efectuar son, por ejemplo:
 - Nuevos tipos de arma, con distinto tipos de efecto y munición.
 - Nuevos tipos de zombis, que ataquen o tengan una distinción característica, como, por ejemplo, que exploten.
@@ -125,7 +128,7 @@ Aunque las mecánicas del juego son bastantes simples, el juego puede ser expand
 - Nuevos personajes, un nuevo compañero de Erwin y Darwin, como por ejemplo el gato de Erwin.
 Como se ha dicho más arriba, estas expansiones solo se plantearían, diseñarían o dessarollarían si se diese el caso de que sobrase tiempo o de que se extiendese la fecha límite habiendo acabado la base del juego.
 
-## 7. Equipo desarrollador
+## 8. Equipo desarrollador
 ### Numbah004
 Pablo Martínez Domingo Correo:p.martinezd.2016@alumnos.urjc.es
 Daniel Dávila Pérez Correo:d.davila.2016@alumnos.urjc.es
