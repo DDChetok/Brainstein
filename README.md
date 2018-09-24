@@ -55,7 +55,7 @@ Las construcciones disponibles en *Brainstein* son:
 
 ### 2.4 Zombis
 Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso cerebro de Einstein. Hay varios tipos de zombi en el juego, cada uno con una vida o habilidades distintas. Cuando la vida de un zombi llega a cero, este zombi muere y otorga al jugador que le ha derrotado una cantidad de dinero definida por el tipo de zombi. Todos los zombis atacan cuerpo a cuerpo salvo una excepción.
-- Normie: el zombi más común. Tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra si camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura.
+- Normie: el zombi más común. Tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra su camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura.
 - Tankie: es un zombi con una gran cantidad de vida. Si ve su camino obstaculizado, los más probable es que ataque a las estructuras, infligiendo un daño elevado.
 - Zombi a propulsión: tiene una vida media, pero cuando se encuentra una estructura bloqueando el camino, en vez de atacarla, la saltará.
 - Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia.
@@ -73,11 +73,11 @@ La cámara será completamente cenital, teniendo visión en todo momento de la t
 *Demo de como se vería el juego in-game*
 A lo largo de esta sección se detallará el transcurso de una partida típica de
 *Brainstein*. Se comentarán los pasos que ha de seguir el Jugador desde el
-Inicio de una partida hasta finalizarla. Poco a poco vamos desgranando el funcionamiento exacto del juego. 
+inicio de una partida hasta finalizarla. Poco a poco vamos desgranando el funcionamiento exacto del juego. 
 
 Los jugadores comienzan la partida y tienen unos segundos antes de que empiece la primera oleada. En este tiempo deberán analizar la pantalla, ver posible puntos fuertes y débiles, y mover el cerebro de Einstein si lo viesen necesario, aunque lo normal sería que no les diese tiempo antes de que la oleada comenzase.
 
-Comienza la primera oleada, la más sencilla de todas, y comienza la acción. Los jugadores deberán cooperar y llegar a una estrategia de construcción mientras compiten por llevarse la mayor cantidad de oro. Una vez finalizada la primera oleada, tienen un poco de tiempo para relajarse, ver posibles fallos en su estrategia o en su estructura, antes de volver a ponerse a cubierto porque llega la siguiente oleada de zombis. Las oleadas son cada vez más y más complicadas hasta que los jugadores al final caen derrotados. En ese punto, se guarda la marca que han conseguido o se compara con otras posibles marcas que hayan podido conseguir.
+Comienza la primera oleada, la más sencilla de todas, y comienza la acción. Los jugadores deberán cooperar y llegar a una estrategia de construcción mientras compiten por llevarse la mayor cantidad de oro. Una vez finalizada la primera oleada, tienen un poco de tiempo para relajarse, ver posibles fallos en su estrategia o en su estructura, antes de volver a ponerse a cubierto porque llega la siguiente oleada de zombis. Las oleadas son cada vez más y más complicadas hasta que los jugadores al final caen derrotados. En ese punto, se guarda la marca que han conseguido y se compara con otras posibles marcas que hayan podido conseguir.
 
 Al acabar tendrán la opción de empezar otra partida o salir del juego.
 
