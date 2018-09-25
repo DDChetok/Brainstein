@@ -92,6 +92,7 @@ Lista y descripción de todos los componentes del *Menú principal*:
 - Botón jugar: al pulsarlo lleva a la pantalla de *Asiganción de personajes*.
 - Botón opciones: al pulsarlo lleva a la pantalla *Opciones*.
 - Botón salir: al pulsarlo lleva de vuelta al Sistema Operativo.
+- Boton partida privada: al pulsarlo lleva a una pantalla con 2 opciones: crear partida privada y unirse a partida privada. Ambos casos llevarán a la pantalla de "Aignación de personajes". 
 
 ### 4.2 Asignación de personajes
 En esta pantalla será cuando se busque a otro jugador para poder comenzar la partida. Una vez encontrado, los jugadores decidirán quien será Erwin y quien será Darwin. Una vez seleccionado, el juego les llevará automáticamente a la pantalla de *Selección de mapa*.
@@ -118,7 +119,7 @@ En todo momento se podrá acceder a la pantalla de opciones, desde la que se pod
 *Brainstein* debe tener un carácter desenfadado, con un estilo más bien caricaturésco, recalcando el absurdo de la situación. La música y los sonidos también deberán ir acorde con este tono. Crearemos recursos propios como sprites de zombis o personajes pero también utilizaremos assets de Kenney.
 
 ## 6. Matchmaking
-El emparejamiento entre jugadores se hará teniendo en cuenta el mayor récord de rondas que hayan hecho. Si un jugador ha llegado como mucho a 10 rondas, se buscarán jugadores que hayan llegado a sobrevivir entre 8 y 12 rondas. Si un jugador es la primera vez que juega y por lo tanto su máxima puntuación no está registrada, se le asignará como compañero otro nuevo jugador. Si en cualquier caso no se encontrase otro jugador con una puntuación similar al usuario, el emparejamiento se realizaría teniendo en cuenta la distancia física entre ambos, es decir, se asignará como compañero el jugador que esté más cerca del usuario (y con puntuación mas parecida) para evitar en la medida de lo posible problemas de conexión.
+El emparejamiento entre jugadores se hará teniendo en cuenta el mayor récord de rondas que hayan hecho. Si un jugador ha llegado como mucho a 10 rondas, se buscarán jugadores que hayan llegado a sobrevivir entre 8 y 12 rondas. Si un jugador es la primera vez que juega y por lo tanto su máxima puntuación no está registrada, se le asignará como compañero otro nuevo jugador. Si en cualquier caso no se encontrase otro jugador con una puntuación similar al usuario, el emparejamiento se realizaría teniendo en cuenta la distancia física entre ambos, es decir, se asignará como compañero el jugador que esté más cerca del usuario (y con puntuación mas parecida) para evitar en la medida de lo posible problemas de conexión. Además se dispondrá de la opción de partida privada mediante un botón en el menú principal. A través de él, un jugador puede crear una partida privada con una contraseña (generada aleatoriamente por el sistema) y otro puede unirse a ella mediante la contraseña. Dentro de la partida se dispondrá de un chat para que los jugadores puedan comunicarse y plantear estrategias.
 
 ## 7. Posibles ampliaciones
 Aunque las mecánicas del juego son bastantes simples, el juego puede ser expandido si se ve que sobra tiempo o recursos. Posibles ampliaciones que se podrían efectuar son, por ejemplo:
