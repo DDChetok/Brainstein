@@ -94,6 +94,10 @@ Lista y descripción de todos los componentes del *Menú principal*:
 - Botón salir: al pulsarlo lleva de vuelta al Sistema Operativo. 
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20principal.jpeg)
 *Menú principal del juego*
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20publica%20privada.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20publica%20crear%20unirse.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20publica%20clave.jpeg)
+*Cambios en el menú*
 
 ### 4.2 Asignación de personajes
 En esta pantalla será cuando se busque a otro jugador para poder comenzar la partida. Una vez encontrado, los jugadores decidirán quien será Erwin y quien será Darwin. Una vez seleccionado, el juego les llevará automáticamente a la pantalla de *Selección de mapa*.
