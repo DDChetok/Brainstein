@@ -93,6 +93,7 @@ Lista y descripción de todos los componentes del *Menú principal*:
 - Botón opciones: al pulsarlo lleva a la pantalla *Opciones*.
 - Botón salir: al pulsarlo lleva de vuelta al Sistema Operativo.
 - Boton partida privada: al pulsarlo lleva a una pantalla con 2 opciones: crear partida privada y unirse a partida privada. Ambos casos llevarán a la pantalla de "Aignación de personajes". 
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu principal.jpeg)
 
 ### 4.2 Asignación de personajes
 En esta pantalla será cuando se busque a otro jugador para poder comenzar la partida. Una vez encontrado, los jugadores decidirán quien será Erwin y quien será Darwin. Una vez seleccionado, el juego les llevará automáticamente a la pantalla de *Selección de mapa*.
