@@ -96,9 +96,9 @@ Lista y descripción de todos los componentes del *Menú principal*:
 *Menú principal del juego*
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20publica%20privada.jpeg)
 *s*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20publica%20crear%20unirse.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20crear%20unirse.jpeg)
 *s*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20publica%20clave.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20clave.jpeg)
 *Cambios en el menú*
 
 ### 4.2 Asignación de personajes
