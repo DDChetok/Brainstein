@@ -94,12 +94,19 @@ Lista y descripción de todos los componentes del *Menú principal*:
 - Botón salir: al pulsarlo lleva de vuelta al Sistema Operativo.
 - Boton partida privada: al pulsarlo lleva a una pantalla con 2 opciones: crear partida privada y unirse a partida privada. Ambos casos llevarán a la pantalla de "Aignación de personajes". 
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20principal.jpeg)
+*Menú principal del juego*
 
 ### 4.2 Asignación de personajes
 En esta pantalla será cuando se busque a otro jugador para poder comenzar la partida. Una vez encontrado, los jugadores decidirán quien será Erwin y quien será Darwin. Una vez seleccionado, el juego les llevará automáticamente a la pantalla de *Selección de mapa*.
 
 ### 4.3 Selección de mapa
 En esta pantalla los jugadores podrán elegir el mapa en la que querrán jugar, así como opciones especiales que quieran aplicar a su partida (handicap, más probabilidad de objetos, menos, etc...)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Mapa%201.jpeg)
+*Prototipo mapa 1*
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Mapa%202.jpeg)
+*Prototipo mapa 2*
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Mapa%203.jpeg)
+*Prototipo mapa 3*
 
 ### 4.4 Partida
 Aquí los jugadores podrán jugar a la vez que pueden consultar de un vistazo información relevante para la partida:
