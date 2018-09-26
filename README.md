@@ -58,8 +58,14 @@ Las construcciones disponibles en *Brainstein* son:
 Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso cerebro de Einstein. Hay varios tipos de zombi en el juego, cada uno con una vida o habilidades distintas. Cuando la vida de un zombi llega a cero, este zombi muere y otorga al jugador que le ha derrotado una cantidad de dinero definida por el tipo de zombi. Todos los zombis atacan cuerpo a cuerpo salvo una excepción.
 - Normie: el zombi más común. Tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra su camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura. El camino que escogerá se decidirá mediante un algoritmo de "Pathfinding", el A*, hasta que lleguen a golpear a los jugadores o al cerebro.
 - Tankie: es un zombi con una gran cantidad de vida. Se dirige en línea recta hacia el cerebro de Einstein, destruyendo cualquier estructura que se encuentre en su camino.
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20tankie.png)
+*Boceto del tankie*
 - Zombi a propulsión: tiene una vida media, pero cuando se encuentra una estructura bloqueando el camino, en vez de atacarla, la saltará. Se dirigirá en línea recta saltando estructuras hasta el objetivo más cercano, es decir, el cerebro o alguno de los 2 jugadores.
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20propulsion.png)
+*Boceto del zombi a propulsión*
 - Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia. El camino que recorrerá será igual que el de los "normies" ya que no puede saltar ni destruir estructuras. Será implementado por el algoritmo A*. Su recorrido terminará cuando lleguen a una distancia a la cual sus proyectiles alcancen a los jugadores o al cerebro. Si los jugadores salen de su rango de disparo, el escupidor volverá a perseguirlos.
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%%20escupidor.png)
+*Boceto del escupidor*
 
 ### 2.5 El cerebro de Einstein 
 El preciado cerebro de Einstein es lo que ambos jugadores deben defender con sus vidas. Tiene una cantidad de vida predefinida, y si esta llega a cero los jugadores pierden. Si los jugadores consideran que el cerebro está en una zona peligrosa o poco ventajosa, tienen la opción de moverlo. Para ello, uno de los jugadores tendrá que cogerlo para llevarlo a otro lugar. Mientras lo tenga cogido, se moverá más lento, no podrá disparar ni podrá abrir o cerrar puertas. Siempre tiene la opción de dejarlo en un punto arbitrario del camino para recogerlo más tarde.
