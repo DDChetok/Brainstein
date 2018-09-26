@@ -67,7 +67,7 @@ Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso
 
 - Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia. El camino que recorrerá será igual que el de los "normies" ya que no puede saltar ni destruir estructuras. Será implementado por el algoritmo A*. Su recorrido terminará cuando lleguen a una distancia a la cual sus proyectiles alcancen a los jugadores o al cerebro. Si los jugadores salen de su rango de disparo, el escupidor volverá a perseguirlos.
 
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%%20escupidor.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20escupidor.png)
 *Boceto del escupidor*
 
 ### 2.5 El cerebro de Einstein 
