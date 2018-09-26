@@ -131,11 +131,11 @@ Aquí los jugadores podrán jugar a la vez que pueden consultar de un vistazo in
 - Munición actual
 - Munición máxima
 
-Al ser derrotados, aparecerá un banner en mitad de la pantalla para informar a los jugadores de que han perdido.
+Al ser derrotados, aparecerá un texto en mitad de la pantalla para informar a los jugadores de que han perdido.
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/banner%20derrota%201.png)
-*Versión 1 del banner de derrota*
+*Versión 1 del texto de derrota*
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/banner%20derrota%202.png)
-*Versión 2 del banner de derrota*
+*Versión 2 del texto de derrota*
 
 ### 4.5 Opciones
 En todo momento se podrá acceder a la pantalla de opciones, desde la que se podrá:
