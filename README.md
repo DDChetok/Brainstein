@@ -61,9 +61,12 @@ Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20tankie.png)
 *Boceto del tankie*
 - Zombi a propulsión: tiene una vida media, pero cuando se encuentra una estructura bloqueando el camino, en vez de atacarla, la saltará. Se dirigirá en línea recta saltando estructuras hasta el objetivo más cercano, es decir, el cerebro o alguno de los 2 jugadores.
+
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20propulsion.png)
 *Boceto del zombi a propulsión*
+
 - Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia. El camino que recorrerá será igual que el de los "normies" ya que no puede saltar ni destruir estructuras. Será implementado por el algoritmo A*. Su recorrido terminará cuando lleguen a una distancia a la cual sus proyectiles alcancen a los jugadores o al cerebro. Si los jugadores salen de su rango de disparo, el escupidor volverá a perseguirlos.
+
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%%20escupidor.png)
 *Boceto del escupidor*
 
