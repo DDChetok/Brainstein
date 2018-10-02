@@ -22,10 +22,11 @@ Brainstein.Boot = {
 		//Have the game centered horizontally
 		this.scale.pageAlignHorizontally = true;
 
-		//Screen size will be set automatically
+		//Scaling options
+		//*All scaling options here*	
 		
 		//Physics system for movement
-		//this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
 		this.state.start('Preload');
 	}

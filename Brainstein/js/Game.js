@@ -4,15 +4,28 @@ Brainstein.Game = function(){};
 Brainstein.Game = {
 	create: function(){
 		//Set world dimension
-		this.game.world.setBounds(0, 0, 3680, 1920);		
-		this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');
-		
+		this.game.world.setBounds(0, 0, 800, 800);		
+		//this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');
+
+		//Create Tiled map
+		this.map = this.game.add.tilemap('level1');
+		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
+		this.map.addTilesetImage('tileset', 'gameTiles');
+
+		//Create map layers
+		this.backgroundLayer = this.map.createLayer('backgroundLayer');
+		this.collisionLayer = this.map.createLayer('collisionLayer');
+		//Collision on blockedLayer
+		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
+		//Resizes the game world to match the layer dimensions
+		this.backgroundLayer.resizeWorld();
+
 		//Create player
 		this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'erwin');		
 		this.player.scale.setTo(0.2);
 		this.player.anchor.setTo(0.5, 0.5);		
 
-		this.tontico = this.game.add.sprite(this.game.world.centerX + 120, this.game.world.centerY, 'zombie')
+		this.tontico = this.game.add.sprite(this.game.world.centerX + 160, this.game.world.centerY, 'zombie')
 		this.tontico.scale.setTo(0.2);
 
 		//All animation here	
@@ -24,7 +37,7 @@ Brainstein.Game = {
 
 		//Modify body properties
 		this.player.collideWorldBounds = true;		
-		this.player.speed = 7;
+		this.player.speed = 100;
 
 		//Create action keys
 		this.actionKeys = this.createKeys();
@@ -37,13 +50,19 @@ Brainstein.Game = {
 	},
 
 	update: function(){
+		this.player.body.velocity.x = 0;
+		this.player.body.velocity.y = 0;
+
 		//Handle inputs		
 		if(this.game.input.keyboard.isDown){	
 			this.handleKeyboardInput();
 		}
 
 		//Player movement
-		this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);		
+		this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);	
+		
+		//Collisions
+		this.game.physics.arcade.collide(this.player, this.collisionLayer);
 	},
 
 	//Returns an array with all the hotkeys
@@ -53,19 +72,17 @@ Brainstein.Game = {
 
 	handleKeyboardInput: function(){
 		if(this.actionKeys.left.isDown){	
-			this.player.x -= this.player.speed;
+			this.player.body.velocity.x -= this.player.speed;
 		}
 		else if(this.actionKeys.right.isDown){	
-			this.player.x += this.player.speed;
+			this.player.body.velocity.x += this.player.speed;
 		}
 
 		if(this.actionKeys.up.isDown){	
-			this.player.y -= this.player.speed;
+			this.player.body.velocity.y -= this.player.speed;
 		}		
 		else if(this.actionKeys.down.isDown){
-			this.player.y += this.player.speed;
+			this.player.body.velocity.y += this.player.speed;
 		}
 	}
-
-	//peeeeeeeeeeeeeeeeeeeeeeeene
 }
