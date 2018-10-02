@@ -12,7 +12,8 @@ Brainstein.Preload = {
 		this.load.setPreloadSprite(this.preloadBar);
 
 		//Load game assets
-		//TENEMOS QUE INVESTIGAR UNA FORMA DE NO TENER QUE METER 1 A 1 TODOS
+		this.load.tilemap('level1', 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);	
+		this.load.image('gameTiles', 'assets/images/open_tileset.png');
 		this.load.image('mainMenuSplash','assets/images/main_menu.png');
 		this.load.image('darwin', 'assets/images/darwin_sprite_ph.png');
 		this.load.image('erwin', 'assets/images/erwin_sprite_ph.png');
