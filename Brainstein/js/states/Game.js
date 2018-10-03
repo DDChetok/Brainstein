@@ -75,13 +75,69 @@ Brainstein.Game = {
 		//Collisions
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);
 
-		//Finds a path from enemy to player
+		//Finds a path from enemy to player and updates its position			
 		for(var i = 0; i < this.enemies.length; i++){
-			var originPoint = new Phaser.Point(this.enemies[i].position.x, this.enemies[i].position.y);
-			var targetPoint = new Phaser.Point(this.player.position.x, this.player.position.y);
-			this.moveTo(targetPoint, this.enemies[i]);
-		}		
+			this.moveEnemy(this.enemies[i]);			
+		}
 	},
+
+	moveEnemy: function(enemy){
+		var targetPosition;
+		targetPosition = new Phaser.Point(this.player.position.x, this.player.position.y);
+		this.moveTo(enemy, targetPosition);
+	},
+
+	moveTo: function(enemy, targetPosition){
+		this.findPath(enemy.position, targetPosition, this.moveThroughPath, enemy);	
+	},	
+
+	//Finds a path from an origin to a target
+	findPath: function(originPosition, targetPosition, callback, context){	
+
+		var originCoord = this.getCoordFromPosition(originPosition);
+		var targetCoord = this.getCoordFromPosition(targetPosition);
+
+		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){
+			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, context));
+			this.easyStar.calculate();
+			return true;				
+		} else {
+			return false;
+		}
+	},
+
+	moveThroughPath: function(path, enemy){
+		if(path !== null){
+			enemy.path = path;
+			enemy.pathStep = 1;
+		} else {
+			this.path = [];
+		}
+	},
+
+	updateEnemy: function(enemy){		
+		var nextPosition, velocity;
+		if(enemy.path.length > 0){
+			nextPosition = enemy.path[enemy.pathStep];
+			if(!this.reachedTargetPosition(nextPosition, enemy)){
+				velocity = new Phaser.Point(nextPosition.x - enemy.position.x, nextPosition.y - enemy.position.y);
+				velocity.normalize();
+				enemy.body.velocity.x = velocity.x * enemy.walkingSpeed;
+				enemy.body.velocity.y = velocity.y * enemy.walkingSpeed;				
+			} else {
+				enemy.position.x = nextPosition.x;
+				enemy.position.y = nextPosition.y;
+				if(enemy.pathStep < enemy.path.length - 1){
+					enemy.path = [];
+					enemy.pathStep = -1;
+					enemy.body.velocity.x = 0;
+					enemy.body.velocity.y = 0;
+				}
+			}
+		}
+	},
+
+	
 
 	//Returns an array with all the hotkeys
 	createKeys: function(){				
@@ -107,46 +163,41 @@ Brainstein.Game = {
 	createEnemy: function(x, y, texture){
 		var zombie = this.game.add.sprite(x, y, texture); 
 		zombie.scale.setTo(0.1);
-		this.enemies[this.enemyCount] = zombie;
+		zombie.walkingSpeed = 70;
+		zombie.path = [];
+		zombie.path = -1;
+		this.game.physics.arcade.enable(zombie);	
+		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
 	},
 
 	initPathfinding: function(){
-		var grid = this.map.layers[1].data;
-		this.easyStar.setGrid(grid);
-		this.easyStar.setAcceptableTiles([0]);
+		var gridRow, gridColumn, gridIndices = [];
+		for(gridRow = 0; gridRow < this.levelDimensions.rows; gridRow++){
+			gridIndices[gridRow] = [];
+			for(gridColumn = 0; gridColumn < this.levelDimensions.columns; gridColumn++){
+				gridIndices[gridRow][gridColumn] = this.map.layers[1].data[gridRow][gridColumn].index;
+			}
+		}
+		this.easyStar.setGrid(gridIndices);
+		this.easyStar.setAcceptableTiles([-1]);
 	},
 
-	//Converts a grid point to a grid coordinate
-	getCoordFromPoint: function(point){
+	//Converts a grid position to a grid coordinate
+	getCoordFromPosition: function(position){
 		var row, column;
-		row = Math.floor(point.x / this.levelDimensions.rows);
-		column = Math.floor(point.y / this.levelDimensions.columns);
+		row = Math.floor(position.x / this.levelDimensions.rows);
+		column = Math.floor(position.y / this.levelDimensions.columns);
 		return {row: row, column: column};
 	}, 
 
-	//Converts a grid coordinate to a grid point
-	getPointFromCoord: function(coord){
+	//Converts a grid coordinate to a grid position
+	getPositionFromCoord: function(coord){
 		var x, y;
 		x = (coord.row * this.levelDimensions.rows) + (this.levelDimensions.rows / 2);
 		y = (coord.column * this.levelDimensions.columns) + (this.levelDimensions.columns / 2);
 		return new Phaser.Point(x, y);
-	},
-
-	//Finds a path from an origin to a target
-	findPath: function(originPoint, targetPoint, callback, context){	
-
-		var originCoord = this.getCoordFromPoint(originPoint);
-		var targetCoord = this.getCoordFromPoint(targetPoint);
-
-		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){
-			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, context));
-			this.easyStar.calculate();
-			return true;				
-		} else {
-			return false;
-		}
-	},
+	},	
 
 	//Returns if the coordinate is outside the grid
 	outsideGrid: function(coord){
@@ -158,24 +209,16 @@ Brainstein.Game = {
 		var pathPositions = [];
 		if(path !== null){
 			path.forEach(function(pathCoord){
-				pathPositions.push(this.getPointFromCoord({row: pathCoord.row, column: pathCoord.column}));
+				pathPositions.push(this.getPositionFromCoord({row: pathCoord.x, column: pathCoord.y}));
 			}, this);
 		}
-		callback.call(context, pathPositions);
-		console.log("Hi, I'm inside callbackFunction");		
-	},
+		callback.call(context, pathPositions, context);	
+		this.updateEnemy(context);		
+	},	
 
-	moveThroughPath: function(path){
-		if(path !== null){
-			this.path = path;
-			this.pathSptep = 0;
-		} else {
-			this.path = [];
-		}
-		console.log("Hi, I'm inside moveThroughPath");
-	},
-
-	moveTo: function(targetPoint, character) {
-		this.findPath(character.position, targetPoint, this.moveThroughPath, this);
+	reachedTargetPosition: function(targetPosition, subject){
+		var distance;
+		distance = Phaser.Point.distance(subject.position, targetPosition);
+		return distance < 1;
 	}
 }	
