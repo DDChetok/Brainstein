@@ -17,7 +17,9 @@ Brainstein.Preload = {
 		this.load.image('darwin', 'assets/images/darwin_sprite_ph.png');
 		this.load.image('erwin', 'assets/images/erwin_sprite_ph.png');
 		this.load.image('zombie', 'assets/images/zombie_ph.png');	
-		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');	
+		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');
+		this.load.image('bullet', 'assets/images/bala_ph.jpg');
+		this.load.image('escopeta', 'assets/images/escopeta_ph.png');	
 	},
 
 	create: function(){
