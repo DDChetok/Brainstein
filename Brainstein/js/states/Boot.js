@@ -30,5 +30,4 @@ Brainstein.Boot = {
 
 		this.state.start('Preload');
 	}
-
 }

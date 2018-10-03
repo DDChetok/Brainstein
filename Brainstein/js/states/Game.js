@@ -1,8 +1,8 @@
 var Brainstein = Brainstein || {};
 Brainstein.Game = function(){};
 
-Brainstein.Game = {
-	create: function(){
+Brainstein.Game = {	
+	create: function(){		
 		//-----------------WORLD & LEVEL VARIABLES-----------------
 		//Set world dimension
 		this.game.world.setBounds(0, 0, 800, 800);		
@@ -12,7 +12,7 @@ Brainstein.Game = {
 		this.map = this.game.add.tilemap('level1');
 		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
 		this.map.addTilesetImage('tileset', 'gameTiles');
-		this.levelDimensions = {row: 50, column: 50};
+		this.levelDimensions = {rows: 50, columns: 50};
 
 		//Create map layers
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
@@ -76,7 +76,11 @@ Brainstein.Game = {
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);
 
 		//Finds a path from enemy to player
-		this.findPath(this.enemies[0].position.x, this.enemies[0].position.y, this.player.position.x, this.player.position.y);
+		for(var i = 0; i < this.enemies.length; i++){
+			var originPoint = new Phaser.Point(this.enemies[i].position.x, this.enemies[i].position.y);
+			var targetPoint = new Phaser.Point(this.player.position.x, this.player.position.y);
+			this.moveTo(targetPoint, this.enemies[i]);
+		}		
 	},
 
 	//Returns an array with all the hotkeys
@@ -107,7 +111,7 @@ Brainstein.Game = {
 		this.enemyCount++;
 	},
 
-	 initPathfinding: function(){
+	initPathfinding: function(){
 		var grid = this.map.layers[1].data;
 		this.easyStar.setGrid(grid);
 		this.easyStar.setAcceptableTiles([0]);
@@ -116,38 +120,62 @@ Brainstein.Game = {
 	//Converts a grid point to a grid coordinate
 	getCoordFromPoint: function(point){
 		var row, column;
-		row = Math.floor(point.y / this.levelDimensions.y);
-		column = Math.floor(point.x / this.levelDimensions.x);
+		row = Math.floor(point.x / this.levelDimensions.rows);
+		column = Math.floor(point.y / this.levelDimensions.columns);
 		return {row: row, column: column};
 	}, 
 
 	//Converts a grid coordinate to a grid point
-	getPointFromCoord: function(x1, y1){
+	getPointFromCoord: function(coord){
 		var x, y;
-		x = (coord.column * this.levelDimensions.x) + (this.levelDimensions.x / 2);
-		y = (coord.row * this.levelDimensions.y) + (this.levelDimensions.y / 2);
+		x = (coord.row * this.levelDimensions.rows) + (this.levelDimensions.rows / 2);
+		y = (coord.column * this.levelDimensions.columns) + (this.levelDimensions.columns / 2);
 		return new Phaser.Point(x, y);
 	},
 
 	//Finds a path from an origin to a target
-	findPath: function(x1, y1, x2, y2){	
+	findPath: function(originPoint, targetPoint, callback, context){	
 
-		var originPoint = this.getCoordFromPoint(x1, y1);
-		var targetPoint = this.getCoordFromPoint(x2, y2);
+		var originCoord = this.getCoordFromPoint(originPoint);
+		var targetCoord = this.getCoordFromPoint(targetPoint);
 
-		if(!this.outsideGrid(originPoint.x, originPoint.y) && !this.outsideGrid(targetPoint.x, targetPoint.y)){
-			this.easyStar.findPath(originPoint.x, originPoint.y, targetPoint.x, targetPoint.y, this.callBackFunction);
+		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){
+			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, context));
 			this.easyStar.calculate();
-			console.log("Path calculated")
-		}		
+			return true;				
+		} else {
+			return false;
+		}
 	},
 
 	//Returns if the coordinate is outside the grid
-	outsideGrid: function(x, y){
-		return x < 0 || x > this.levelDimensions.row - 1 || y < 0 || y > this.levelDimensions.column - 1;
+	outsideGrid: function(coord){
+		return coord.row < 0 || coord.row > this.levelDimensions.rows - 1 || coord.column < 0 || coord.column > this.levelDimensions.columns - 1;
 	},
 
-	callBackFunction: function(){
-		console.log("Hi, I'm callBackFunction");
+	//Creates an array with all the path positions in path
+	callbackFunction: function(callback, context, path){
+		var pathPositions = [];
+		if(path !== null){
+			path.forEach(function(pathCoord){
+				pathPositions.push(this.getPointFromCoord({row: pathCoord.row, column: pathCoord.column}));
+			}, this);
+		}
+		callback.call(context, pathPositions);
+		console.log("Hi, I'm inside callbackFunction");		
+	},
+
+	moveThroughPath: function(path){
+		if(path !== null){
+			this.path = path;
+			this.pathSptep = 0;
+		} else {
+			this.path = [];
+		}
+		console.log("Hi, I'm inside moveThroughPath");
+	},
+
+	moveTo: function(targetPoint, character) {
+		this.findPath(character.position, targetPoint, this.moveThroughPath, this);
 	}
-}
+}	
