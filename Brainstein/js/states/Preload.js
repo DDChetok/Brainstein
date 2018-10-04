@@ -16,8 +16,8 @@ Brainstein.Preload = {
 		this.load.image('gameTiles', 'assets/images/open_tileset.png');
 		this.load.image('mainMenuSplash','assets/images/main_menu.png');
 		this.load.image('darwin', 'assets/images/darwin_sprite_ph.png');
-		this.load.image('erwin', 'assets/images/erwin_sprite_ph.png');
-		this.load.image('zombie', 'assets/images/zombie_ph.png');	
+		this.load.image('erwin', 'assets/images/erwin_sprite_ph_16px.png');
+		this.load.image('zombie', 'assets/images/zombie_ph_16px.png');	
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');	
 	},
 

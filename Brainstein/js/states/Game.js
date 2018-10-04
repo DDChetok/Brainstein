@@ -5,14 +5,15 @@ Brainstein.Game = {
 	create: function(){		
 		//-----------------WORLD & LEVEL VARIABLES-----------------
 		//Set world dimension
-		this.game.world.setBounds(0, 0, 800, 800);		
+		this.game.world.setBounds(0, 0, 320, 320);		
 		//this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');
 
 		//Create Tiled map
 		this.map = this.game.add.tilemap('level1');
 		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
 		this.map.addTilesetImage('tileset', 'gameTiles');
-		this.levelDimensions = {rows: 50, columns: 50};
+		this.levelDimensions = {rows: 10, columns: 10};
+		this.tileDimensions = {width: 16, height: 16};
 
 		//Create map layers
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
@@ -24,8 +25,8 @@ Brainstein.Game = {
 
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player
-		this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'erwin');		
-		this.player.scale.setTo(0.1);
+		this.player = this.game.add.sprite(8, 8, 'erwin');		
+		//this.player.scale.setTo(0.05);
 		this.player.anchor.setTo(0.5, 0.5);		
 
 		//All animation here	
@@ -33,6 +34,7 @@ Brainstein.Game = {
 		//Enable player physics
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);		
 		this.game.physics.arcade.enable(this.player);	
+		this.player.body.collideWorldBounds = true;
 		//this.game.physics.arcade.enable(this.enemies);	
 
 		//Modify body properties
@@ -43,7 +45,7 @@ Brainstein.Game = {
 		//Enemies
 		this.enemies = [];
 		this.enemyCount = 0;
-		this.createEnemy(this.game.world.centerX + 200, this.game.world.centerY, 'zombie');
+		this.createEnemy(152, 0, 'zombie');		
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -115,7 +117,9 @@ Brainstein.Game = {
 		}
 	},
 
-	updateEnemy: function(enemy){		
+	updateEnemy: function(enemy){	
+		enemy.rotation = this.game.physics.arcade.angleBetween(enemy, this.player);		
+
 		var nextPosition, velocity;
 		if(enemy.path.length > 0){
 			nextPosition = enemy.path[enemy.pathStep];
@@ -162,11 +166,13 @@ Brainstein.Game = {
 
 	createEnemy: function(x, y, texture){
 		var zombie = this.game.add.sprite(x, y, texture); 
-		zombie.scale.setTo(0.1);
+		this.game.physics.arcade.enable(zombie);
+		//zombie.scale.setTo(0.05);
+		zombie.anchor.setTo(0.5, 0.5);
 		zombie.walkingSpeed = 70;
+		zombie.body.collideWorldBounds = true;
 		zombie.path = [];
-		zombie.path = -1;
-		this.game.physics.arcade.enable(zombie);	
+		zombie.path = -1;		
 		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
 	},
@@ -186,8 +192,8 @@ Brainstein.Game = {
 	//Converts a grid position to a grid coordinate
 	getCoordFromPosition: function(position){
 		var row, column;
-		row = Math.floor(position.x / this.levelDimensions.rows);
-		column = Math.floor(position.y / this.levelDimensions.columns);
+		row = Math.floor(position.x / this.tileDimensions.width);
+		column = Math.floor(position.y / this.tileDimensions.height);
 		return {row: row, column: column};
 	}, 
 
