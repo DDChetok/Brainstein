@@ -181,11 +181,12 @@ Brainstein.Game = {
 	},
 
 	initPathfinding: function(){
-		var gridRow, gridColumn, gridIndices = [], setAcceptableTiles = [];
-		for(gridRow = 0; gridRow < this.levelDimensions.rows; gridRow++){
-			gridIndices[gridRow] = [];
-			for(gridColumn = 0; gridColumn < this.levelDimensions.columns; gridColumn++){
-				gridIndices[gridRow][gridColumn] = this.map.layers[1].data[gridRow][gridColumn].index;
+		var gridIndices = [];
+		
+		for(var i = 0; i < this.levelDimensions.rows; i++){
+			gridIndices[i] = [this.levelDimensions.columns];
+			for(var j = 0; j < this.levelDimensions.columns; j++){
+				gridIndices[i][j] = this.map.layers[1].data[j][i].index;
 			}
 		}
 
