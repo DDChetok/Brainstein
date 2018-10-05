@@ -12,8 +12,8 @@ Brainstein.Game = {
 		this.map = this.game.add.tilemap('level1');
 		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
 		this.map.addTilesetImage('tileset', 'gameTiles');
-		this.levelDimensions = {rows: 10, columns: 10};
-		this.tileDimensions = {width: 16, height: 16};
+		this.levelDimensions = {rows: this.map.layers[1].data.length, columns: this.map.layers[1].data[0].length};
+		this.tileDimensions = {x: this.map.tileWidth, y: this.map.tileHeight};
 
 		//Create map layers
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
@@ -25,7 +25,7 @@ Brainstein.Game = {
 
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player
-		this.player = this.game.add.sprite(8, 8, 'erwin');		
+		this.player = this.game.add.sprite(20, 150, 'erwin');		
 		//this.player.scale.setTo(0.05);
 		this.player.anchor.setTo(0.5, 0.5);		
 
@@ -45,7 +45,7 @@ Brainstein.Game = {
 		//Enemies
 		this.enemies = [];
 		this.enemyCount = 0;
-		this.createEnemy(152, 0, 'zombie');		
+		this.createEnemy(152, 32, 'zombie');		
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -94,13 +94,13 @@ Brainstein.Game = {
 	},	
 
 	//Finds a path from an origin to a target
-	findPath: function(originPosition, targetPosition, callback, context){	
+	findPath: function(originPosition, targetPosition, callback, enemy){	
 
 		var originCoord = this.getCoordFromPosition(originPosition);
 		var targetCoord = this.getCoordFromPosition(targetPosition);
 
-		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){
-			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, context));
+		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){			
+			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, enemy));
 			this.easyStar.calculate();
 			return true;				
 		} else {
@@ -119,10 +119,11 @@ Brainstein.Game = {
 
 	updateEnemy: function(enemy){	
 		enemy.rotation = this.game.physics.arcade.angleBetween(enemy, this.player);		
-
 		var nextPosition, velocity;
+		console.log("Next Position: " + nextPosition);
 		if(enemy.path.length > 0){
 			nextPosition = enemy.path[enemy.pathStep];
+			console.log(nextPosition);
 			if(!this.reachedTargetPosition(nextPosition, enemy)){
 				velocity = new Phaser.Point(nextPosition.x - enemy.position.x, nextPosition.y - enemy.position.y);
 				velocity.normalize();
@@ -132,6 +133,8 @@ Brainstein.Game = {
 				enemy.position.x = nextPosition.x;
 				enemy.position.y = nextPosition.y;
 				if(enemy.pathStep < enemy.path.length - 1){
+					enemy.pathStep += 1;
+				} else {
 					enemy.path = [];
 					enemy.pathStep = -1;
 					enemy.body.velocity.x = 0;
@@ -172,36 +175,38 @@ Brainstein.Game = {
 		zombie.walkingSpeed = 70;
 		zombie.body.collideWorldBounds = true;
 		zombie.path = [];
-		zombie.path = -1;		
+		zombie.pathStep = -1;		
 		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
 	},
 
 	initPathfinding: function(){
-		var gridRow, gridColumn, gridIndices = [];
+		var gridRow, gridColumn, gridIndices = [], setAcceptableTiles = [];
 		for(gridRow = 0; gridRow < this.levelDimensions.rows; gridRow++){
 			gridIndices[gridRow] = [];
 			for(gridColumn = 0; gridColumn < this.levelDimensions.columns; gridColumn++){
 				gridIndices[gridRow][gridColumn] = this.map.layers[1].data[gridRow][gridColumn].index;
 			}
 		}
+
 		this.easyStar.setGrid(gridIndices);
 		this.easyStar.setAcceptableTiles([-1]);
+		this.easyStar.enableDiagonals();
 	},
 
 	//Converts a grid position to a grid coordinate
 	getCoordFromPosition: function(position){
 		var row, column;
-		row = Math.floor(position.x / this.tileDimensions.width);
-		column = Math.floor(position.y / this.tileDimensions.height);
+		row = Math.floor(position.y / this.tileDimensions.x);
+		column = Math.floor(position.x / this.tileDimensions.y);
 		return {row: row, column: column};
 	}, 
 
 	//Converts a grid coordinate to a grid position
 	getPositionFromCoord: function(coord){
 		var x, y;
-		x = (coord.row * this.levelDimensions.rows) + (this.levelDimensions.rows / 2);
-		y = (coord.column * this.levelDimensions.columns) + (this.levelDimensions.columns / 2);
+		x = (coord.column * this.tileDimensions.x) + (this.tileDimensions.x / 2);
+		y = (coord.row * this.tileDimensions.y) + (this.tileDimensions.y / 2);
 		return new Phaser.Point(x, y);
 	},	
 
@@ -211,15 +216,15 @@ Brainstein.Game = {
 	},
 
 	//Creates an array with all the path positions in path
-	callbackFunction: function(callback, context, path){
+	callbackFunction: function(callback, enemy, path){
 		var pathPositions = [];
 		if(path !== null){
 			path.forEach(function(pathCoord){
 				pathPositions.push(this.getPositionFromCoord({row: pathCoord.x, column: pathCoord.y}));
 			}, this);
 		}
-		callback.call(context, pathPositions, context);	
-		this.updateEnemy(context);		
+		callback.call(enemy, pathPositions, enemy);	
+		this.updateEnemy(enemy);		
 	},	
 
 	reachedTargetPosition: function(targetPosition, subject){
