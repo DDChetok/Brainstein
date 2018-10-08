@@ -13,44 +13,71 @@ Brainstein.Game = {
 		this.player.anchor.setTo(0.5, 0.5);		
 		
 		this.player.weapon = "pistol";
-		this.player.municionActual = 12;
+		this.player.actualAmmo = 12;
 
-		this.tontico = this.game.add.sprite(this.game.world.centerX + 120, this.game.world.centerY, 'zombie')
-		this.tontico.scale.setTo(0.2);
-		this.tontico.hp = 10;
+		this.zombie = this.game.add.sprite(this.game.world.centerX + 120, this.game.world.centerY, 'zombie')
+		this.zombie.scale.setTo(0.2);
+		this.zombie.hp = 10;
 
-		//Create escopeta
-		this.escopeta = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 120, 'escopeta');
-		this.escopeta.scale.setTo(0.2);
+		//Create weapons
+		//Pistol
+		this.pistol = this.game.add.sprite(this.game.world.centerX - 180, this.game.world.centerY, 'pistol');
+		this.pistol.scale.setTo(0.1);
+		this.pistol.nextFire = 0;
+		this.pistol.fireRate = 100;
+		this.pistol.magazine = 12;
+		this.pistol.power = 1;
+		this.pistol.damage = 5;
+		this.pistol.name = "pistol";
 
-		this.powerEscopeta = 3;
-		this.fireRateEscopeta = 50;
-		this.cargadorEscopeta = 8;
-		this.municionActual = this.cargadorEscopeta;
+		//Shotgun
+		this.shotgun = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 120, 'shotgun');
+		this.shotgun.scale.setTo(0.2);
+		this.shotgun.nextFire = 0;
+		this.shotgun.fireRate = 120;
+		this.shotgun.magazine = 12;
+		this.shotgun.power = 3;
+		this.shotgun.damage = 8;
+		this.shotgun.name = "shotgun";
+		this.shotgun.speed = 300;
+		this.shotgun.angle = 0.25;
 
-		//Create pistol
-		this.nextFire = 0;
+		//Mouse coordinates
+		this.mouse_x = 0;
+		this.mouse_y = 0;
 
-		this.fireRatePistol = 100;
-		this.cargadorPistol = 12;
+		//AK
+		this.ak = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY - 120, 'ak');
+		this.ak.scale.setTo(0.2);
+		this.ak.nextFire = 0;
+		this.ak.fireRate = 50;
+		this.ak.magazine = 30;
+		this.ak.power = 1;
+		this.ak.damage = 8;
+		this.ak.name = "ak";
 
-		this.recargaPistola = this.game.time.create(false);
-		this.recargaPistola.add(2000, this.reloadPistol, this);
-		this.recargaPistola.start();
-		this.recargaPistola.pause();
+		//Bullets and reload
+		this.reloadTimer = this.game.time.create(false);
+		this.reloadTimer.add(2000, this.reloadMethod, this);
+		this.reloadTimer.start();
+		this.reloadTimer.pause();
+		
+    	this.player.reloading = false;
 
 		this.bullets = this.game.add.group(); 
 		this.bullets.enableBody = true;
    		this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+		this.bullets.createMultiple(50, 'bullet');
+		this.bullets.setAll('anchor.x', 0.5);
+		this.bullets.setAll('anchor.y', 0.5);
+		//this.bullets.anchor.setTo(0.5, 0.5);   
 
-   		this.bullets.createMultiple(50, 'bullet');
     	this.bullets.setAll('checkWorldBounds', true);
-    	this.bullets.setAll('outOfBoundsKill', true);
-
-    	this.player.reloading = false;
+		this.bullets.setAll('outOfBoundsKill', true);
+		//this.bullets.scale.set(0.5);
 
 		//Reload text
-    	this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.municionActual + "/" + this.cargadorPistol, { font: "65px Arial", fill: "#ffff00", align: "center" });
+    	this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.actualAmmo + "/" + this.pistol.magazine, { font: "65px Arial", fill: "#ffff00", align: "center" });
     	this.reloadText.fixedToCamera = true;
     		//this.reloadText.cameraOffset = (0,0);
 
@@ -60,9 +87,10 @@ Brainstein.Game = {
 		//Enable player physics
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);		
 		this.game.physics.arcade.enable(this.player);	
-		this.game.physics.arcade.enable(this.tontico);
-		this.game.physics.arcade.enable(this.escopeta);	
-
+		this.game.physics.arcade.enable(this.zombie);
+		this.game.physics.arcade.enable(this.shotgun);
+		this.game.physics.arcade.enable(this.ak);	
+		this.game.physics.arcade.enable(this.pistol);
 
 		//Modify body properties
 		this.player.collideWorldBounds = true;
@@ -88,19 +116,32 @@ Brainstein.Game = {
 		this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);		
 		
 		//Shooting
-		if (this.game.input.activePointer.isDown && this.player.municionActual > 0 && this.player.reloading == false)
+		if (this.game.input.activePointer.isDown && this.player.actualAmmo > 0 && this.player.reloading == false)
     	{
-        	this.fire();
-   		}else if(this.game.input.activePointer.isDown && this.player.municionActual <= 0){
-   			this.recargaPistola.resume();
-		   }
-		   
-		//Colisiones
-		this.game.physics.arcade.overlap(this.bulletPistol, this.tontico, this.enemyHit, null, this);
-		  //this.game.physics.arcade.overlap(enemyBullets, player, enemyHitsPlayer, null, this);
-		  
-		this.game.physics.arcade.overlap(this.player, this.escopeta, this.spriteKill, null, this);
+			switch(this.player.weapon){
+				case "pistol":
+					this.fire(this.pistol);
+					break;
 
+				case "shotgun":
+					this.fireMultiple(this.shotgun);
+					break;
+
+				case "ak":
+					this.fire(this.ak);
+					break;
+			}
+        	
+   		}else if(this.game.input.activePointer.isDown && this.player.actualAmmo <= 0){
+			this.player.reloading = true;
+   			this.reloadTimer.resume();
+		}
+		   
+		//Colisions
+		//Sprites overlap  
+		this.spritesOverlapSolve();
+	
+		//Text
 		this.actualizarTexto();
 
 	},
@@ -127,46 +168,93 @@ Brainstein.Game = {
 
 		if(this.actionKeys.r.isDown){
 			this.player.reloading = true;
-			this.recargaPistola.resume();
-			//this.reloadPistol;
+			this.reloadTimer.resume();
 		}
 	},
 
-	fire: function(){
-		if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0)
+	fire: function(weapon){
+		if (this.game.time.now > weapon.nextFire && this.bullets.countDead() > 0)
    		{
-        	this.nextFire = this.game.time.now + this.fireRatePistol;
+        	weapon.nextFire = this.game.time.now + weapon.fireRate;	
+			this.shot = this.bullets.getFirstDead();
+			this.shot.damage = weapon.damage;
+        	this.shot.reset(this.player.x - 8, this.player.y - 8);
+	       	this.game.physics.arcade.moveToPointer(this.shot, 300);
 
-	        this.bulletPistol = this.bullets.getFirstDead();
-			this.bulletPistol.damage = 5;
-
-        	this.bulletPistol.reset(this.player.x - 8, this.player.y - 8);
-
-	        this.game.physics.arcade.moveToPointer(this.bulletPistol, 300);
-
-	        this.player.municionActual--;
-
-	        //this.actualizarTexto();
+			this.player.actualAmmo -= weapon.power;
+			
     	}
 
 	},
 
-	reloadPistol: function(){
-		this.player.municionActual = this.cargadorPistol;
-		this.recargaPistola.pause();
-		this.recargaPistola.add(2000, this.reloadPistol, this);
-		this.recargaPistola.start();
-		this.recargaPistola.pause();
+	fireMultiple: function(weapon){
+		if (this.game.time.now > weapon.nextFire && this.bullets.countDead() > 0)
+   		{
+        	weapon.nextFire = this.game.time.now + weapon.fireRate;
+			weapon.fireRate = 0;
+			var j = -1;
+
+			for(i = 0;i < weapon.power;i++){
+			
+				this.shot = this.bullets.getFirstDead();
+				this.shot.damage = weapon.damage;
+				this.shot.reset(this.player.x - 8, this.player.y - 8);
+				
+				var angle = this.game.physics.arcade.angleToPointer(this.shot) + (j * i/2);
+				this.shot.body.velocity.setToPolar(angle,weapon.speed);
+				
+				j = j*-1;
+			}
+
+			weapon.fireRate = 120;
+			
+			this.player.actualAmmo -= weapon.power;
+			
+    	}
+
+	},
+
+	reloadMethod: function(){
+		switch(this.player.weapon){
+			case "pistol":
+				this.player.actualAmmo = this.pistol.magazine;
+				break;
+
+			case "shotgun":
+				this.player.actualAmmo = this.shotgun.magazine;
+				break;
+
+			case "ak":
+				this.player.actualAmmo = this.ak.magazine;
+				break;
+		}
+		
+		this.reloadTimer.pause();
+		this.reloadTimer.add(2000, this.reloadMethod, this);
+		this.reloadTimer.start();
+		this.reloadTimer.pause();
 		this.actualizarTexto();
 		this.player.reloading = false; //Reseteamos el estado de recarga del jugador
 	},
 
 	actualizarTexto: function(){
-		if(this.player.weapon == "pistol"){
-			this.reloadText.setText("Balas:" + this.player.municionActual + "/" + this.cargadorPistol);
-		}else if(this.player.weapon == "escopeta"){
-			this.reloadText.setText("Balas:" + this.player.municionActual + "/" + this.cargadorEscopeta);
+		switch(this.player.weapon){
+			case "pistol":
+				this.reloadText.setText("Pistola:" + this.player.actualAmmo + "/" + this.pistol.magazine);
+				break;
+
+			case "shotgun":
+				this.reloadText.setText("Escopeta:" + this.player.actualAmmo + "/" + this.shotgun.magazine);
+				break;
+
+			case "ak":
+				this.reloadText.setText("AK:" + this.player.actualAmmo + "/" + this.ak.magazine);
+				break;
 		}
+		
+		if(this.player.reloading == true){
+			this.reloadText.setText("RECARGANDO");
+		} 
 	},
 
 	enemyHit: function(bala, zombie){
@@ -184,10 +272,15 @@ Brainstein.Game = {
 
 	spriteKill: function(player,sprite){
 		sprite.kill();
-		player.weapon = "escopeta";
-		player.municionActual = this.cargadorEscopeta;
+		player.weapon = sprite.name;
+		player.actualAmmo = sprite.magazine;
 	},
 
+	spritesOverlapSolve: function(){
+		this.game.physics.arcade.overlap(this.player, this.shotgun, this.spriteKill, null, this);
+		this.game.physics.arcade.overlap(this.player, this.pistol, this.spriteKill, null, this);
+		this.game.physics.arcade.overlap(this.player, this.ak, this.spriteKill, null, this);
+	},
 
 
 	}

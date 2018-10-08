@@ -19,7 +19,11 @@ Brainstein.Preload = {
 		this.load.image('zombie', 'assets/images/zombie_ph.png');	
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');
 		this.load.image('bullet', 'assets/images/bala_ph.jpg');
-		this.load.image('escopeta', 'assets/images/escopeta_ph.png');	
+		this.load.image('shotgun', 'assets/images/escopeta_ph.png');	
+		this.load.image('pistol', 'assets/images/pistol_ph.png');
+		this.load.image('ak', 'assets/images/ak_ph.png');	
+
+		//this.bullet.anchor.setTo(0.5, 0.5);
 	},
 
 	create: function(){
