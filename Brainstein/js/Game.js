@@ -7,7 +7,7 @@ Brainstein.Game = {
 		this.game.world.setBounds(0, 0, 3680, 1920);		
 		this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');
 		
-		//Create player
+		//Create player and zombie
 		this.player = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'erwin');		
 		this.player.scale.setTo(0.2);
 		this.player.anchor.setTo(0.5, 0.5);		
@@ -42,10 +42,6 @@ Brainstein.Game = {
 		this.shotgun.speed = 300;
 		this.shotgun.angle = 0.25;
 
-		//Mouse coordinates
-		this.mouse_x = 0;
-		this.mouse_y = 0;
-
 		//AK
 		this.ak = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY - 120, 'ak');
 		this.ak.scale.setTo(0.2);
@@ -70,17 +66,13 @@ Brainstein.Game = {
 		this.bullets.createMultiple(50, 'bullet');
 		this.bullets.setAll('anchor.x', 0.5);
 		this.bullets.setAll('anchor.y', 0.5);
-		//this.bullets.anchor.setTo(0.5, 0.5);   
-
     	this.bullets.setAll('checkWorldBounds', true);
 		this.bullets.setAll('outOfBoundsKill', true);
-		//this.bullets.scale.set(0.5);
 
 		//Reload text
     	this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.actualAmmo + "/" + this.pistol.magazine, { font: "65px Arial", fill: "#ffff00", align: "center" });
     	this.reloadText.fixedToCamera = true;
-    		//this.reloadText.cameraOffset = (0,0);
-
+	
 		//All animation here	
 
 		
@@ -132,7 +124,7 @@ Brainstein.Game = {
 					break;
 			}
         	
-   		}else if(this.game.input.activePointer.isDown && this.player.actualAmmo <= 0){
+   		}else if(this.game.input.activePointer.isDown && this.player.actualAmmo <= 0){ //Reloading
 			this.player.reloading = true;
    			this.reloadTimer.resume();
 		}
@@ -142,7 +134,7 @@ Brainstein.Game = {
 		this.spritesOverlapSolve();
 	
 		//Text
-		this.actualizarTexto();
+		this.updateText();
 
 	},
 
@@ -187,6 +179,7 @@ Brainstein.Game = {
 
 	},
 
+	
 	fireMultiple: function(weapon){
 		if (this.game.time.now > weapon.nextFire && this.bullets.countDead() > 0)
    		{
@@ -200,7 +193,11 @@ Brainstein.Game = {
 				this.shot.damage = weapon.damage;
 				this.shot.reset(this.player.x - 8, this.player.y - 8);
 				
-				var angle = this.game.physics.arcade.angleToPointer(this.shot) + (j * i/2);
+				if(i == 0){
+					var angle = this.game.physics.arcade.angleToPointer(this.shot);
+				}else{
+					var angle = this.game.physics.arcade.angleToPointer(this.shot) + (j * this.shotgun.angle);
+				}				
 				this.shot.body.velocity.setToPolar(angle,weapon.speed);
 				
 				j = j*-1;
@@ -233,11 +230,12 @@ Brainstein.Game = {
 		this.reloadTimer.add(2000, this.reloadMethod, this);
 		this.reloadTimer.start();
 		this.reloadTimer.pause();
-		this.actualizarTexto();
+		this.updateText();
 		this.player.reloading = false; //Reseteamos el estado de recarga del jugador
 	},
 
-	actualizarTexto: function(){
+	
+	updateText: function(){
 		switch(this.player.weapon){
 			case "pistol":
 				this.reloadText.setText("Pistola:" + this.player.actualAmmo + "/" + this.pistol.magazine);
@@ -257,6 +255,7 @@ Brainstein.Game = {
 		} 
 	},
 
+	//An enemy and the player/bullets
 	enemyHit: function(bala, zombie){
 		bala.kill();
 
@@ -270,12 +269,14 @@ Brainstein.Game = {
 
 	},
 
+	//Sprite gets killed when colliding with other
 	spriteKill: function(player,sprite){
 		sprite.kill();
 		player.weapon = sprite.name;
 		player.actualAmmo = sprite.magazine;
 	},
 
+	//Recognize a colision between sprites
 	spritesOverlapSolve: function(){
 		this.game.physics.arcade.overlap(this.player, this.shotgun, this.spriteKill, null, this);
 		this.game.physics.arcade.overlap(this.player, this.pistol, this.spriteKill, null, this);
