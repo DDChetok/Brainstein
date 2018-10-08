@@ -2,6 +2,7 @@ var Brainstein = Brainstein || {};
 Brainstein.Game = function(){};
 
 Brainstein.Game = {	
+	//-----------------PHASER METHODS-----------------
 	create: function(){		
 		//-----------------WORLD & LEVEL VARIABLES-----------------
 		//Set world dimension
@@ -83,40 +84,15 @@ Brainstein.Game = {
 		}
 	},
 
+	//-----------------METHODS-----------------
+	//Calculates the enemy target position and calls find path
 	moveEnemy: function(enemy){
 		var targetPosition;
 		targetPosition = new Phaser.Point(this.player.position.x, this.player.position.y);
-		this.moveTo(enemy, targetPosition);
-	},
+		this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
+	},		
 
-	moveTo: function(enemy, targetPosition){
-		this.findPath(enemy.position, targetPosition, this.moveThroughPath, enemy);	
-	},	
-
-	//Finds a path from an origin to a target
-	findPath: function(originPosition, targetPosition, callback, enemy){	
-
-		var originCoord = this.getCoordFromPosition(originPosition);
-		var targetCoord = this.getCoordFromPosition(targetPosition);
-
-		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){			
-			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, enemy));
-			this.easyStar.calculate();
-			return true;				
-		} else {
-			return false;
-		}
-	},
-
-	moveThroughPath: function(path, enemy){
-		if(path !== null){
-			enemy.path = path;
-			enemy.pathStep = 1;
-		} else {
-			this.path = [];
-		}
-	},
-
+	//Updates an enemy position
 	updateEnemy: function(enemy){	
 		enemy.rotation = this.game.physics.arcade.angleBetween(enemy, this.player);		
 		var nextPosition, velocity;
@@ -142,15 +118,14 @@ Brainstein.Game = {
 				}
 			}
 		}
-	},
-
-	
+	},	
 
 	//Returns an array with all the hotkeys
 	createKeys: function(){				
 		return {up: this.game.input.keyboard.addKey(Phaser.Keyboard.W), down: this.game.input.keyboard.addKey(Phaser.Keyboard.S), left: this.game.input.keyboard.addKey(Phaser.Keyboard.A), right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)};
 	},
 
+	//Handles the keyboar input
 	handleKeyboardInput: function(){
 		if(this.actionKeys.left.isDown){	
 			this.player.body.velocity.x -= this.player.speed;
@@ -167,6 +142,7 @@ Brainstein.Game = {
 		}
 	},
 
+	//Creates an enemy
 	createEnemy: function(x, y, texture){
 		var zombie = this.game.add.sprite(x, y, texture); 
 		this.game.physics.arcade.enable(zombie);
@@ -179,7 +155,9 @@ Brainstein.Game = {
 		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
 	},
-
+	
+	//-----------------PATHFINDING METHODS-----------------
+	//Inits pathfinding
 	initPathfinding: function(){
 		var gridIndices = [];
 		
@@ -228,9 +206,36 @@ Brainstein.Game = {
 		this.updateEnemy(enemy);		
 	},	
 
+	//Returns if the subject has reached the target position
 	reachedTargetPosition: function(targetPosition, subject){
 		var distance;
 		distance = Phaser.Point.distance(subject.position, targetPosition);
 		return distance < 1;
-	}
+	},
+
+	//Finds a path from an origin to a target
+	findPath: function(originPosition, targetPosition, callback, enemy){	
+
+		var originCoord = this.getCoordFromPosition(originPosition);
+		var targetCoord = this.getCoordFromPosition(targetPosition);
+
+		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){			
+			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, enemy));
+			this.easyStar.calculate();
+			return true;				
+		} else {
+			return false;
+		}
+	},
+
+	//Assigns a path to an enemy
+	assignPath: function(path, enemy){
+		if(path !== null){
+			enemy.path = path;
+			enemy.pathStep = 1;
+		} else {
+			this.path = [];
+		}
+	},
+
 }	
