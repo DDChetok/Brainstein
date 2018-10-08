@@ -125,7 +125,7 @@ Brainstein.Game = {
 		return {up: this.game.input.keyboard.addKey(Phaser.Keyboard.W), down: this.game.input.keyboard.addKey(Phaser.Keyboard.S), left: this.game.input.keyboard.addKey(Phaser.Keyboard.A), right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)};
 	},
 
-	//Handles the keyboar input
+	//Handles the keyboard input
 	handleKeyboardInput: function(){
 		if(this.actionKeys.left.isDown){	
 			this.player.body.velocity.x -= this.player.speed;
