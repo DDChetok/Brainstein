@@ -25,6 +25,8 @@ Brainstein.Preload = {
 		this.load.image('pistol', 'assets/images/pistol_ph.png');
 		this.load.image('ak', 'assets/images/ak_ph.png');	
 
+		this.load.image('wallTile', 'assets/images/wall_tile.png');
+
 	},
 
 	create: function(){

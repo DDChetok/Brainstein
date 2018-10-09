@@ -3,7 +3,7 @@ Brainstein.Game = function(){};
 
 Brainstein.Game = {	
 	//-----------------PHASER METHODS-----------------
-	create: function(){		
+	create: function(){
 		//-----------------WORLD & LEVEL VARIABLES-----------------
 		//Set world dimension
 		this.game.world.setBounds(0, 0, 320, 320);		
@@ -26,34 +26,43 @@ Brainstein.Game = {
 
 		//-----------------WEAPON VARIABLES-----------------
 		//Pistol
-		this.pistol = this.game.add.sprite(this.game.world.centerX - 180, this.game.world.centerY, 'pistol');
-		this.pistol.scale.setTo(0.1);
-		this.pistol.nextFire = 0;
-		this.pistol.fireRate = 100;
-		this.pistol.magazine = 12;
-		this.pistol.power = 1;
-		this.pistol.damage = 5;
-		this.pistol.name = "pistol";
+		//this.pistol = this.game.add.sprite(this.game.world.centerX - 180, this.game.world.centerY, 'pistol');
+		//this.pistol.scale.setTo(0.1);
+		this.pistol = {			
+			nextFire: 0,
+			fireRate: 100,
+			magazine: 12,
+			power: 1,
+			damage: 5,
+			name: "pistol"
+		};
+
 		//Shotgun
-		this.shotgun = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 120, 'shotgun');
-		this.shotgun.scale.setTo(0.2);
-		this.shotgun.nextFire = 0;
-		this.shotgun.fireRate = 120;
-		this.shotgun.magazine = 12;
-		this.shotgun.power = 3;
-		this.shotgun.damage = 8;
-		this.shotgun.name = "shotgun";
-		this.shotgun.speed = 300;
-		this.shotgun.angle = 0.25;
+		//this.shotgun = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 120, 'shotgun');
+		//this.shotgun.scale.setTo(0.2);
+		this.shotgun = {
+			nextFire: 0,
+			fireRate: 120,
+			magazine: 12,
+			power: 3,
+			damage: 8,
+			name: "shotgun",
+			speed: 300,
+			angle: 0.25
+		};
+
 		//AK
-		this.ak = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY - 120, 'ak');
-		this.ak.scale.setTo(0.2);
-		this.ak.nextFire = 0;
-		this.ak.fireRate = 50;
-		this.ak.magazine = 30;
-		this.ak.power = 1;
-		this.ak.damage = 8;
-		this.ak.name = "ak";
+		//this.ak = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY - 120, 'ak');
+		//this.ak.scale.setTo(0.2);
+		this.ak = {
+			nextFire: 0,
+			fireRate: 50,
+			magazine: 30,
+			power: 1,
+			damage: 8,
+			name: "ak"
+		};
+
 		//Bullets and reload
 		this.reloadTimer = this.game.time.create(false);
 		this.reloadTimer.add(2000, this.reloadMethod, this);
@@ -77,13 +86,16 @@ Brainstein.Game = {
 		//Create player
 		this.player = this.game.add.sprite(20, 150, 'erwin');		
 		//this.player.scale.setTo(0.05);
-		this.player.anchor.setTo(0.5, 0.5);	
-		
+		this.player.anchor.setTo(0.5, 0.5);			
 		this.player.weapon = "pistol";
+		this.player.building = false;
 		this.player.actualAmmo = 12;	
 		this.player.reloading = false;
-		this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.actualAmmo + "/" + this.pistol.magazine, { font: "65px Arial", fill: "#ffff00", align: "center" });
-		this.reloadText.fixedToCamera = true;
+
+		//Modify body properties
+		this.player.collideWorldBounds = true;		
+		this.player.speed = 200;
+
 		//All animation here	
 
 		//Enable player physics
@@ -92,9 +104,7 @@ Brainstein.Game = {
 		this.player.body.collideWorldBounds = true;
 		//this.game.physics.arcade.enable(this.enemies);	
 
-		//Modify body properties
-		this.player.collideWorldBounds = true;		
-		this.player.speed = 200;
+	
 
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
@@ -106,6 +116,9 @@ Brainstein.Game = {
 		this.easyStar = new EasyStar.js();
 		this.initPathfinding();
 
+		
+		//-----------------BUILDING VARIABLES-----------------		
+
 		//-----------------ADITIONAL VARIABLES-----------------
 		//Create action keys
 		this.actionKeys = this.createKeys();
@@ -115,6 +128,13 @@ Brainstein.Game = {
 
 		//The camera will follow the player			
 		this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+
+		//Text
+		this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.actualAmmo + "/" + this.pistol.magazine, { font: "65px Arial", fill: "#ffff00", align: "center" });
+		this.reloadText.fixedToCamera = true;
+
+		//Keyboard
+		this.keyJustPressed = false;
 	},
 
 	update: function(){
@@ -129,26 +149,11 @@ Brainstein.Game = {
 		//Player movement
 		this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);	
 		
-		//Shooting
-		if (this.game.input.activePointer.isDown && this.player.actualAmmo > 0 && this.player.reloading == false)
-    	{
-			switch(this.player.weapon){
-				case "pistol":
-					this.fire(this.pistol);
-					break;
-
-				case "shotgun":
-					this.fireMultiple(this.shotgun);
-					break;
-
-				case "ak":
-					this.fire(this.ak);
-					break;
-			}
-        	
-   		}else if(this.game.input.activePointer.isDown && this.player.actualAmmo <= 0){ //Reloading
-			this.player.reloading = true;
-   			this.reloadTimer.resume();
+		//Shooting & Building
+		if(!this.player.building){
+			this.handleShooting();		
+		} else{
+			this.handleBuilding();
 		}
 		
 		this.spritesOverlapSolve();
@@ -172,7 +177,7 @@ Brainstein.Game = {
 	},		
 
 	//Updates an enemy position
-	updateEnemy: function(enemy){	
+	updateEnemy: function(enemy){
 		enemy.rotation = this.game.physics.arcade.angleBetween(enemy, this.player);		
 		var nextPosition, velocity;		
 		if(enemy.path.length > 0){
@@ -198,19 +203,29 @@ Brainstein.Game = {
 	},	
 
 	//Returns an array with all the hotkeys
-	createKeys: function(){				
-		return {up: this.game.input.keyboard.addKey(Phaser.Keyboard.W), down: this.game.input.keyboard.addKey(Phaser.Keyboard.S), left: this.game.input.keyboard.addKey(Phaser.Keyboard.A), right: this.game.input.keyboard.addKey(Phaser.Keyboard.D), r: this.game.input.keyboard.addKey(Phaser.Keyboard.R)};
+	createKeys: function(){
+		return {
+			up: this.game.input.keyboard.addKey(Phaser.Keyboard.W), 
+			down: this.game.input.keyboard.addKey(Phaser.Keyboard.S), 
+			left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
+			right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
+			reload: this.game.input.keyboard.addKey(Phaser.Keyboard.R),
+			one: this.game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+			two: this.game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+			three: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),
+			build: this.game.input.keyboard.addKey(Phaser.Keyboard.E)
+		};
 	},
 
 	//Handles the keyboard input
 	handleKeyboardInput: function(){
+		//Movement
 		if(this.actionKeys.left.isDown){	
 			this.player.body.velocity.x -= this.player.speed;
 		}
 		else if(this.actionKeys.right.isDown){	
 			this.player.body.velocity.x += this.player.speed;
 		}
-
 		if(this.actionKeys.up.isDown){	
 			this.player.body.velocity.y -= this.player.speed;
 		}		
@@ -218,10 +233,38 @@ Brainstein.Game = {
 			this.player.body.velocity.y += this.player.speed;
 		}
 
-		if(this.actionKeys.r.isDown){
+		//Reload
+		if(this.actionKeys.reload.isDown){
 			this.player.reloading = true;
 			this.reloadTimer.resume();
 		}
+
+		//Weapons inventory
+		if(this.actionKeys.one.isDown){
+			this.player.weapon = 'pistol';
+		} else if(this.actionKeys.two.isDown){
+			this.player.weapon = 'ak';
+		} else if(this.actionKeys.three.isDown){
+			this.player.weapon = 'shotgun';
+		}
+
+		//Change player state		
+		if(this.actionKeys.build.isDown){
+			if(!this.keyJustPressed){
+				this.player.building = !this.player.building;
+				this.keyJustPressed = true;		
+				if(this.player.building){
+					this.startBuilding();
+				} else {
+					this.endBuilding();
+				}
+			}			
+		}
+
+		if(this.actionKeys.build.isUp){
+			this.keyJustPressed = false;			
+		}
+		
 	},
 
 	//Creates an enemy
@@ -230,6 +273,7 @@ Brainstein.Game = {
 		this.game.physics.arcade.enable(zombie);
 		//zombie.scale.setTo(0.05);
 		zombie.anchor.setTo(0.5, 0.5);
+		zombie
 		zombie.walkingSpeed = 70;
 		zombie.body.collideWorldBounds = true;
 		zombie.path = [];
@@ -343,6 +387,29 @@ Brainstein.Game = {
 		this.player.reloading = false; //Reseteamos el estado de recarga del jugador
 	},
 
+	handleShooting: function(){
+		if (this.game.input.activePointer.isDown && this.player.actualAmmo > 0 && this.player.reloading == false)
+    	{
+			switch(this.player.weapon){
+				case "pistol":
+					this.fire(this.pistol);
+					break;
+
+				case "shotgun":
+					this.fireMultiple(this.shotgun);
+					break;
+
+				case "ak":
+					this.fire(this.ak);
+					break;
+			}
+        	
+   		}else if(this.game.input.activePointer.isDown && this.player.actualAmmo <= 0){ //Reloading
+			this.player.reloading = true;
+   			this.reloadTimer.resume();
+		}
+	},
+
 
 	//-----------------PATHFINDING METHODS-----------------
 	//Inits pathfinding
@@ -402,7 +469,7 @@ Brainstein.Game = {
 	},
 
 	//Finds a path from an origin to a target
-	findPath: function(originPosition, targetPosition, callback, enemy){	
+	findPath: function(originPosition, targetPosition, callback, enemy){
 
 		var originCoord = this.getCoordFromPosition(originPosition);
 		var targetCoord = this.getCoordFromPosition(targetPosition);
@@ -425,5 +492,48 @@ Brainstein.Game = {
 			this.path = [];
 		}
 	},
+
+	//-----------------BUILDING METHODS-----------------
+	startBuilding: function(){
+		var vectorPlayerPointer;		
+
+		vectorPlayerPointer = {
+			x: this.game.input.mousePointer.worldX - this.player.position.x,
+			y: this.game.input.mousePointer.worldY - this.player.position.y
+		};
+
+		vectorPlayerPointer = this.normalize(vectorPlayerPointer);
+
+		this.buildingPointer = this.game.add.sprite(0.1 * vectorPlayerPointer.x, 0.1 * vectorPlayerPointer.y, 'wallTile');
+		this.buildingPointer.anchor.setTo(0.5, 0.5);
+	},
+
+	handleBuilding: function(){
+		var vectorPlayerPointer, distanceToPlayer = 32, buildingPosition;		
+
+		vectorPlayerPointer = {
+			x: this.game.input.mousePointer.worldX - this.player.position.x,
+			y: this.game.input.mousePointer.worldY - this.player.position.y
+		};
+
+		vectorPlayerPointer = this.normalize(vectorPlayerPointer);
+
+		this.buildingPointer.position.x = this.player.position.x + vectorPlayerPointer.x * distanceToPlayer;
+		this.buildingPointer.position.y = this.player.position.y + vectorPlayerPointer.y * distanceToPlayer;	
+		
+		buildingPosition = this.getCoordFromPosition(this.buildingPointer.position);		
+	},
+
+	endBuilding:function(){
+		this.buildingPointer.kill();
+	},
+
+	normalize(vector){
+		var norm = vector.x * vector.x + vector.y * vector.y;
+		norm = Math.sqrt(norm);
+	
+		return{x: vector.x / norm, y: vector.y / norm};
+	}
+
 
 }	
