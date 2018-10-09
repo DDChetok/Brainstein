@@ -103,7 +103,6 @@ Brainstein.Game = {
 		this.game.physics.arcade.enable(this.player);	
 		this.player.body.collideWorldBounds = true;
 		//this.game.physics.arcade.enable(this.enemies);	
-
 	
 
 		////-----------------ENEMIES VARIABLES-----------------
@@ -114,10 +113,7 @@ Brainstein.Game = {
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
-		this.initPathfinding();
-
-		
-		//-----------------BUILDING VARIABLES-----------------		
+		this.initPathfinding();		
 
 		//-----------------ADITIONAL VARIABLES-----------------
 		//Create action keys
@@ -135,11 +131,25 @@ Brainstein.Game = {
 
 		//Keyboard
 		this.keyJustPressed = false;
+
+		//-----------------BUILDING VARIABLES-----------------		
+		this.destructableBuildings = [];
+		this.destructableBuildingsCount = 0;
+
+
+		
 	},
 
 	update: function(){
 		this.player.body.velocity.x = 0;
 		this.player.body.velocity.y = 0;
+
+		//Shooting & Building
+		if(!this.player.building){
+			this.handleShooting();		
+		} else{
+			this.handleBuilding();
+		}
 
 		//Handle inputs		
 		if(this.game.input.keyboard.isDown){	
@@ -147,20 +157,13 @@ Brainstein.Game = {
 		}
 
 		//Player movement
-		this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);	
+		this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);			
 		
-		//Shooting & Building
-		if(!this.player.building){
-			this.handleShooting();		
-		} else{
-			this.handleBuilding();
-		}
-		
-		this.spritesOverlapSolve();
 		this.updateText();
 
 		//Collisions
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);
+		this.spritesOverlapSolve();
 
 		//Finds a path from enemy to player and updates its position			
 		for(var i = 0; i < this.enemies.length; i++){
@@ -414,20 +417,20 @@ Brainstein.Game = {
 	//-----------------PATHFINDING METHODS-----------------
 	//Inits pathfinding
 	initPathfinding: function(){
-		var gridIndices = [];
+		this.gridIndices = [];
 		
 		for(var i = 0; i < this.levelDimensions.rows; i++){
-			gridIndices[i] = [this.levelDimensions.columns];
+			this.gridIndices[i] = [this.levelDimensions.columns];
 			for(var j = 0; j < this.levelDimensions.columns; j++){
-				gridIndices[i][j] = this.map.layers[1].data[j][i].index;
+				this.gridIndices[i][j] = this.map.layers[1].data[j][i].index;
 			}
 		}
 
-		this.easyStar.setGrid(gridIndices);
+		this.easyStar.setGrid(this.gridIndices);
 		this.easyStar.setAcceptableTiles([-1]);
 		this.easyStar.enableDiagonals();
 	},
-
+	
 	//Converts a grid position to a grid coordinate
 	getCoordFromPosition: function(position){
 		var row, column;
@@ -504,12 +507,13 @@ Brainstein.Game = {
 
 		vectorPlayerPointer = this.normalize(vectorPlayerPointer);
 
-		this.buildingPointer = this.game.add.sprite(0.1 * vectorPlayerPointer.x, 0.1 * vectorPlayerPointer.y, 'wallTile');
-		this.buildingPointer.anchor.setTo(0.5, 0.5);
+		this.wallPointer = this.game.add.sprite(0.1 * vectorPlayerPointer.x, 0.1 * vectorPlayerPointer.y, 'wallTile');
+		this.wallPointer.anchor.setTo(0.5, 0.5);	
 	},
 
 	handleBuilding: function(){
-		var vectorPlayerPointer, distanceToPlayer = 32, buildingPosition;		
+		var vectorPlayerPointer, buildingPosition, buildingCell, buildingPointer;
+		var distanceToPlayer = 30;		
 
 		vectorPlayerPointer = {
 			x: this.game.input.mousePointer.worldX - this.player.position.x,
@@ -518,21 +522,44 @@ Brainstein.Game = {
 
 		vectorPlayerPointer = this.normalize(vectorPlayerPointer);
 
-		this.buildingPointer.position.x = this.player.position.x + vectorPlayerPointer.x * distanceToPlayer;
-		this.buildingPointer.position.y = this.player.position.y + vectorPlayerPointer.y * distanceToPlayer;	
+		buildingPointer = {
+			x: this.player.position.x + vectorPlayerPointer.x * distanceToPlayer,
+			y: this.player.position.y + vectorPlayerPointer.y * distanceToPlayer
+		};			
 		
-		buildingPosition = this.getCoordFromPosition(this.buildingPointer.position);		
+		buildingCell = this.getCoordFromPosition(buildingPointer);
+
+		this.wallPointer.position.x = buildingCell.column * this.tileDimensions.x + this.tileDimensions.x * 0.5;
+		this.wallPointer.position.y = buildingCell.row * this.tileDimensions.y + this.tileDimensions.y * 0.5;		
+		
+		if(this.game.input.activePointer.isDown){	
+			this.build(buildingCell, this.wallPointer);				
+		}
+		
 	},
 
 	endBuilding:function(){
-		this.buildingPointer.kill();
+		this.wallPointer.kill();
 	},
 
-	normalize(vector){
+	normalize: function(vector){
 		var norm = vector.x * vector.x + vector.y * vector.y;
 		norm = Math.sqrt(norm);
 	
 		return{x: vector.x / norm, y: vector.y / norm};
+	},
+
+	build: function(buildingCell, wallPointer){
+		wall = this.game.add.sprite(wallPointer.position.x - this.tileDimensions.x * 0.5, wallPointer.position.y - this.tileDimensions.y * 0.5, 'wallTile');
+		wall = {
+			row: buildingCell.row,
+			column: buildingCell.column
+		}
+
+		this.map.layers[1].data[wall.column][wall.row].index = 2;		
+		this.initPathfinding();
+		this.destructableBuildings[this.destructableBuildingsCount] = wall;
+		this.destructableBuildingsCount++;
 	}
 
 
