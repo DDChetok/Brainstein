@@ -20,7 +20,7 @@ Brainstein.Game = {
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
 		this.collisionLayer = this.map.createLayer('collisionLayer');
 		//Collision on blockedLayer
-		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
+		this.setCollisionLayer();
 		//Resizes the game world to match the layer dimensions
 		this.backgroundLayer.resizeWorld();
 
@@ -109,7 +109,8 @@ Brainstein.Game = {
 		//Enemies
 		this.enemies = [];
 		this.enemyCount = 0;
-		this.createEnemy(152, 32, 'zombie');		
+		this.createEnemy(152, 32, 'zombie');	
+		this.createEnemy(352, 150, 'zombie');	
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -202,6 +203,7 @@ Brainstein.Game = {
 					enemy.body.velocity.y = 0;
 				}
 			}
+			
 		}
 	},	
 
@@ -459,6 +461,22 @@ Brainstein.Game = {
 			path.forEach(function(pathCoord){
 				pathPositions.push(this.getPositionFromCoord({row: pathCoord.x, column: pathCoord.y}));
 			}, this);
+		} else{			
+			var targetWallCell, minDistance = Number.MAX_SAFE_INTEGER;
+			for(var i = 0; i < this.destructableBuildingsCount; i++){
+				var distance = Phaser.Point.distance(enemy.position, this.destructableBuildings[i].position);
+				if(distance < minDistance){
+					minDistance = distance;
+				}
+			}
+
+			for(var i = 0; i < this.destructableBuildingsCount; i++){
+				var distance = Phaser.Point.distance(enemy.position, this.destructableBuildings[i].position);
+				if(distance == minDistance){
+					this.findPath(enemy.position, this.destructableBuildings[i].position, this.assignPath, enemy);
+					console.log("Finding another path");
+				}
+			}
 		}
 		callback.call(enemy, pathPositions, enemy);	
 		this.updateEnemy(enemy);		
@@ -492,8 +510,9 @@ Brainstein.Game = {
 			enemy.path = path;
 			enemy.pathStep = 1;
 		} else {
-			this.path = [];
+			this.path = [];			
 		}
+		
 	},
 
 	//-----------------BUILDING METHODS-----------------
@@ -508,7 +527,8 @@ Brainstein.Game = {
 		vectorPlayerPointer = this.normalize(vectorPlayerPointer);
 
 		this.wallPointer = this.game.add.sprite(0.1 * vectorPlayerPointer.x, 0.1 * vectorPlayerPointer.y, 'wallTile');
-		this.wallPointer.anchor.setTo(0.5, 0.5);	
+		this.wallPointer.anchor.setTo(0.5, 0.5);
+		this.wallPointer.alpha = 0.6;	
 	},
 
 	handleBuilding: function(){
@@ -530,9 +550,19 @@ Brainstein.Game = {
 		buildingCell = this.getCoordFromPosition(buildingPointer);
 
 		this.wallPointer.position.x = buildingCell.column * this.tileDimensions.x + this.tileDimensions.x * 0.5;
-		this.wallPointer.position.y = buildingCell.row * this.tileDimensions.y + this.tileDimensions.y * 0.5;		
+		this.wallPointer.position.y = buildingCell.row * this.tileDimensions.y + this.tileDimensions.y * 0.5;	
 		
-		if(this.game.input.activePointer.isDown){	
+		this.wallPointer.isAbleToBuild = true;
+
+		if(this.map.layers[1].data[buildingCell.row][buildingCell.column].index != -1){
+			isAbleToBuild = false;
+			this.wallPointer.loadTexture('redWallTile', 0);
+		} else {
+			isAbleToBuild = true;
+			this.wallPointer.loadTexture('wallTile', 0);
+		}
+		
+		if(this.game.input.activePointer.isDown && isAbleToBuild){	
 			this.build(buildingCell, this.wallPointer);				
 		}
 		
@@ -542,6 +572,7 @@ Brainstein.Game = {
 		this.wallPointer.kill();
 	},
 
+	//Returns a vector normalized
 	normalize: function(vector){
 		var norm = vector.x * vector.x + vector.y * vector.y;
 		norm = Math.sqrt(norm);
@@ -550,17 +581,22 @@ Brainstein.Game = {
 	},
 
 	build: function(buildingCell, wallPointer){
-		wall = this.game.add.sprite(wallPointer.position.x - this.tileDimensions.x * 0.5, wallPointer.position.y - this.tileDimensions.y * 0.5, 'wallTile');
+		var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
+		wall = this.game.add.sprite(position.x, position.y, 'wallTile');
 		wall = {
 			row: buildingCell.row,
 			column: buildingCell.column
 		}
+		wall.position = position;
 
-		this.map.layers[1].data[wall.column][wall.row].index = 2;		
+		this.map.layers[1].data[wall.row][wall.column].index = 2;		
 		this.initPathfinding();
+		this.setCollisionLayer();
 		this.destructableBuildings[this.destructableBuildingsCount] = wall;
 		this.destructableBuildingsCount++;
-	}
+	},
 
-
+	setCollisionLayer: function(){
+		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
+	},
 }	
