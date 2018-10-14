@@ -7,7 +7,7 @@ Brainstein.Game = {
 		//-----------------WORLD & LEVEL VARIABLES-----------------
 		//Set world dimension
 		this.game.world.setBounds(0, 0, 320, 320);		
-		//this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');
+		//this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');		
 
 		//Create Tiled map
 		this.map = this.game.add.tilemap('level1');
@@ -109,26 +109,36 @@ Brainstein.Game = {
 		//Enemies
 		this.enemies = [];
 		this.enemyCount = 0;
-		this.createEnemy(152, 32, 'zombie');	
-		this.createEnemy(352, 150, 'zombie');	
+		this.createEnemy(152, 32, 'zombie');			
+		//this.createEnemy(352, 150, 'zombie');	
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
 		this.initPathfinding();		
+
+		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, 9223372036854775807, this.allowPathfinding, this);
+		this.game.time.events.repeat(Phaser.Timer.SECOND * 1, 9223372036854775807, this.allowEnemyAttack, this);
 
 		//-----------------ADITIONAL VARIABLES-----------------
 		//Create action keys
 		this.actionKeys = this.createKeys();
 		
 		//FPS
-		this.game.time.desiredFps = 30;
+		this.game.time.desiredFps = 60;
 
 		//The camera will follow the player			
 		this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 
 		//Text
-		this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.actualAmmo + "/" + this.pistol.magazine, { font: "65px Arial", fill: "#ffff00", align: "center" });
+		this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.actualAmmo + "/" + this.pistol.magazine, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.reloadText.fixedToCamera = true;
+		this.playerPositionText = this.game.add.text(0, 570, "Player position -> x:" + this.player.position.x + "| y: " + this.player.position.y, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.playerPositionText.fixedToCamera = true;
+		this.targetPositionText = this.game.add.text(300, 570, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.targetPositionText.fixedToCamera = true;
+		this.targetText = this.game.add.text(500, 570, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.targetText.fixedToCamera = true;
+
 
 		//Keyboard
 		this.keyJustPressed = false;
@@ -164,6 +174,7 @@ Brainstein.Game = {
 
 		//Collisions
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);
+		//this.game.physics.arcade.collide(this.enemies, this.collisionLayer);
 		this.spritesOverlapSolve();
 
 		//Finds a path from enemy to player and updates its position			
@@ -175,9 +186,15 @@ Brainstein.Game = {
 	//-----------------METHODS-----------------
 	//Calculates the enemy target position and calls find path
 	moveEnemy: function(enemy){
-		var targetPosition;
-		targetPosition = new Phaser.Point(this.player.position.x, this.player.position.y);
-		this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
+		if(enemy.target == "player"){
+			var targetPosition;		
+			targetPosition = new Phaser.Point(this.player.position.x, this.player.position.y);		
+			enemy.targetBuilding = null;
+			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
+		} else {
+			enemy.target == "building";
+			this.findPathToBuilding(enemy);
+		}
 	},		
 
 	//Updates an enemy position
@@ -278,17 +295,21 @@ Brainstein.Game = {
 		this.game.physics.arcade.enable(zombie);
 		//zombie.scale.setTo(0.05);
 		zombie.anchor.setTo(0.5, 0.5);
-		zombie
+		zombie.pathFindingAvaible = true;
 		zombie.walkingSpeed = 70;
 		zombie.body.collideWorldBounds = true;
 		zombie.path = [];
+		zombie.target = "player"
+		zombie.targetBuilding;
 		zombie.pathStep = -1;	
 		zombie.hp = 10;	
+		zombie.attackSpeed = 1;
+		zombie.attackAvaible = true;
 		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
 	},
 
-	updateText: function(){
+	updateText: function(targetPosition, enemy){
 		switch(this.player.weapon){
 			case "pistol":
 				this.reloadText.setText("Pistola:" + this.player.actualAmmo + "/" + this.pistol.magazine);
@@ -306,6 +327,16 @@ Brainstein.Game = {
 		if(this.player.reloading == true){
 			this.reloadText.setText("RECARGANDO");
 		} 
+
+		this.playerPositionText.setText("Player position -> x: "+ Math.floor(this.player.position.x) + " | y: " + Math.floor(this.player.position.y));
+
+		if(targetPosition != null){
+			this.targetPositionText.setText("Target x: " + Math.floor(targetPosition.x) + " | y: " + Math.floor(targetPosition.y));
+		}
+
+		if(enemy != null){
+			this.targetText.setText("Target: " + enemy.target);
+		}
 	},
 
 	//Sprite gets killed when colliding with other
@@ -433,6 +464,7 @@ Brainstein.Game = {
 		this.easyStar.enableDiagonals();
 	},
 	
+	
 	//Converts a grid position to a grid coordinate
 	getCoordFromPosition: function(position){
 		var row, column;
@@ -457,30 +489,67 @@ Brainstein.Game = {
 	//Creates an array with all the path positions in path
 	callbackFunction: function(callback, enemy, path){
 		var pathPositions = [];
-		if(path !== null){
-			path.forEach(function(pathCoord){
-				pathPositions.push(this.getPositionFromCoord({row: pathCoord.x, column: pathCoord.y}));
-			}, this);
-		} else{			
-			var targetWallCell, minDistance = Number.MAX_SAFE_INTEGER;
+		if(enemy.target == "player"){
+			if(path !== null){			
+				//A path to the player was found
+				path.forEach(function(pathCoord){
+					pathPositions.push(this.getPositionFromCoord({row: pathCoord.x, column: pathCoord.y}));
+				}, this);
+
+				callback.call(enemy, pathPositions, enemy);	
+				this.updateEnemy(enemy);			
+			} else {	
+				//Couldn't found a path to the player		
+				enemy.target = "building";			
+				this.findPathToBuilding(enemy);					
+			}
+		} else {
+			if(path !== null){		
+				//A path to the building was found
+				path.forEach(function(pathCoord){
+					pathPositions.push(this.getPositionFromCoord({row: pathCoord.x, column: pathCoord.y}));
+				}, this);
+	
+				callback.call(enemy, pathPositions, enemy);	
+				this.updateEnemy(enemy);	
+				enemy.target = "player";
+			}
+		}
+			
+	},				
+
+
+	//Finds a path to a building instead of the player
+	findPathToBuilding: function(enemy){		
+		var minDistance = Number.MAX_SAFE_INTEGER;
+		if(enemy.targetBuilding == null){
 			for(var i = 0; i < this.destructableBuildingsCount; i++){
 				var distance = Phaser.Point.distance(enemy.position, this.destructableBuildings[i].position);
 				if(distance < minDistance){
 					minDistance = distance;
-				}
-			}
-
-			for(var i = 0; i < this.destructableBuildingsCount; i++){
-				var distance = Phaser.Point.distance(enemy.position, this.destructableBuildings[i].position);
-				if(distance == minDistance){
-					this.findPath(enemy.position, this.destructableBuildings[i].position, this.assignPath, enemy);
-					console.log("Finding another path");
+					enemy.targetBuilding = this.destructableBuildings[i];
 				}
 			}
 		}
-		callback.call(enemy, pathPositions, enemy);	
-		this.updateEnemy(enemy);		
-	},	
+
+		var x = enemy.targetBuilding.coordinates.column;
+		var y = enemy.targetBuilding.coordinates.row;
+		var originalIndex = this.map.layers[1].data[y][x].index	
+		
+		if(Phaser.Point.distance(enemy.position, enemy.targetBuilding.position) < 20 && enemy.attackAvaible){
+			this.damageBuilding(enemy.targetBuilding);		
+			enemy.attackAvaible = false;	
+			return;
+		}
+
+		if(enemy.targetBuilding != null){
+			this.map.layers[1].data[y][x].index = -1;
+			this.initPathfinding();
+			this.findPath(enemy.position, enemy.targetBuilding.position, this.assignPath, enemy);		
+			this.map.layers[1].data[y][x].index = originalIndex;
+			this.initPathfinding();
+		}		
+	},
 
 	//Returns if the subject has reached the target position
 	reachedTargetPosition: function(targetPosition, subject){
@@ -490,18 +559,24 @@ Brainstein.Game = {
 	},
 
 	//Finds a path from an origin to a target
-	findPath: function(originPosition, targetPosition, callback, enemy){
+	findPath: function(originPosition, targetPosition, callback, enemy){		
 
-		var originCoord = this.getCoordFromPosition(originPosition);
-		var targetCoord = this.getCoordFromPosition(targetPosition);
+		if(enemy.pathFindingAvaible || enemy.target == "building"){
+			var originCoord = this.getCoordFromPosition(originPosition);
+			var targetCoord = this.getCoordFromPosition(targetPosition);
 
-		if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){			
-			this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, enemy));
-			this.easyStar.calculate();
-			return true;				
+			if(!this.outsideGrid(originCoord) && !this.outsideGrid(targetCoord)){			
+				this.easyStar.findPath(originCoord.row, originCoord.column, targetCoord.row, targetCoord.column, this.callbackFunction.bind(this, callback, enemy));			
+				this.easyStar.calculate();		
+				this.updateText(targetPosition, enemy);	
+				enemy.pathFindingAvaible = false;
+				return true;				
+			} else {
+				return false;
+			}
 		} else {
-			return false;
-		}
+			this.updateEnemy(enemy);
+		}	
 	},
 
 	//Assigns a path to an enemy
@@ -513,6 +588,12 @@ Brainstein.Game = {
 			this.path = [];			
 		}
 		
+	},
+
+	allowPathfinding: function(){
+		for(var i = 0; i<this.enemyCount; i++){
+			this.enemies[i].pathFindingAvaible = true;
+		}
 	},
 
 	//-----------------BUILDING METHODS-----------------
@@ -554,6 +635,11 @@ Brainstein.Game = {
 		
 		this.wallPointer.isAbleToBuild = true;
 
+		if(buildingCell.row < 0) buildingCell.row = 0;
+		if(buildingCell.row > 49) buildingCell.row = 49;
+		if(buildingCell.column < 0) buildingCell.column = 0;
+		if(buildingCell.column > 49) buildingCell.column = 49;
+
 		if(this.map.layers[1].data[buildingCell.row][buildingCell.column].index != -1){
 			isAbleToBuild = false;
 			this.wallPointer.loadTexture('redWallTile', 0);
@@ -583,13 +669,13 @@ Brainstein.Game = {
 	build: function(buildingCell, wallPointer){
 		var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
 		wall = this.game.add.sprite(position.x, position.y, 'wallTile');
-		wall = {
+		wall.coordinates = {
 			row: buildingCell.row,
 			column: buildingCell.column
 		}
-		wall.position = position;
+		wall.hits = 1;
 
-		this.map.layers[1].data[wall.row][wall.column].index = 2;		
+		this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
 		this.initPathfinding();
 		this.setCollisionLayer();
 		this.destructableBuildings[this.destructableBuildingsCount] = wall;
@@ -598,5 +684,21 @@ Brainstein.Game = {
 
 	setCollisionLayer: function(){
 		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
+	},	
+
+	damageBuilding: function(building){	
+		building.kill();	
+		/*if(building.hits == 0){
+			building.kill();
+		} else {
+			building.hits--;
+			building.loadTexture('redWallTile', 0);
+		}*/		
 	},
+
+	allowEnemyAttack: function(){
+		for(var i = 0; i < this.enemies.length; i++){
+			this.enemies[i].attackAvaible = true;	
+		}
+	}
 }	
