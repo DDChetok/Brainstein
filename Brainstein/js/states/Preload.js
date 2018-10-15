@@ -28,6 +28,8 @@ Brainstein.Preload = {
 		this.load.image('wallTile', 'assets/images/wall_tile.png');
 		this.load.image('redWallTile', 'assets/images/red_wall_tile.png');
 
+		this.load.image('brain', 'assets/images/brain_ph.png');
+
 	},
 
 	create: function(){
