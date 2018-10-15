@@ -117,7 +117,7 @@ Brainstein.Game = {
 		this.initPathfinding();		
 
 		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, 9223372036854775807, this.allowPathfinding, this);
-		this.game.time.events.repeat(Phaser.Timer.SECOND * 1, 9223372036854775807, this.allowEnemyAttack, this);
+		//this.game.time.events.repeat(Phaser.Timer.SECOND * 0.1, 9223372036854775807, this.allowEnemyAttack, this);
 
 		//-----------------ADITIONAL VARIABLES-----------------
 		//Create action keys
@@ -145,13 +145,11 @@ Brainstein.Game = {
 
 		//-----------------BUILDING VARIABLES-----------------		
 		this.destructableBuildings = [];
-		this.destructableBuildingsCount = 0;
-
-
-		
+		this.destructableBuildingsCount = 0;		
 	},
 
 	update: function(){
+		this.allowEnemyAttack();
 		this.player.body.velocity.x = 0;
 		this.player.body.velocity.y = 0;
 
@@ -181,6 +179,7 @@ Brainstein.Game = {
 		for(var i = 0; i < this.enemies.length; i++){
 			this.moveEnemy(this.enemies[i]);			
 		}
+	
 	},
 
 	//-----------------METHODS-----------------
@@ -189,10 +188,9 @@ Brainstein.Game = {
 		if(enemy.target == "player"){
 			var targetPosition;		
 			targetPosition = new Phaser.Point(this.player.position.x, this.player.position.y);		
-			enemy.targetBuilding = null;
 			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
 		} else {
-			enemy.target == "building";
+			enemy.target = "building";
 			this.findPathToBuilding(enemy);
 		}
 	},		
@@ -219,8 +217,13 @@ Brainstein.Game = {
 					enemy.body.velocity.x = 0;
 					enemy.body.velocity.y = 0;
 				}
+			}			
+		}
+		if(enemy.targetBuilding!= null){
+			if(Phaser.Point.distance(enemy.position, enemy.targetBuilding.position) < 20 && enemy.attackAvaible){
+				this.damageBuilding(enemy.targetBuilding, enemy);		
+				enemy.attackAvaible = false;			
 			}
-			
 		}
 	},	
 
@@ -499,9 +502,11 @@ Brainstein.Game = {
 				callback.call(enemy, pathPositions, enemy);	
 				this.updateEnemy(enemy);			
 			} else {	
-				//Couldn't found a path to the player		
-				enemy.target = "building";			
-				this.findPathToBuilding(enemy);					
+				//Couldn't find a path to the player	
+				if(enemy.targetBuilding == null){					
+					enemy.target = "building";			
+					this.findPathToBuilding(enemy);		
+				}			
 			}
 		} else {
 			if(path !== null){		
@@ -511,8 +516,7 @@ Brainstein.Game = {
 				}, this);
 	
 				callback.call(enemy, pathPositions, enemy);	
-				this.updateEnemy(enemy);	
-				enemy.target = "player";
+				this.updateEnemy(enemy);				
 			}
 		}
 			
@@ -522,25 +526,18 @@ Brainstein.Game = {
 	//Finds a path to a building instead of the player
 	findPathToBuilding: function(enemy){		
 		var minDistance = Number.MAX_SAFE_INTEGER;
-		if(enemy.targetBuilding == null){
-			for(var i = 0; i < this.destructableBuildingsCount; i++){
-				var distance = Phaser.Point.distance(enemy.position, this.destructableBuildings[i].position);
-				if(distance < minDistance){
-					minDistance = distance;
-					enemy.targetBuilding = this.destructableBuildings[i];
-				}
+		for(var i = 0; i < this.destructableBuildingsCount; i++){
+			var distance = Phaser.Point.distance(enemy.position, this.destructableBuildings[i].position);
+			if(distance < minDistance){
+				minDistance = distance;
+				enemy.targetBuilding = this.destructableBuildings[i];
+				break;
 			}
-		}
+		}	
 
 		var x = enemy.targetBuilding.coordinates.column;
 		var y = enemy.targetBuilding.coordinates.row;
-		var originalIndex = this.map.layers[1].data[y][x].index	
-		
-		if(Phaser.Point.distance(enemy.position, enemy.targetBuilding.position) < 20 && enemy.attackAvaible){
-			this.damageBuilding(enemy.targetBuilding);		
-			enemy.attackAvaible = false;	
-			return;
-		}
+		var originalIndex = this.map.layers[1].data[y][x].index			
 
 		if(enemy.targetBuilding != null){
 			this.map.layers[1].data[y][x].index = -1;
@@ -674,31 +671,47 @@ Brainstein.Game = {
 			column: buildingCell.column
 		}
 		wall.hits = 1;
-
+		this.destructableBuildingsCount++;
+		wall.pos = this.destructableBuildingsCount;
 		this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
 		this.initPathfinding();
 		this.setCollisionLayer();
-		this.destructableBuildings[this.destructableBuildingsCount] = wall;
-		this.destructableBuildingsCount++;
+		this.destructableBuildings[this.destructableBuildingsCount - 1] = wall;
+		
 	},
 
 	setCollisionLayer: function(){
 		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
 	},	
 
-	damageBuilding: function(building){	
+	damageBuilding: function(building, enemy){	
 		building.kill();	
-		/*if(building.hits == 0){
-			building.kill();
-		} else {
-			building.hits--;
-			building.loadTexture('redWallTile', 0);
-		}*/		
+		this.destructableBuildingsCount--;
+		this.reorganizeArray(this.destructableBuildings, this.destructableBuildingsCount, building);
+		enemy.targetBuilding = null;
+		enemy.target = "player";			
 	},
 
 	allowEnemyAttack: function(){
 		for(var i = 0; i < this.enemies.length; i++){
 			this.enemies[i].attackAvaible = true;	
 		}
-	}
+	},
+
+	reorganizeArray: function(array, count, object){
+		if(array.length > 0){
+			var newArray = [this.count];
+			for (var i = 0; i < object.pos; i++){
+				newArray[i] = array[i];
+			}
+
+			for (var j = 0; j < count; j++){
+				newArray[j] = array[j+1];
+				newArray[j].pos--;
+			}
+		} else {
+			array.length = 0;
+		}
+		return newArray;
+	}	
 }	
