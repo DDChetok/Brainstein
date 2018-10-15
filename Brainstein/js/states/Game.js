@@ -97,6 +97,7 @@ Brainstein.Game = {
 		this.player.building = false;
 		this.player.actualAmmo = 12;	
 		this.player.reloading = false;
+		this.player.holdingBrain = false;
 
 		//Modify body properties
 		this.player.collideWorldBounds = true;		
@@ -156,7 +157,8 @@ Brainstein.Game = {
 
 
 		//Keyboard
-		this.keyJustPressed = false;
+		this.buildKeyJustPressed = false;
+		this.grabBrainKeyJustPressed = false;
 
 		//-----------------BUILDING VARIABLES-----------------		
 		this.destructableBuildings = [];
@@ -178,6 +180,9 @@ Brainstein.Game = {
 		this.actualRound = 0;
 		this.actualRoundText = this.game.add.text(300, 0, "Ronda actual:" + this.actualRound, { font: "20px Arial", fill: "#40FF00", align: "center" });
 		this.actualRoundText.fixedToCamera = true;
+
+			//-----------------BRAIN VARIABLES-----------------
+		this.brain = this.game.add.sprite(180, 180, "brain");
 	},
 
 	update: function(){
@@ -195,6 +200,11 @@ Brainstein.Game = {
 		//Handle inputs		
 		if(this.game.input.keyboard.isDown){	
 			this.handleKeyboardInput();
+		}
+
+		if(this.player.holdingBrain){
+			this.brain.position.x = this.player.position.x - 8;
+			this.brain.position.y = this.player.position.y - 8;
 		}
 
 		//Player movement
@@ -245,13 +255,23 @@ Brainstein.Game = {
 	//-----------------METHODS-----------------
 	//Calculates the enemy target position and calls find path
 	moveEnemy: function(enemy){
-		if(enemy.target == "player"){
-			var targetPosition;		
+		if(this.brain != null){
+			if(Phaser.Point.distance(enemy.position, this.brain.position) < Phaser.Point.distance(enemy.position, this.player.position)){
+				enemy.target = "brain";
+			} else if (Phaser.Point.distance(enemy.position, this.brain.position) >= Phaser.Point.distance(enemy.position, this.player.position)){
+				enemy.target = "player";
+			}
+		}
+
+		var targetPosition;	
+		if(enemy.target == "player"){			
 			targetPosition = new Phaser.Point(this.player.position.x, this.player.position.y);		
 			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
-		} else {
-			enemy.target = "building";
+		} else if (enemy.target == "building") {			
 			this.findPathToBuilding(enemy);
+		} else if (enemy.target == "brain"){				
+			targetPosition = new Phaser.Point(this.brain.position.x, this.brain.position.y);		
+			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
 		}
 	},		
 
@@ -298,7 +318,8 @@ Brainstein.Game = {
 			one: this.game.input.keyboard.addKey(Phaser.Keyboard.ONE),
 			two: this.game.input.keyboard.addKey(Phaser.Keyboard.TWO),
 			three: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),
-			build: this.game.input.keyboard.addKey(Phaser.Keyboard.E)
+			build: this.game.input.keyboard.addKey(Phaser.Keyboard.E),
+			grabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
 		};
 	},
 
@@ -333,21 +354,40 @@ Brainstein.Game = {
 			this.player.weapon = 'shotgun';
 		}
 
-		//Change player state		
+		//Change player state to building
 		if(this.actionKeys.build.isDown){
-			if(!this.keyJustPressed){
+			if(!this.buildKeyJustPressed){
 				this.player.building = !this.player.building;
-				this.keyJustPressed = true;		
+				this.buildKeyJustPressed = true;		
 				if(this.player.building){
 					this.startBuilding();
 				} else {
 					this.endBuilding();
 				}
-			}			
+			}		
 		}
 
 		if(this.actionKeys.build.isUp){
-			this.keyJustPressed = false;			
+			this.buildKeyJustPressed = false;			
+		}
+
+		//Grab brain
+		if(this.actionKeys.grabBrain.isDown){
+			if(!this.grabBrainKeyJustPressed){
+				this.player.holdingBrain = !this.player.holdingBrain;
+				this.grabBrainKeyJustPressed = true;		
+				if(this.player.holdingBrain){
+					console.log("Holding brain");
+					this.grabBrain();
+				} else {
+					console.log("Not holding brain");
+					this.releaseBrain();
+				}
+			}	
+		}
+
+		if(this.actionKeys.grabBrain.isUp){
+			this.grabBrainKeyJustPressed = false;			
 		}
 		
 	},
@@ -401,7 +441,7 @@ Brainstein.Game = {
 		}
 
 		if(enemy != null){
-			this.targetText.setText("Target: " + enemy.target);
+			this.targetText.setText("Holding brain: " + this.player.holdingBrain);
 		}		
 		
 		this.hpText.setText("HP:" + this.player.actualHp + "/" + this.player.hp);
@@ -466,7 +506,7 @@ Brainstein.Game = {
 				this.enemies = newEnemies;
 			}else{
 				this.enemies.length = 0; //Vaciamos el array
-			}
+			}		
 		}
 	},
 	
@@ -836,6 +876,18 @@ Brainstein.Game = {
 			array.length = 0;
 		}
 		return newArray;
-	}	
+	},
 
+	//-----------------BRAIN METHODS-----------------
+	grabBrain: function(){
+		if(Phaser.Point.distance(this.player.position, this.brain.position) < 26){			
+			return;
+		}
+		this.player.holdingBrain = false;
+	},
+
+	releaseBrain: function(){
+		this.player.holdingBrain = false;
+		this.brain.position = this.player.position;
+	},
 }	
