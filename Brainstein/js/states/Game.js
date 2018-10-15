@@ -82,11 +82,17 @@ Brainstein.Game = {
 		this.game.physics.arcade.enable(this.ak);	
 		this.game.physics.arcade.enable(this.pistol);
 
+		this.shot = [];
+
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player
 		this.player = this.game.add.sprite(20, 150, 'erwin');		
 		//this.player.scale.setTo(0.05);
 		this.player.anchor.setTo(0.5, 0.5);			
+		this.player.anchor.setTo(0.5, 0.5);	
+		
+		this.player.hp = 30;
+		this.player.actualHp = this.player.hp;
 		this.player.weapon = "pistol";
 		this.player.building = false;
 		this.player.actualAmmo = 12;	
@@ -96,6 +102,14 @@ Brainstein.Game = {
 		this.player.collideWorldBounds = true;		
 		this.player.speed = 200;
 
+		this.player.beingPushed = false;
+		this.player.vectorPush;
+		this.player.zombiePushing;
+
+		//Create text	
+		this.hpText = this.game.add.text(0, 500, "HP:" + this.player.actualHp + "/" + this.player.hp, { font: "65px Arial", fill: "#faaa00", align: "center" });
+		this.hpText.fixedToCamera = true;
+		
 		//All animation here	
 
 		//Enable player physics
@@ -111,12 +125,13 @@ Brainstein.Game = {
 		this.enemyCount = 0;
 		this.createEnemy(152, 32, 'zombie');			
 		//this.createEnemy(352, 150, 'zombie');	
+		//this.createEnemy(152, 32, 'zombie');		
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
 		this.initPathfinding();		
 
-		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, 9223372036854775807, this.allowPathfinding, this);
+		this.game.time.events.repeat(Phaser.Timer.SECOND * 1.5, 9223372036854775807, this.allowPathfinding, this);
 		//this.game.time.events.repeat(Phaser.Timer.SECOND * 0.1, 9223372036854775807, this.allowEnemyAttack, this);
 
 		//-----------------ADITIONAL VARIABLES-----------------
@@ -146,6 +161,23 @@ Brainstein.Game = {
 		//-----------------BUILDING VARIABLES-----------------		
 		this.destructableBuildings = [];
 		this.destructableBuildingsCount = 0;		
+		//-----------------ROUND LOOP VARIABLES-----------------
+		this.timeBetweenRounds = 2; //Tiempo entre rondas(numero)
+		
+		this.restTimer = this.game.time.create(false); //Timer entre rondas(objeto timer)
+		this.restTimer.add(1000, this.startRound, this);
+		this.restTimer.start();
+
+		this.restTimerText = this.game.add.text(500, 500, this.timeBetweenRounds, { font: "20px Arial", fill: "#faaa00", align: "center" });
+		this.restTimerText.fixedToCamera = true;
+		
+		this.zombiesPerRound = 1;
+
+		this.resting = true;
+
+		this.actualRound = 0;
+		this.actualRoundText = this.game.add.text(300, 0, "Ronda actual:" + this.actualRound, { font: "20px Arial", fill: "#40FF00", align: "center" });
+		this.actualRoundText.fixedToCamera = true;
 	},
 
 	update: function(){
@@ -169,17 +201,45 @@ Brainstein.Game = {
 		this.player.rotation = this.game.physics.arcade.angleToPointer(this.player);			
 		
 		this.updateText();
+		this.playerPushed();
+		this.handleRound();
 
 		//Collisions
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);
 		//this.game.physics.arcade.collide(this.enemies, this.collisionLayer);
 		this.spritesOverlapSolve();
 
+
 		//Finds a path from enemy to player and updates its position			
 		for(var i = 0; i < this.enemies.length; i++){
 			this.moveEnemy(this.enemies[i]);			
 		}
 	
+	},
+
+	//----------ROUND LOOP METHODS--------------
+	startRound: function(){
+		if(this.timeBetweenRounds > 0){
+			this.timeBetweenRounds -= 1;
+			this.restTimer.add(1000, this.startRound, this);
+		}else{
+			this.restTimer.pause();
+			this.restTimer.add(1000, this.startRound, this);
+			this.resting = false; //Empieza la ronda
+			for(var i = 0; i < this.zombiesPerRound ; i++){
+				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
+			}
+		}
+	},
+
+	handleRound: function(){
+		if(this.enemies.length == 0 && this.resting == false){
+			this.resting = true; //Empieza el tiempo de descanso
+			this.timeBetweenRounds = 3;
+			this.zombiesPerRound++;
+			this.restTimer.resume();
+			this.actualRound++;
+		}
 	},
 
 	//-----------------METHODS-----------------
@@ -307,7 +367,10 @@ Brainstein.Game = {
 		zombie.pathStep = -1;	
 		zombie.hp = 10;	
 		zombie.attackSpeed = 1;
-		zombie.attackAvaible = true;
+		zombie.attackAvaible = true;	
+		zombie.actualHp = zombie.hp;	
+		zombie.damage = 5;
+		zombie.pos = this.enemyCount;
 		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
 	},
@@ -326,7 +389,7 @@ Brainstein.Game = {
 				this.reloadText.setText("AK:" + this.player.actualAmmo + "/" + this.ak.magazine);
 				break;
 		}
-		
+
 		if(this.player.reloading == true){
 			this.reloadText.setText("RECARGANDO");
 		} 
@@ -339,7 +402,16 @@ Brainstein.Game = {
 
 		if(enemy != null){
 			this.targetText.setText("Target: " + enemy.target);
+		}		
+		
+		this.hpText.setText("HP:" + this.player.actualHp + "/" + this.player.hp);
+
+		this.actualRoundText.setText("Ronda actual:" + this.actualRound)
+
+		if(this.resting == true){
+			this.restTimerText.setText("Countdown: "+this.timeBetweenRounds);
 		}
+
 	},
 
 	//Sprite gets killed when colliding with other
@@ -354,17 +426,68 @@ Brainstein.Game = {
 		this.game.physics.arcade.overlap(this.player, this.shotgun, this.spriteKill, null, this);
 		this.game.physics.arcade.overlap(this.player, this.pistol, this.spriteKill, null, this);
 		this.game.physics.arcade.overlap(this.player, this.ak, this.spriteKill, null, this);
+		for(i = 0; i < this.enemyCount;i++){
+			for(j = 0; j < this.shot.length;j++){
+				this.game.physics.arcade.collide(this.shot[j], this.enemies[i], this.bulletZombieColision,null,this);
+				this.game.physics.arcade.overlap(this.shot[j], this.enemies[i], this.bulletZombieColision,null,this);
+			}
+			this.game.physics.arcade.collide(this.player, this.enemies[i], this.playerZombieColision,null,this);
+		}
 	},
+
+	playerZombieColision: function(player,zombie){
+		player.beingPushed = true;
+		var playerPush = this.game.physics.arcade.velocityFromRotation(zombie.rotation); //Calculamos la velocidad para empujar al jugador a partir de la rotación del zombie
+
+		player.actualHp -= zombie.damage;
+		if(player.actualHp <= 0){
+			player.kill();
+		}
+		player.vectorPush = playerPush;
+		player.zombiePushing = zombie;
+	},
+
+	bulletZombieColision: function(shot,zombie){
+		zombie.actualHp -= shot.damage;
+		shot.kill();
+
+		if(zombie.actualHp <= 0){
+			zombie.kill();
+			this.enemyCount--;
+			if(this.enemyCount > 0){
+				var newEnemies = [this.enemyCount]; //Array auxiliar
+				for(var i = 0;i < zombie.pos;i++){
+					newEnemies[i] = this.enemies[i];
+				}
+				for(var j = zombie.pos; j < this.enemyCount;j++){
+					newEnemies[j] = this.enemies[j+1];
+					newEnemies[j].pos--;		
+				}	
+				this.enemies = newEnemies;
+			}else{
+				this.enemies.length = 0; //Vaciamos el array
+			}
+		}
+	},
+	
+	playerPushed: function(){
+		if(this.player.beingPushed == true && this.game.physics.arcade.distanceBetween(this.player, this.player.zombiePushing) < 20){
+			this.player.body.velocity.setTo(this.player.vectorPush.x *6 , this.player.vectorPush.y *6);	
+		}else{
+			this.player.beingPushed = false;
+		}
+	},
+
 	
 	//-----------------SHOOTING METHODS-----------------
 	fire: function(weapon){
 		if (this.game.time.now > weapon.nextFire && this.bullets.countDead() > 0)
    		{
         	weapon.nextFire = this.game.time.now + weapon.fireRate;	
-			this.shot = this.bullets.getFirstDead();
-			this.shot.damage = weapon.damage;
-        	this.shot.reset(this.player.x - 8, this.player.y - 8);
-	       	this.game.physics.arcade.moveToPointer(this.shot, 300);
+			this.shot[weapon.power] = this.bullets.getFirstDead();
+			this.shot[weapon.power].damage = weapon.damage;
+        	this.shot[weapon.power].reset(this.player.x - 8, this.player.y - 8);
+	       	this.game.physics.arcade.moveToPointer(this.shot[weapon.power], 300);
 
 			this.player.actualAmmo -= weapon.power;
 			
@@ -381,16 +504,16 @@ Brainstein.Game = {
 
 			for(i = 0;i < weapon.power;i++){
 			
-				this.shot = this.bullets.getFirstDead();
-				this.shot.damage = weapon.damage;
-				this.shot.reset(this.player.x - 8, this.player.y - 8);
+				this.shot[i] = this.bullets.getFirstDead();
+				this.shot[i].damage = weapon.damage;
+				this.shot[i].reset(this.player.x - 8, this.player.y - 8);
 				
 				if(i == 0){
-					var angle = this.game.physics.arcade.angleToPointer(this.shot);
+					var angle = this.game.physics.arcade.angleToPointer(this.shot[i]);
 				}else{
-					var angle = this.game.physics.arcade.angleToPointer(this.shot) + (j * this.shotgun.angle);
+					var angle = this.game.physics.arcade.angleToPointer(this.shot[i]) + (j * this.shotgun.angle);
 				}				
-				this.shot.body.velocity.setToPolar(angle,weapon.speed);
+				this.shot[i].body.velocity.setToPolar(angle,weapon.speed);
 				
 				j = j*-1;
 			}
@@ -714,4 +837,5 @@ Brainstein.Game = {
 		}
 		return newArray;
 	}	
+
 }	
