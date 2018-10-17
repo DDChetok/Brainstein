@@ -165,6 +165,21 @@ Brainstein.Game = {
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
 		this.game.physics.arcade.enable(this.brain);	
+
+		//----------------DROPS-------------------
+		this.dropTime = this.game.rnd.integerInRange(0,5);
+
+		this.drop;
+
+		this.dropTimer = this.game.time.create(false);
+		this.dropTimer.add(1000,this.createDrop, this);
+		this.dropTimer.start();
+		this.dropTimer.pause();
+		//this.dropTimer.pause();
+		this.dropText = this.game.add.text(650, 250, "Next drop in: " + this.dropTime, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.dropText.fixedToCamera = true;
+
+
 	},
 	//-----------------CONSTRUCTOR METHODS-----------------
 	createPlayer: function(x, y, sprite){
@@ -382,6 +397,8 @@ Brainstein.Game = {
 			this.restTimerText.setText("Countdown: "+this.timeBetweenRounds);
 		}
 
+		this.dropText.setText("Next drop in: " + this.dropTime);
+
 	},
 
 	//----------ROUND LOOP METHODS--------------
@@ -396,6 +413,7 @@ Brainstein.Game = {
 			for(var i = 0; i < this.zombiesPerRound ; i++){
 				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
 			}
+			this.dropTimer.resume();
 		}
 	},
 
@@ -1052,5 +1070,45 @@ Brainstein.Game = {
 		console.log("Unlucky game over");				
 		/*this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2 - 200, "GAME OVER", { font: "100px Arial", fill: "#993333", align: "center" });
 		this.game.paused = true;*/
+	},
+
+	
+	//--------------DROP METHODS------------------
+	createDrop: function(){
+		if(this.dropTime > 0){
+
+			this.dropTime -= 1;
+			this.dropTimer.add(1000, this.createDrop, this);
+
+		}else{
+
+			var dropPos = this.createDropCoords();
+			this.drop = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
+
+			this.drop.shotgunAmmo = this.game.rnd.integerInRange(0,this.shotgun.magazine * 2);
+			this.drop.akAmmo = this.game.rnd.integerInRange(0,this.shotgun.ak * 2);
+			this.drop.resources = this.game.rnd.integerInRange(0,20) ;
+
+			this.dropTimer.pause();
+			this.dropTimer.add(1000, this.createDrop, this);
+
+		}
+	},
+
+	createDropCoords: function(){
+		var dropPos = {x: 0, y: 0};
+		dropPos.x = this.game.rnd.integerInRange(0,this.levelDimensions.columns * this.tileDimensions.x);
+		dropPos.y = this.game.rnd.integerInRange(0,this.levelDimensions.rows * this.tileDimensions.y);
+		
+		// 19 / 22 -> Río
+
+		dropCoord = this.getCoordFromPosition(dropPos);
+
+		if(this.gridIndices[dropCoord.row][dropCoord.column]  != -1){ //Si es distinto de -1 (-1 = tierra), si tocamos rio volvemos a llamar la funcion
+			return dropPos = this.createDropCoords();
+		}else{
+			return dropPos;
+		}
+
 	},
 }	
