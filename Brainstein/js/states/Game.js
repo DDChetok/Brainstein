@@ -130,7 +130,7 @@ Brainstein.Game = {
 		this.game.time.desiredFps = 60;
 
 		//The camera will follow the player			
-		this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 
 		//Text
 		this.reloadTextPlayer1 = this.game.add.text(0, 0, "Balas P1:" + this.players[0].actualAmmo + "/" + this.pistol.magazine, { font: "20px Arial", fill: "#ffff00", align: "center" });
