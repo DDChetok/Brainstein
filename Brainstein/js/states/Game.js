@@ -25,52 +25,13 @@ Brainstein.Game = {
 		this.backgroundLayer.resizeWorld();
 
 		//-----------------WEAPON VARIABLES-----------------
-		//Pistol
-		//this.pistol = this.game.add.sprite(this.game.world.centerX - 180, this.game.world.centerY, 'pistol');
-		//this.pistol.scale.setTo(0.1);
-		this.pistol = {			
-			nextFire: 0,
-			fireRate: 100,
-			magazine: 12,
-			power: 1,
-			damage: 5,
-			name: "pistol"
-		};
-
-		//Shotgun
-		//this.shotgun = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY + 120, 'shotgun');
-		//this.shotgun.scale.setTo(0.2);
-		this.shotgun = {
-			nextFire: 0,
-			fireRate: 120,
-			magazine: 12,
-			power: 3,
-			damage: 8,
-			name: "shotgun",
-			speed: 300,
-			angle: 0.25
-		};
-
-		//AK
-		//this.ak = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY - 120, 'ak');
-		//this.ak.scale.setTo(0.2);
-		this.ak = {
-			nextFire: 0,
-			fireRate: 50,
-			magazine: 30,
-			power: 1,
-			damage: 8,
-			name: "ak"
-		};
+	
 
 		//Bullets and reload
-		this.reloadTimer = this.game.time.create(false);
 		for(var i = 0; i < this.playersCount; i++){
-			this.reloadTimer.add(2000, this.reloadMethod, this, this.players[i]);
+			this.players[i].reloadTimer.add(2000, this.reloadMethod, this, this.players[i]);
 		}
-		this.reloadTimer.start();
-		this.reloadTimer.pause();
-
+	
 		this.bullets = this.game.add.group(); 
 		this.bullets.enableBody = true;
    		this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -80,9 +41,6 @@ Brainstein.Game = {
     	this.bullets.setAll('checkWorldBounds', true);
 		this.bullets.setAll('outOfBoundsKill', true);
 		//Reload text
-		this.game.physics.arcade.enable(this.shotgun);
-		this.game.physics.arcade.enable(this.ak);	
-		this.game.physics.arcade.enable(this.pistol);
 
 		this.shot = [];
 
@@ -111,7 +69,7 @@ Brainstein.Game = {
 		//Enemies
 		this.enemies = [];
 		this.enemyCount = 0;
-		this.createEnemy(152, 32, 'zombie');			
+		//this.createEnemy(152, 32, 'zombie');			
 		//this.createEnemy(352, 150, 'zombie');	
 		//this.createEnemy(152, 32, 'zombie');		
 
@@ -119,7 +77,7 @@ Brainstein.Game = {
 		this.easyStar = new EasyStar.js();
 		this.initPathfinding();		
 
-		this.game.time.events.repeat(Phaser.Timer.SECOND * 1.5, 9223372036854775807, this.allowPathfinding, this);
+		this.game.time.events.repeat(Phaser.Timer.SECOND * 1.5, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
 		//this.game.time.events.repeat(Phaser.Timer.SECOND * 0.1, 9223372036854775807, this.allowEnemyAttack, this);
 
 		//-----------------ADITIONAL VARIABLES-----------------
@@ -132,18 +90,21 @@ Brainstein.Game = {
 		//The camera will follow the player			
 		this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 
-		//Text
-		this.reloadTextPlayer1 = this.game.add.text(0, 0, "Balas P1:" + this.players[0].actualAmmo + "/" + this.pistol.magazine, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		//Text	
+		this.reloadTextPlayer1 = this.game.add.text(0, 0, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.reloadTextPlayer1.fixedToCamera = true;
-		this.reloadTextPlayer2 = this.game.add.text(this.game.width - 400, 0, "Balas P2:" + this.players[1].actualAmmo + "/" + this.pistol.magazine, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.reloadTextPlayer2 = this.game.add.text(this.game.width - 400, 0, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.reloadTextPlayer2.fixedToCamera = true;
 
 		//Keyboard	
 
 		//-----------------BUILDING VARIABLES-----------------		
 		this.destructableBuildings = [];
-		this.destructableBuildingsCount = 0;		
+		this.destructableBuildingsCount = 0;
 
+		this.buildCost = 1;		
+		//this.resourcesText = this.game.add.text(650, 0, "Recursos: " + this.players[0].resources, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		//this.resourcesText.fixedToCamera = true;
 		//-----------------ROUND LOOP VARIABLES-----------------
 		this.timeBetweenRounds = 2; //Tiempo entre rondas(numero)
 		
@@ -161,11 +122,6 @@ Brainstein.Game = {
 		this.actualRound = 0;
 		this.actualRoundText = this.game.add.text(300, 0, "Ronda actual:" + this.actualRound, { font: "20px Arial", fill: "#40FF00", align: "center" });
 		this.actualRoundText.fixedToCamera = true;
-
-		//-----------------BRAIN VARIABLES-----------------
-		this.brain = this.game.add.sprite(180, 180, "brain");
-		this.game.physics.arcade.enable(this.brain);	
-
 		//----------------DROPS-------------------
 		this.dropTime = this.game.rnd.integerInRange(0,5);
 
@@ -178,8 +134,11 @@ Brainstein.Game = {
 		//this.dropTimer.pause();
 		this.dropText = this.game.add.text(650, 250, "Next drop in: " + this.dropTime, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.dropText.fixedToCamera = true;
+		//-----------------------------------------
 
-
+		//-----------------BRAIN VARIABLES-----------------
+		this.brain = this.game.add.sprite(180, 180, "brain");
+		this.game.physics.arcade.enable(this.brain);	
 	},
 	//-----------------CONSTRUCTOR METHODS-----------------
 	createPlayer: function(x, y, sprite){
@@ -189,7 +148,19 @@ Brainstein.Game = {
 		player.actualHp = player.hp;
 		player.weapon = "pistol";
 		player.building = false;
-		player.actualAmmo = 12;	
+		player.pistolActualAmmo = Number.POSITIVE_INFINITY;
+		player.shotgunActualAmmo = 60;
+		player.akActualAmmo = 200;
+
+		player.pistol = this.createWeapon("pistol",0,100,12,1,5,12,Number.POSITIVE_INFINITY,0,0);
+		player.shotgun = this.createWeapon("shotgun",0,120,12,3,8,0,50,300,0.25);
+		player.ak = this.createWeapon("ak",0,50,30,1,8,0,200,0,0);
+
+		player.reloadTimer = this.game.time.create(false);
+		player.reloadTimer.add(1000, this.reloadMethod, this,player);
+		player.reloadTimer.start();
+		player.reloadTimer.pause();	
+			
 		player.reloading = false;
 		player.holdingBrain = false;		
 		player.collideWorldBounds = true;		
@@ -263,6 +234,23 @@ Brainstein.Game = {
 		};
 	},	
 
+	createWeapon: function(type,nextFire,fireRate,magazine,numberOfBullets,damage,actualMagazine,maxAmmo,speed,angle){
+		var weapon = {
+			name : type,
+			nextFire : nextFire,
+			fireRate : fireRate,
+			magazineCapacity : magazine,
+			numberOfBullets : numberOfBullets,
+			damage : damage,
+			actualMagazine : actualMagazine,
+			maxAmmo : maxAmmo,
+
+			speed : speed,
+			angle : angle
+		}
+		return weapon;
+	},
+
 	//-----------------UPDATE METHODS-----------------
 	update: function(){
 		this.allowEnemyAttack();
@@ -315,8 +303,7 @@ Brainstein.Game = {
 			this.moveEnemy(this.enemies[i]);			
 		}
 	
-	},		
-	
+	},
 	//Updates an enemy position
 	updateEnemy: function(enemy){		
 		var nextPosition, velocity;		
@@ -353,29 +340,29 @@ Brainstein.Game = {
 	updateText: function(){
 		switch(this.players[0].weapon){
 			case "pistol":
-				this.reloadTextPlayer1.setText("Pistola P1:" + this.players[0].actualAmmo + "/" + this.pistol.magazine);
+				this.reloadTextPlayer1.setText("Pistola P1:" + this.players[0].pistol.actualMagazine + "/" + this.players[0].pistolActualAmmo);
 				break;
 
 			case "shotgun":
-				this.reloadTextPlayer1.setText("Escopeta P1:" + this.players[0].actualAmmo + "/" + this.shotgun.magazine);
+				this.reloadTextPlayer1.setText("Escopeta P1:" + this.players[0].shotgun.actualMagazine + "/" + this.players[0].shotgunActualAmmo);
 				break;
 
 			case "ak":
-				this.reloadTextPlayer1.setText("AK P1:" + this.players[0].actualAmmo + "/" + this.ak.magazine);
+				this.reloadTextPlayer1.setText("AK P1:" + this.players[0].ak.actualMagazine + "/" + this.players[0].akActualAmmo);
 				break;
 		}
 
 		switch(this.players[1].weapon){
 			case "pistol":
-				this.reloadTextPlayer2.setText("Pistola P2:" + this.players[1].actualAmmo + "/" + this.pistol.magazine);
+				this.reloadTextPlayer2.setText("Pistola P1:" + this.players[1].pistol.actualMagazine + "/" + this.players[1].pistolActualAmmo);
 				break;
 
 			case "shotgun":
-				this.reloadTextPlayer2.setText("Escopeta P2:" + this.players[1].actualAmmo + "/" + this.shotgun.magazine);
+				this.reloadTextPlayer2.setText("Escopeta P1:" + this.players[1].shotgun.actualMagazine + "/" + this.players[1].shotgunActualAmmo);
 				break;
 
 			case "ak":
-				this.reloadTextPlayer2.setText("AK P2:" + this.players[1].actualAmmo + "/" + this.ak.magazine);
+				this.reloadTextPlayer2.setText("AK P1:" + this.players[1].ak.actualMagazine + "/" + this.players[1].akActualAmmo);
 				break;
 		}
 
@@ -397,9 +384,51 @@ Brainstein.Game = {
 			this.restTimerText.setText("Countdown: "+this.timeBetweenRounds);
 		}
 
-		this.dropText.setText("Next drop in: " + this.dropTime);
+	},
+
+	//----------ROUND LOOP METHODS--------------
+	startRound: function(){
+		if(this.timeBetweenRounds > 0){
+			this.timeBetweenRounds -= 1;
+			this.restTimer.add(1000, this.startRound, this);
+		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
+			this.restTimer.pause();
+			this.restTimer.add(1000, this.startRound, this);
+			this.resting = false; 
+			for(var i = 0; i < this.zombiesPerRound ; i++){
+				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
+			}
+			this.dropTimer.resume();
+			
+		}
+	},
+
+	handleRound: function(){
+		if(this.enemies.length == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
+			this.resting = true; 
+			this.timeBetweenRounds = 3;
+			this.zombiesPerRound++;
+			this.restTimer.resume();
+			this.actualRound++;
+			
+			this.dropTime = this.game.rnd.integerInRange(0,5);
+		}
 
 	},
+
+	//-----------------METHODS-----------------
+	//Calculates the enemy target position and calls find path
+	moveEnemy: function(enemy){
+		if(enemy.target == "player"){
+			var targetPosition;		
+			targetPosition = new Phaser.Point(this.player.position.x, this.player.position.y);		
+			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
+		} else {
+			enemy.target = "building";
+			this.findPathToBuilding(enemy);
+		}
+	},		
+	
 
 	//----------ROUND LOOP METHODS--------------
 	startRound: function(){
@@ -413,7 +442,6 @@ Brainstein.Game = {
 			for(var i = 0; i < this.zombiesPerRound ; i++){
 				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
 			}
-			this.dropTimer.resume();
 		}
 	},
 
@@ -450,7 +478,7 @@ Brainstein.Game = {
 		//Reload
 		if(this.actionKeys.player1Reload.isDown){
 			this.players[0].reloading = true;
-			this.reloadTimer.resume();
+			this.players[0].reloadTimer.resume();
 		}
 
 		//Weapons inventory
@@ -497,7 +525,6 @@ Brainstein.Game = {
 		if(this.actionKeys.player1GrabBrain.isUp){
 			this.players[0].grabBrainKeyJustPressed = false;			
 		}
-
 		//----------------------PLAYER 2-----------------------
 		//Movement
 		if(this.actionKeys.player2Left.isDown){	
@@ -516,7 +543,7 @@ Brainstein.Game = {
 		//Reload
 		if(this.actionKeys.player2Reload.isDown){
 			this.players[1].reloading = true;
-			this.reloadTimer.resume();
+			this.players[1].reloadTimer.resume();
 		}
 
 		//Weapons inventory
@@ -545,6 +572,9 @@ Brainstein.Game = {
 			this.buildKeyJustPressed = false;			
 		}
 
+		this.dropText.setText("Next drop in: " + this.dropTime);
+
+
 		//Grab brain
 		if(this.actionKeys.player2GrabBrain.isDown){
 			if(!this.players[1].grabBrainKeyJustPressed){
@@ -561,9 +591,32 @@ Brainstein.Game = {
 		if(this.actionKeys.player1GrabBrain.isUp){
 			this.players[1].grabBrainKeyJustPressed = false;					
 		}
-		
-	},	
-	
+	},
+
+	//Creates an enemy
+	createEnemy: function(x, y, texture){
+		var zombie = this.game.add.sprite(x, y, texture); 
+		this.game.physics.arcade.enable(zombie);
+		//zombie.scale.setTo(0.05);
+		zombie.anchor.setTo(0.5, 0.5);
+		zombie.pathFindingAvaible = true;
+		zombie.walkingSpeed = 70;
+		zombie.body.collideWorldBounds = true;
+		zombie.path = [];
+		zombie.target = "player"
+		zombie.targetBuilding;
+		zombie.pathStep = -1;	
+		zombie.hp = 10;	
+		zombie.attackSpeed = 1;
+		zombie.attackAvaible = true;	
+		zombie.actualHp = zombie.hp;	
+		zombie.damage = 5;
+		zombie.pos = this.enemyCount;
+		this.enemies[this.enemyCount] = zombie;		
+		this.enemyCount++;
+	},
+
+
 	//Sprite gets killed when colliding with other
 	spriteKill: function(player,sprite){
 		sprite.kill();
@@ -575,9 +628,6 @@ Brainstein.Game = {
 	//----------PHYSICS METHODS--------------
 	//Recognize a colision between sprites
 	spritesOverlapSolve: function(){
-		this.game.physics.arcade.overlap(this.players[0], this.shotgun, this.spriteKill, null, this);
-		this.game.physics.arcade.overlap(this.players[0], this.pistol, this.spriteKill, null, this);
-		this.game.physics.arcade.overlap(this.players[0], this.ak, this.spriteKill, null, this);
 		this.game.physics.arcade.overlap(this.enemies, this.brain, this.gameOver, null, this);
 		for(i = 0; i < this.enemyCount;i++){
 			for(j = 0; j < this.shot.length;j++){
@@ -644,7 +694,12 @@ Brainstein.Game = {
         	this.shot[weapon.power].reset(player.x - 8, player.y - 8);
 	       	this.game.physics.arcade.moveToPointer(this.shot[weapon.power], 300);
 
-			player.actualAmmo -= weapon.power;
+			if(weapon.name == "pistol"){
+				player.pistol.actualMagazine -= weapon.numberOfBullets;
+			}else{
+				player.ak.actualMagazine -= weapon.numberOfBullets;
+			}
+			
 			
     	}
 
@@ -657,7 +712,7 @@ Brainstein.Game = {
 			weapon.fireRate = 0;
 			var j = -1;
 
-			for(i = 0;i < weapon.power;i++){
+			for(i = 0;i < weapon.numberOfBullets;i++){
 			
 				this.shot[i] = this.bullets.getFirstDead();
 				this.shot[i].damage = weapon.damage;
@@ -666,7 +721,7 @@ Brainstein.Game = {
 				if(i == 0){
 					var angle = this.game.physics.arcade.angleToPointer(this.shot[i]);
 				}else{
-					var angle = this.game.physics.arcade.angleToPointer(this.shot[i]) + (j * this.shotgun.angle);
+					var angle = this.game.physics.arcade.angleToPointer(this.shot[i]) + (j * weapon.angle);
 				}				
 				this.shot[i].body.velocity.setToPolar(angle,weapon.speed);
 				
@@ -675,56 +730,100 @@ Brainstein.Game = {
 
 			weapon.fireRate = 120;
 			
-			player.actualAmmo -= weapon.power;
+			player.shotgun.actualMagazine -= weapon.numberOfBullets;
 			
     	}
 
 	},
 
-	reloadMethod: function(player){
+	reloadMethod: function(player){	
+
 		switch(player.weapon){
-			case "pistol":
-				player.actualAmmo = this.pistol.magazine;
+			
+			case "pistol": //Hay municion infinita de pistola, siempre puede recargarse y siempre a tope
+				player.pistol.actualMagazine = player.pistol.magazineCapacity;;
 				break;
 
 			case "shotgun":
-				player.actualAmmo = this.shotgun.magazine;
-				break;
+			var bulletsLeft;
+			if(player.shotgunActualAmmo != 0){ //Si tenemos balas, recargamos
+				if(player.shotgun.actualMagazine + player.shotgunActualAmmo < player.shotgun.magazineCapacity){
+					bulletsLeft = player.shotgunActualAmmo;
+					player.shotgun.actualMagazine += bulletsLeft;
+					player.shotgunActualAmmo -= bulletsLeft;
+				} else {
+					bulletsLeft = player.shotgun.magazineCapacity - player.shotgun.actualMagazine; //Calculamos cuantas balas nos hacen falta recargar
+					player.shotgunActualAmmo -= bulletsLeft;
+					player.shotgun.actualMagazine += bulletsLeft;					
+				}
+			}
+			break;
 
 			case "ak":
-				player.actualAmmo = this.ak.magazine;
-				break;
+			var bulletsLeft;
+			if(player.akActualAmmo != 0){ //Si tenemos balas, recargamos
+				if(player.ak.actualMagazine + player.akActualAmmo < player.ak.magazineCapacity){
+					bulletsLeft = player.akActualAmmo;
+					player.ak.actualMagazine += bulletsLeft;
+					player.akActualAmmo -= bulletsLeft;
+				} else {
+					bulletsLeft = player.ak.magazineCapacity - player.ak.actualMagazine; //Calculamos cuantas balas nos hacen falta recargar
+					player.akActualAmmo -= bulletsLeft;
+					player.ak.actualMagazine += bulletsLeft;					
+				}
+			}
+
+
+			break;
+				
+		
 		}
 		
-		this.reloadTimer.pause();
-		this.reloadTimer.add(2000, this.reloadMethod, this, player);
-		this.reloadTimer.start();
-		this.reloadTimer.pause();
-		this.updateText();
+		player.reloadTimer.pause();
+		player.reloadTimer.add(2000, this.reloadMethod, this, player);
+		player.reloadTimer.start();
+		player.reloadTimer.pause();
+		//this.updateText();
 		player.reloading = false; //Reseteamos el estado de recarga del jugador
 	},
 
 	handleShooting: function(player){	
-		if (this.game.input.activePointer.isDown && player.actualAmmo > 0 && player.reloading == false)
-    	{
+		
 			switch(player.weapon){
 				case "pistol":
-					this.fire(this.pistol, player);
+					if (this.game.input.activePointer.isDown && player.pistol.actualMagazine > 0 && player.reloading == false)
+					{		
+						this.fire(player.pistol, player);
+						
+					} else if(this.game.input.activePointer.isDown && player.pistol.actualMagazine > 0){ //Reloading
+						player.reloading = true;
+						player.reloadTimer.resume();
+					}
 					break;
 
 				case "shotgun":
-					this.fireMultiple(this.shotgun, player);
+					if (this.game.input.activePointer.isDown && player.shotgun.actualMagazine > 0 && player.reloading == false)
+					{
+						this.fireMultiple(player.shotgun, player);
+						
+					} else if(this.game.input.activePointer.isDown && player.shotgun.actualMagazine > 0){ //Reloading
+						player.reloading = true;
+						player.reloadTimer.resume();
+					}
 					break;
 
 				case "ak":
-					this.fire(this.ak, player);
+					if (this.game.input.activePointer.isDown && player.ak.actualMagazine > 0 && player.reloading == false)
+					{
+						this.fire(player.ak, player);
+						
+					} else if(this.game.input.activePointer.isDown && player.ak.actualMagazine > 0){ //Reloading
+						player.reloading = true;
+						player.reloadTimer.resume();
+					}
 					break;
-			}
-        	
-   		}else if(this.game.input.activePointer.isDown && player.actualAmmo <= 0){ //Reloading
-			player.reloading = true;
-   			this.reloadTimer.resume();
-		}	
+			}      	
+   		
 	},
 
 
@@ -998,19 +1097,25 @@ Brainstein.Game = {
 	},
 
 	build: function(buildingCell, wallPointer){
-		var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
-		wall = this.game.add.sprite(position.x, position.y, 'wallTile');
-		wall.coordinates = {
-			row: buildingCell.row,
-			column: buildingCell.column
+		if(this.player.resources > 0){
+			var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
+			wall = this.game.add.sprite(position.x, position.y, 'wallTile');
+			wall.coordinates = {
+				row: buildingCell.row,
+				column: buildingCell.column
+			}
+			wall.hits = 1;
+			this.destructableBuildingsCount++;
+			wall.pos = this.destructableBuildingsCount;
+			this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
+			this.initPathfinding();
+			this.setCollisionLayer();
+			this.destructableBuildings[this.destructableBuildingsCount - 1] = wall;
+
+			this.player.resources-= this.buildCost;
+		}else{
+			this.notEnoughResourcesText = this.game.add.text(250, 250, "NO TIENES RECURSOS SUFICIENTES", { font: "20px Arial", fill: "#FF0000", align: "center" });
 		}
-		wall.hits = 1;
-		this.destructableBuildingsCount++;
-		wall.pos = this.destructableBuildingsCount;
-		this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
-		this.initPathfinding();
-		this.setCollisionLayer();
-		this.destructableBuildings[this.destructableBuildingsCount - 1] = wall;
 		
 	},
 
@@ -1049,32 +1154,8 @@ Brainstein.Game = {
 		return newArray;
 	},
 
-	//-----------------BRAIN METHODS-----------------
-	grabBrain: function(player){
-		if(Phaser.Point.distance(player, this.brain.position) < 26){
-			player.speed = 50;			
-			return;
-		}		
-		player.holdingBrain = false;
-	},
-
-	releaseBrain: function(player){		
-		this.brain.position.x = player.position.x - 8;		
-		this.brain.position.y = player.position.y - 8;		
-
-		player.speed = 200;
-		player.holdingBrain = false;
-	},
-
-	gameOver: function(){
-		console.log("Unlucky game over");				
-		/*this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2 - 200, "GAME OVER", { font: "100px Arial", fill: "#993333", align: "center" });
-		this.game.paused = true;*/
-	},
-
-	
 	//--------------DROP METHODS------------------
-	createDrop: function(){
+	createDrop: function(player){
 		if(this.dropTime > 0){
 
 			this.dropTime -= 1;
@@ -1085,8 +1166,8 @@ Brainstein.Game = {
 			var dropPos = this.createDropCoords();
 			this.drop = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
 
-			this.drop.shotgunAmmo = this.game.rnd.integerInRange(0,this.shotgun.magazine * 2);
-			this.drop.akAmmo = this.game.rnd.integerInRange(0,this.shotgun.ak * 2);
+			this.drop.shotgunAmmo = this.game.rnd.integerInRange(0,player.shotgun.magazineCapacity * 2);
+			this.drop.akAmmo = this.game.rnd.integerInRange(0,player.ak.magazineCapacity * 2);
 			this.drop.resources = this.game.rnd.integerInRange(0,20) ;
 
 			this.dropTimer.pause();
@@ -1110,5 +1191,28 @@ Brainstein.Game = {
 			return dropPos;
 		}
 
+	},
+
+	//-----------------BRAIN METHODS-----------------
+	grabBrain: function(player){
+		if(Phaser.Point.distance(player, this.brain.position) < 26){
+			player.speed = 50;			
+			return;
+		}		
+		player.holdingBrain = false;
+	},
+
+	releaseBrain: function(player){		
+		this.brain.position.x = player.position.x - 8;		
+		this.brain.position.y = player.position.y - 8;		
+
+		player.speed = 200;
+		player.holdingBrain = false;
+	},
+
+	gameOver: function(){
+		console.log("Unlucky game over");				
+		/*this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2 - 200, "GAME OVER", { font: "100px Arial", fill: "#993333", align: "center" });
+		this.game.paused = true;*/
 	},
 }	
