@@ -30,6 +30,8 @@ Brainstein.Preload = {
 
 		this.load.image('brain', 'assets/images/brain_ph.png');
 
+		this.load.image('drop','assets/images/drop_ph.png')
+
 	},
 
 	create: function(){

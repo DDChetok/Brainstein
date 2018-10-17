@@ -34,7 +34,9 @@ Brainstein.Game = {
 			magazine: 12,
 			power: 1,
 			damage: 5,
-			name: "pistol"
+			name: "pistol",
+			actualAmmo: 12,
+			ammo : 12
 		};
 
 		//Shotgun
@@ -48,7 +50,9 @@ Brainstein.Game = {
 			damage: 8,
 			name: "shotgun",
 			speed: 300,
-			angle: 0.25
+			angle: 0.25,
+			actualAmmo: 12,
+			ammo : 12
 		};
 
 		//AK
@@ -60,7 +64,9 @@ Brainstein.Game = {
 			magazine: 30,
 			power: 1,
 			damage: 8,
-			name: "ak"
+			name: "ak",
+			actualAmmo: 30,
+			ammo : 12
 		};
 
 		//Bullets and reload
@@ -95,8 +101,11 @@ Brainstein.Game = {
 		this.player.actualHp = this.player.hp;
 		this.player.weapon = "pistol";
 		this.player.building = false;
-		this.player.actualAmmo = 12;	
+		this.player.actualAmmo = this.pistol.actualAmmo;	
 		this.player.reloading = false;
+		this.player.resources = 10;
+		this.player.shotgunAllowed = false;
+		this.player.akAllowed = false;
 
 		//Modify body properties
 		this.player.collideWorldBounds = true;		
@@ -123,7 +132,7 @@ Brainstein.Game = {
 		//Enemies
 		this.enemies = [];
 		this.enemyCount = 0;
-		this.createEnemy(152, 32, 'zombie');			
+		//this.createEnemy(152, 32, 'zombie');			
 		//this.createEnemy(352, 150, 'zombie');	
 		//this.createEnemy(152, 32, 'zombie');		
 
@@ -145,7 +154,7 @@ Brainstein.Game = {
 		this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 
 		//Text
-		this.reloadText = this.game.add.text(0, 0, "Balas:" + this.player.actualAmmo + "/" + this.pistol.magazine, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.reloadText = this.game.add.text(0, 0, "Balas:" + this.pistol.actualAmmo + "/" + this.pistol.ammo, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.reloadText.fixedToCamera = true;
 		this.playerPositionText = this.game.add.text(0, 570, "Player position -> x:" + this.player.position.x + "| y: " + this.player.position.y, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.playerPositionText.fixedToCamera = true;
@@ -160,7 +169,11 @@ Brainstein.Game = {
 
 		//-----------------BUILDING VARIABLES-----------------		
 		this.destructableBuildings = [];
-		this.destructableBuildingsCount = 0;		
+		this.destructableBuildingsCount = 0;
+
+		this.buildCost = 1;		
+		this.resourcesText = this.game.add.text(650, 0, "Recursos: " + this.player.resources, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.resourcesText.fixedToCamera = true;
 		//-----------------ROUND LOOP VARIABLES-----------------
 		this.timeBetweenRounds = 2; //Tiempo entre rondas(numero)
 		
@@ -178,6 +191,19 @@ Brainstein.Game = {
 		this.actualRound = 0;
 		this.actualRoundText = this.game.add.text(300, 0, "Ronda actual:" + this.actualRound, { font: "20px Arial", fill: "#40FF00", align: "center" });
 		this.actualRoundText.fixedToCamera = true;
+		//----------------DROPS-------------------
+		this.dropTime = this.game.rnd.integerInRange(0,5);
+
+		this.drop;
+
+		this.dropTimer = this.game.time.create(false);
+		this.dropTimer.add(1000,this.createDrop, this);
+		this.dropTimer.start();
+		this.dropTimer.pause();
+		//this.dropTimer.pause();
+		this.dropText = this.game.add.text(650, 250, "Next drop in: " + this.dropTime, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.dropText.fixedToCamera = true;
+		//-----------------------------------------
 	},
 
 	update: function(){
@@ -222,24 +248,29 @@ Brainstein.Game = {
 		if(this.timeBetweenRounds > 0){
 			this.timeBetweenRounds -= 1;
 			this.restTimer.add(1000, this.startRound, this);
-		}else{
+		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
 			this.restTimer.pause();
 			this.restTimer.add(1000, this.startRound, this);
-			this.resting = false; //Empieza la ronda
+			this.resting = false; 
 			for(var i = 0; i < this.zombiesPerRound ; i++){
 				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
 			}
+			this.dropTimer.resume();
+			
 		}
 	},
 
 	handleRound: function(){
-		if(this.enemies.length == 0 && this.resting == false){
-			this.resting = true; //Empieza el tiempo de descanso
+		if(this.enemies.length == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
+			this.resting = true; 
 			this.timeBetweenRounds = 3;
 			this.zombiesPerRound++;
 			this.restTimer.resume();
 			this.actualRound++;
+			
+			this.dropTime = this.game.rnd.integerInRange(0,5);
 		}
+
 	},
 
 	//-----------------METHODS-----------------
@@ -325,12 +356,17 @@ Brainstein.Game = {
 		}
 
 		//Weapons inventory
-		if(this.actionKeys.one.isDown){
-			this.player.weapon = 'pistol';
-		} else if(this.actionKeys.two.isDown){
-			this.player.weapon = 'ak';
-		} else if(this.actionKeys.three.isDown){
-			this.player.weapon = 'shotgun';
+		if(this.player.reloading == false){ //Solo cambiamos de armas si el jugador NO está recargando
+			if(this.actionKeys.one.isDown){
+				this.player.weapon = 'pistol';
+				this.player.actualAmmo = this.pistol.actualAmmo;
+			} else if(this.actionKeys.two.isDown){
+				this.player.weapon = 'ak';
+				this.player.actualAmmo = this.ak.actualAmmo;
+			} else if(this.actionKeys.three.isDown){
+				this.player.weapon = 'shotgun';
+				this.player.actualAmmo = this.shotgun.actualAmmo;
+			}
 		}
 
 		//Change player state		
@@ -378,16 +414,30 @@ Brainstein.Game = {
 	updateText: function(targetPosition, enemy){
 		switch(this.player.weapon){
 			case "pistol":
-				this.reloadText.setText("Pistola:" + this.player.actualAmmo + "/" + this.pistol.magazine);
-				break;
-
+				if(this.pistol.ammo >= this.pistol.magazine){
+					this.reloadText.setText("Pistola:" + this.pistol.actualAmmo + "/" + this.pistol.ammo);
+					break;
+				}else{
+					this.reloadText.setText("Pistola:" + this.pistol.actualAmmo + "/" + this.pistol.magazine);
+					break;
+				}
 			case "shotgun":
-				this.reloadText.setText("Escopeta:" + this.player.actualAmmo + "/" + this.shotgun.magazine);
+			if(this.shotgun.ammo >= this.shotgun.magazine){
+				this.reloadText.setText("Escopeta:" + this.shotgun.actualAmmo + "/" + this.shotgun.ammo);
 				break;
+			}else{
+				this.reloadText.setText("Escopeta:" + this.shotgun.actualAmmo + "/" + this.shotgun.magazine);
+				break;
+			}
 
 			case "ak":
-				this.reloadText.setText("AK:" + this.player.actualAmmo + "/" + this.ak.magazine);
+			if(this.ak.ammo >= this.ak.magazine){
+				this.reloadText.setText("AK:" + this.ak.actualAmmo + "/" + this.ak.ammo);
 				break;
+			}else{
+				this.reloadText.setText("AK:" + this.ak.actualAmmo + "/" + this.ak.magazine);
+				break;
+			}
 		}
 
 		if(this.player.reloading == true){
@@ -406,11 +456,15 @@ Brainstein.Game = {
 		
 		this.hpText.setText("HP:" + this.player.actualHp + "/" + this.player.hp);
 
-		this.actualRoundText.setText("Ronda actual:" + this.actualRound)
+		this.actualRoundText.setText("Ronda actual:" + this.actualRound);
+
+		this.resourcesText.setText("Recursos: " + this.player.resources);
 
 		if(this.resting == true){
 			this.restTimerText.setText("Countdown: "+this.timeBetweenRounds);
 		}
+
+		this.dropText.setText("Next drop in: " + this.dropTime);
 
 	},
 
@@ -490,7 +544,8 @@ Brainstein.Game = {
 	       	this.game.physics.arcade.moveToPointer(this.shot[weapon.power], 300);
 
 			this.player.actualAmmo -= weapon.power;
-			
+			weapon.actualAmmo -= weapon.power;
+			weapon.ammo -= weapon.power;
     	}
 
 	},
@@ -521,24 +576,47 @@ Brainstein.Game = {
 			weapon.fireRate = 120;
 			
 			this.player.actualAmmo -= weapon.power;
+			weapon.actualAmmo -= weapon.power;
+			weapon.ammo -= weapon.power;
 			
     	}
 
 	},
 
 	reloadMethod: function(){
+		var bulletsLeft = this.shotgun.magazine - this.shotgun.actualAmmo;
+		
 		switch(this.player.weapon){
-			case "pistol":
+			case "pistol": //Hay municion infinita de pistola, siempre puede recargarse y siempre a tope
 				this.player.actualAmmo = this.pistol.magazine;
+				this.pistol.actualAmmo = this.pistol.magazine;
 				break;
 
 			case "shotgun":
+			if(this.shotgun.ammo >= this.shotgun.magazine){ //Si tenemos balas suficientes rellenamos el cargador
 				this.player.actualAmmo = this.shotgun.magazine;
+				this.shotgun.actualAmmo = this.shotgun.magazine;
+				this.shotgun.ammo -= this.shotgun.magazine;
 				break;
-
+			}else{ //Si no tenemos balas suficientes, llenamos lo que podemos el cargador
+				
+				this.player.actualAmmo += bulletsLeft;
+				this.shotgun.actualAmmo += bulletsLeft;
+				this.shotgun.ammo -= bulletsLeft;
+				break;3
+			}	
 			case "ak":
+			if(this.ak.ammo >= this.ak.magazine){
 				this.player.actualAmmo = this.ak.magazine;
+				this.ak.actualAmmo = this.ak.magazine;
+				this.ak.ammo -= this.ak.magazine;
 				break;
+			}else{
+				this.player.actualAmmo += this.shotgun.ammo;
+				this.shotgun.actualAmmo += this.shotgun.ammo;
+				this.shotgun.ammo -= this.shotgun.ammo;
+				break;
+			}
 		}
 		
 		this.reloadTimer.pause();
@@ -787,19 +865,25 @@ Brainstein.Game = {
 	},
 
 	build: function(buildingCell, wallPointer){
-		var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
-		wall = this.game.add.sprite(position.x, position.y, 'wallTile');
-		wall.coordinates = {
-			row: buildingCell.row,
-			column: buildingCell.column
+		if(this.player.resources > 0){
+			var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
+			wall = this.game.add.sprite(position.x, position.y, 'wallTile');
+			wall.coordinates = {
+				row: buildingCell.row,
+				column: buildingCell.column
+			}
+			wall.hits = 1;
+			this.destructableBuildingsCount++;
+			wall.pos = this.destructableBuildingsCount;
+			this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
+			this.initPathfinding();
+			this.setCollisionLayer();
+			this.destructableBuildings[this.destructableBuildingsCount - 1] = wall;
+
+			this.player.resources-= this.buildCost;
+		}else{
+			this.notEnoughResourcesText = this.game.add.text(250, 250, "NO TIENES RECURSOS SUFICIENTES", { font: "20px Arial", fill: "#FF0000", align: "center" });
 		}
-		wall.hits = 1;
-		this.destructableBuildingsCount++;
-		wall.pos = this.destructableBuildingsCount;
-		this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
-		this.initPathfinding();
-		this.setCollisionLayer();
-		this.destructableBuildings[this.destructableBuildingsCount - 1] = wall;
 		
 	},
 
@@ -836,6 +920,45 @@ Brainstein.Game = {
 			array.length = 0;
 		}
 		return newArray;
-	}	
+	},
+
+	//--------------DROP METHODS------------------
+	createDrop: function(){
+		if(this.dropTime > 0){
+
+			this.dropTime -= 1;
+			this.dropTimer.add(1000, this.createDrop, this);
+
+		}else{
+
+			var dropPos = this.createDropCoords();
+			this.drop = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
+
+			this.drop.shotgunAmmo = this.game.rnd.integerInRange(0,this.shotgun.magazine * 2);
+			this.drop.akAmmo = this.game.rnd.integerInRange(0,this.shotgun.ak * 2);
+			this.drop.resources = this.game.rnd.integerInRange(0,20) ;
+
+			this.dropTimer.pause();
+			this.dropTimer.add(1000, this.createDrop, this);
+
+		}
+	},
+
+	createDropCoords: function(){
+		var dropPos = {x: 0, y: 0};
+		dropPos.x = this.game.rnd.integerInRange(0,this.levelDimensions.columns * this.tileDimensions.x);
+		dropPos.y = this.game.rnd.integerInRange(0,this.levelDimensions.rows * this.tileDimensions.y);
+		
+		// 19 / 22 -> Río
+
+		dropCoord = this.getCoordFromPosition(dropPos);
+
+		if(this.gridIndices[dropCoord.row][dropCoord.column]  != -1){ //Si es distinto de -1 (-1 = tierra), si tocamos rio volvemos a llamar la funcion
+			return dropPos = this.createDropCoords();
+		}else{
+			return dropPos;
+		}
+
+	},
 
 }	
