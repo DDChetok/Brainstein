@@ -26,6 +26,9 @@ Brainstein.Game = {
 
 		this.camera.flash('#000000');
 
+		this.resurrectTimer;
+		this.resurrectTimerTotal = 0;
+
 		//-----------------WEAPON VARIABLES-----------------
 		//Bullets and reload
 		for(var i = 0; i < this.playersCount; i++){
@@ -47,7 +50,7 @@ Brainstein.Game = {
 		this.players = [2];
 		this.playersCount = 0;
 		this.createPlayer(20, 150, 'erwin');	
-		this.createPlayer(30, 150, 'zombie');		
+		this.createPlayer(30, 150, 'erwin');		
 
 		//Create text	
 		this.hpTextPlayer1 = this.game.add.text(0, 520, "HP:" + this.players[0].actualHp + "/" + this.players[0].hp, { font: "55px Arial", fill: "#faaa00", align: "center" });
@@ -61,7 +64,8 @@ Brainstein.Game = {
 		//Enable player physics
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);		
 		//this.game.physics.arcade.enable(this.enemies);	
-	
+
+		this.resurrectTimer = this.game.time.create(false);		
 
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
@@ -123,9 +127,7 @@ Brainstein.Game = {
 		this.drop;
 
 		this.dropTimer = this.game.time.create(false);
-		this.dropTimer.add(1000,this.createDrop, this, this.players[0]);
-		//this.dropTimer.start();
-		//this.dropTimer.pause();
+		this.dropTimer.add(1000,this.createDrop, this, this.players[0]);	
 		this.dropText = this.game.add.text(650, 250, "Next drop in: " + this.dropTime, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.dropText.fixedToCamera = true;
 		//-----------------------------------------
@@ -165,6 +167,8 @@ Brainstein.Game = {
 		player.vectorPush;
 		player.zombiePushing
 		player.dead = false;
+		player.resurrecting = false;
+		player.resurrectText = this.game.add.text(player.position.x - 20, player.position.y - 20, " ", { font: "20px Arial", fill: "#ffff00", align: "center" })
 
 		this.game.physics.arcade.enable(player);	
 		player.body.collideWorldBounds = true;
@@ -210,19 +214,21 @@ Brainstein.Game = {
 			player1AK: this.game.input.keyboard.addKey(Phaser.Keyboard.TWO),
 			player1Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),
 			player1Build: this.game.input.keyboard.addKey(Phaser.Keyboard.E),		
-			player1GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),		
+			player1GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),	
+			player1Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.F),	
 
 			//PLAYER 2 KEYS
 			player2Up: this.game.input.keyboard.addKey(Phaser.Keyboard.UP), 
 			player2Down: this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN), 
 			player2Left: this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT), 
 			player2Right: this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT), 
-			player2Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_PLUS), 
+			player2Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_ADD), 
 			player2Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7), 
 			player2AK: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8), 
 			player2Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9), 
 			player2Build: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6),	
 			player2GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_0),
+			player2Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_SUBTRACT),
 
 			retry: this.game.input.keyboard.addKey(Phaser.Keyboard.R),
 		};
@@ -255,7 +261,7 @@ Brainstein.Game = {
 			this.players[i].body.velocity.y = 0;
 					
 			//Shooting and building		
-			if(!this.players[i].holdingBrain && !this.players[i].dead){
+			if(!this.players[i].holdingBrain && !this.players[i].dead && !this.players[i].resurrecting){
 				if(!this.players[i].building){
 					this.handleShooting(this.players[i]);		
 				} else {
@@ -276,7 +282,8 @@ Brainstein.Game = {
 			//Player movement
 			if(!this.players[i].dead){
 				this.players[i].rotation = this.game.physics.arcade.angleToPointer(this.players[i]);	
-			}
+			}			
+
 		}		
 
 		//Handle inputs		
@@ -292,6 +299,36 @@ Brainstein.Game = {
 		this.game.physics.arcade.collide(this.players, this.collisionLayer);	
 		this.spritesOverlapSolve();
 
+		//Checks if the OTHER player is dead
+		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[1].dead){
+			this.players[0].resurrectText.setText("Press F to resurrect");
+			if(this.actionKeys.player1Resurrect.isDown){	
+				this.players[0].resurrecting = true;
+				this.resurrectTimer.add(3500, this.resurrectPlayer, this, this.players[1]);	
+				this.resurrectTimer.start();	
+				this.players[0].resurrectText.setText(Math.floor(this.resurrectTimer.duration/1000) + 1);		
+			} else {
+				this.resurrectTimer.stop();
+				this.players[0].resurrecting = false;
+			}
+		} else {
+			this.players[0].resurrectText.setText(" ");
+		}		
+
+		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[0].dead){
+			this.players[1].resurrectText.setText("Press - to resurrect");
+			if(this.actionKeys.player2Resurrect.isDown){
+				this.players[1].resurrecting = true;						
+				this.resurrectTimer.add(3500, this.resurrectPlayer, this, this.players[0]);	
+				this.resurrectTimer.start();	
+				this.players[1].resurrectText.setText(Math.floor(this.resurrectTimer.duration/1000));		
+			} else {
+				this.resurrectTimer.stop();
+				this.players[1].resurrecting = false;
+			}				
+		} else {
+			this.players[1].resurrectText.setText(" ");
+		}
 
 		//Finds a path from enemy to player and updates its position			
 		for(var i = 0; i < this.enemies.length; i++){
@@ -371,6 +408,16 @@ Brainstein.Game = {
 		
 		this.hpTextPlayer1.setText("HP P1:" + this.players[0].actualHp + "/" + this.players[0].hp);
 		this.hpTextPlayer2.setText("HP P2:" + this.players[1].actualHp + "/" + this.players[1].hp);
+
+		for(var i = 0; i < this.playersCount; i++){
+			if(!this.players[i].resurrecting){
+				this.players[i].resurrectText.position.x = this.players[0].position.x - 80;
+				this.players[i].resurrectText.position.y = this.players[0].position.y - 40;	
+			} else {
+				this.players[i].resurrectText.position.x = this.players[0].position.x;
+				this.players[i].resurrectText.position.y = this.players[0].position.y - 40;	
+			}	
+		}
 
 		//this.actualRoundText.setText("Ronda actual:" + this.actualRound)
 		this.actualRoundText.setText("BuildKeyJustPressed:" + this.buildKeyJustPressed);
@@ -1163,7 +1210,7 @@ Brainstein.Game = {
 		console.log("Unlucky game over");				
 		//this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2 - 200, "GAME OVER", { font: "100px Arial", fill: "#993333", align: "center" });	
 		//this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2, "Press R To restart", { font: "50px Arial", fill: "#993333", align: "center" });
-		this.camera.fade('#8A0707', 2000);
+		this.camera.fade('#ff0000', 2000);
 		this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
 
@@ -1187,5 +1234,12 @@ Brainstein.Game = {
 
 		if(gameOver) this.gameOver();
 	},
+
+	resurrectPlayer: function(player){
+		player.dead = false;
+		player.body.enable = true;
+		player.loadTexture('erwin');	
+
+	}
 
 }	
