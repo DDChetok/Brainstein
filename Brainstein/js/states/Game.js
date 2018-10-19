@@ -143,6 +143,7 @@ Brainstein.Game = {
 		this.game.physics.arcade.enable(this.brain);	
 	},
 	//-----------------CONSTRUCTOR METHODS-----------------
+	//#region [ rgba (0, 205, 30, 0.1) ]
 	createPlayer: function(x, y, sprite){
 		var player = this.game.add.sprite(x, y, sprite);			
 		player.anchor.setTo(0.5, 0.5);
@@ -260,6 +261,7 @@ Brainstein.Game = {
 		}
 		return weapon;
 	},
+	//#endregion
 
 	//-----------------UPDATE METHODS-----------------
 	update: function(){
@@ -310,7 +312,7 @@ Brainstein.Game = {
 		this.spritesOverlapSolve();
 
 		//Checks if the OTHER player is dead
-		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[1].dead){
+		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[1].dead && !this.players[0].dead){
 			this.players[0].resurrectText.setText("Press F to resurrect");
 			if(this.actionKeys.player1Resurrect.isDown){	
 				this.players[0].resurrecting = true;
@@ -325,7 +327,7 @@ Brainstein.Game = {
 			this.players[0].resurrectText.setText(" ");
 		}		
 
-		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[0].dead){
+		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[0].dead && !this.players[1].dead){
 			this.players[1].resurrectText.setText("Press - to resurrect");
 			if(this.actionKeys.player2Resurrect.isDown){
 				this.players[1].resurrecting = true;						
@@ -1259,10 +1261,10 @@ Brainstein.Game = {
 		player.holdingBrain = false;
 	},
 
+	
+	//-----------------GAME OVER METHODS-----------------
 	gameOver: function(){	
 		console.log("Unlucky game over");				
-		//this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2 - 200, "GAME OVER", { font: "100px Arial", fill: "#993333", align: "center" });	
-		//this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2, "Press R To restart", { font: "50px Arial", fill: "#993333", align: "center" });
 		this.camera.fade('#ff0000', 2000);
 		this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
@@ -1270,6 +1272,7 @@ Brainstein.Game = {
 	fadeComplete: function(){
 		this.state.start('GameOver');
 	},
+
 
 	//-----------------DEATH & RESURRECTION METHODS-----------------
 	killPlayer: function(player){

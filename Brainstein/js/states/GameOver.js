@@ -11,13 +11,15 @@ Brainstein.GameOver = {
 		this.background.height = (this.game.height);
 
 		//Start game text
-		var text = "Press enter to begin";
-		var style = {font: "30px Arial", fill: '#000', align:"center"};
-		var h = this.game.add.text(this.game.width / 2 - 130, this.game.height - 50, text, style);
+		var text = "Press R to retry";
+		var style = {font: "30px Arial", fill: '#fff', align:"center"};
+	    this.game.add.text(this.game.width / 2 - 130, this.game.height - 50, text, style);
         this.camera.flash('#ff0000', 2000);
     },
 
     update: function(){
-        return;
+        if(this.game.input.keyboard.isDown(Phaser.Keyboard.R)){
+			this.game.state.start('Game');
+		}
     }
 }
