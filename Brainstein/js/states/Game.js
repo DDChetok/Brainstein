@@ -1074,7 +1074,7 @@ Brainstein.Game = {
 		}
 		
 		if(this.game.input.activePointer.isDown && isAbleToBuild){	
-			this.build(buildingCell, player.wallPointer);				
+			this.build(buildingCell, player.wallPointer, player);				
 		}
 		
 	},
@@ -1092,8 +1092,8 @@ Brainstein.Game = {
 		return{x: vector.x / norm, y: vector.y / norm};
 	},
 
-	build: function(buildingCell, wallPointer){
-		if(this.player.resources > 0){
+	build: function(buildingCell, wallPointer, player){
+		if(player.resources > 0){
 			var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
 			wall = this.game.add.sprite(position.x, position.y, 'wallTile');
 			wall.coordinates = {
@@ -1108,7 +1108,7 @@ Brainstein.Game = {
 			this.setCollisionLayer();
 			this.destructableBuildings[this.destructableBuildingsCount - 1] = wall;
 
-			this.player.resources-= this.buildCost;
+			player.resources-= this.buildCost;
 		}else{
 			this.notEnoughResourcesText = this.game.add.text(250, 250, "NO TIENES RECURSOS SUFICIENTES", { font: "20px Arial", fill: "#FF0000", align: "center" });
 		}
