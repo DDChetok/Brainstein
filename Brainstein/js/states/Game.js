@@ -109,7 +109,7 @@ Brainstein.Game = {
 		
 		this.restTimer = this.game.time.create(false); //Timer entre rondas(objeto timer)
 		this.restTimer.add(1000, this.startRound, this);
-		this.restTimer.start();
+		this.restTimer.start(); //EMPIEZA LA RONDA 1
 
 		this.restTimerText = this.game.add.text(500, 500, this.timeBetweenRounds, { font: "20px Arial", fill: "#faaa00", align: "center" });
 		this.restTimerText.fixedToCamera = true;
@@ -124,12 +124,18 @@ Brainstein.Game = {
 		//----------------DROPS-------------------
 		this.dropTime = this.game.rnd.integerInRange(0,5);
 
-		this.drop;
+		this.drops = [];
 
 		this.dropTimer = this.game.time.create(false);
-		this.dropTimer.add(1000,this.createDrop, this, this.players[0]);	
+		this.dropTimer.add(1000,this.createDrop, this);
+		this.dropTimer.start();
+		this.dropTimer.pause();
+	
 		this.dropText = this.game.add.text(650, 250, "Next drop in: " + this.dropTime, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.dropText.fixedToCamera = true;
+	
+		this.dropProbability;
+		this.dropComing = false;
 		//-----------------------------------------
 
 		//-----------------BRAIN VARIABLES-----------------
@@ -145,8 +151,8 @@ Brainstein.Game = {
 		player.weapon = "pistol";
 		player.building = false;
 		player.pistolActualAmmo = Number.POSITIVE_INFINITY;
-		player.shotgunActualAmmo = 60;
-		player.akActualAmmo = 200;
+		player.shotgunActualAmmo = 0;
+		player.akActualAmmo = 0;
 
 		player.pistol = this.createWeapon("pistol",0,100,12,1,5,12,Number.POSITIVE_INFINITY,0,0);
 		player.shotgun = this.createWeapon("shotgun",0,120,12,3,8,0,50,300,0.25);
@@ -169,6 +175,10 @@ Brainstein.Game = {
 		player.dead = false;
 		player.resurrecting = false;
 		player.resurrectText = this.game.add.text(player.position.x - 20, player.position.y - 20, " ", { font: "20px Arial", fill: "#ffff00", align: "center" })
+
+		player.resources = 0;
+		player.resourceText = this.game.add.text(150 * (this.playersCount * 3), 450, "Recursos jugador " + this.playersCount + ": " + player.resources,{ font: "20px Arial", fill: "#ABA7A7", align: "center" });
+		player.resourceText.fixedToCamera = true;
 
 		this.game.physics.arcade.enable(player);	
 		player.body.collideWorldBounds = true;
@@ -406,6 +416,7 @@ Brainstein.Game = {
 			this.reloadTextPlayer2.setText("RECARGANDO");
 		} 
 		
+		//Texto vida de los jugadores
 		this.hpTextPlayer1.setText("HP P1:" + this.players[0].actualHp + "/" + this.players[0].hp);
 		this.hpTextPlayer2.setText("HP P2:" + this.players[1].actualHp + "/" + this.players[1].hp);
 
@@ -419,8 +430,23 @@ Brainstein.Game = {
 			}	
 		}
 
-		//this.actualRoundText.setText("Ronda actual:" + this.actualRound)
-		this.actualRoundText.setText("BuildKeyJustPressed:" + this.buildKeyJustPressed);
+		//Texto ronda actual
+		this.actualRoundText.setText("Ronda actual:" + this.actualRound)
+
+		//Texto del drop
+		if(this.dropComing == true && this.resting == true && this.actualRound > 0){
+			this.dropText.setText("Next drop in: " + this.dropTime);
+		}else if(this.dropComing == false && this.resting == true && this.actualRound > 0){
+			this.dropText.setText("TE QUEDASTE SIN DROP");
+		}else{
+			this.dropText.setText("No caen durante la ronda" + this.dropTime);
+		}
+		
+		
+		for(i = 0; i < this.playersCount;i++){ //Texto de los recursos de los jugadores
+			this.players[i].resourceText.setText("Recursos jugador " + (i+1) + ": " + this.players[i].resources);
+		}
+		
 
 		if(this.resting == true){
 			this.restTimerText.setText("Countdown: "+this.timeBetweenRounds);
@@ -433,6 +459,7 @@ Brainstein.Game = {
 		if(this.timeBetweenRounds > 0){
 			this.timeBetweenRounds -= 1;
 			this.restTimer.add(1000, this.startRound, this);
+			
 		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
 			this.restTimer.pause();
 			this.restTimer.add(1000, this.startRound, this);
@@ -440,8 +467,7 @@ Brainstein.Game = {
 			for(var i = 0; i < this.zombiesPerRound ; i++){
 				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
 			}
-			this.dropTimer.resume();
-			
+
 		}
 	},
 
@@ -453,7 +479,15 @@ Brainstein.Game = {
 			this.restTimer.resume();
 			this.actualRound++;
 			
+			this.dropProbability = this.game.rnd.integerInRange(0,100);
 			this.dropTime = this.game.rnd.integerInRange(0,5);
+
+			if(this.dropProbability <= 100){ // % de probabilidades de que caigan los drops
+				this.dropComing = true;
+				this.dropTimer.resume();
+			}else{
+				this.dropComing = false;
+			}
 		}
 
 	},
@@ -574,9 +608,6 @@ Brainstein.Game = {
 			this.buildKeyJustPressed = false;			
 		}
 
-		this.dropText.setText("Next drop in: " + this.dropTime);
-
-
 		//Grab brain
 		if(this.actionKeys.player2GrabBrain.isDown){
 			if(!this.players[1].grabBrainKeyJustPressed){
@@ -634,6 +665,7 @@ Brainstein.Game = {
 		this.game.physics.arcade.collide(this.players, this.enemies, this.playerZombieColision,null,this);
 		this.game.physics.arcade.collide(this.shot, this.enemies, this.bulletZombieColision,null,this);
 		this.game.physics.arcade.overlap(this.shot, this.enemies, this.bulletZombieColision,null,this);		
+		this.game.physics.arcade.collide(this.players,this.drops,this.playerDropColision,null,this);
 	},
 
 	playerZombieColision: function(player,zombie){
@@ -679,16 +711,23 @@ Brainstein.Game = {
 		}
 	},
 
+	playerDropColision: function(player,drop){
+		player.shotgunActualAmmo += drop.shotgunAmmo;
+		player.akActualAmmo += drop.akAmmo;
+		player.resources += drop.resources;
+		drop.kill();
+
+	},		
 	
 	//-----------------SHOOTING METHODS-----------------
 	fire: function(weapon, player){
 		if (this.game.time.now > weapon.nextFire && this.bullets.countDead() > 0)
    		{
         	weapon.nextFire = this.game.time.now + weapon.fireRate;	
-			this.shot[weapon.power] = this.bullets.getFirstDead();
-			this.shot[weapon.power].damage = weapon.damage;
-        	this.shot[weapon.power].reset(player.x - 8, player.y - 8);
-	       	this.game.physics.arcade.moveToPointer(this.shot[weapon.power], 300);
+			this.shot[weapon.numberOfBullets] = this.bullets.getFirstDead();
+			this.shot[weapon.numberOfBullets].damage = weapon.damage;
+        	this.shot[weapon.numberOfBullets].reset(player.x - 8, player.y - 8);
+	       	this.game.physics.arcade.moveToPointer(this.shot[weapon.numberOfBullets], 300);
 
 			if(weapon.name == "pistol"){
 				player.pistol.actualMagazine -= weapon.numberOfBullets;
@@ -1151,20 +1190,34 @@ Brainstein.Game = {
 	},
 
 	//--------------DROP METHODS------------------
-	createDrop: function(player){
+	createDrop: function(){
+
+		
+		for(i = 0; i < this.playersCount;i++){
+			if(this.drops[i] != null){
+				this.drops[i].kill();
+			}
+		}
+
 		if(this.dropTime > 0){
 
 			this.dropTime -= 1;
 			this.dropTimer.add(1000, this.createDrop, this);
 
 		}else{
-
-			var dropPos = this.createDropCoords();
-			this.drop = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
-
-			this.drop.shotgunAmmo = this.game.rnd.integerInRange(0,player.shotgun.magazineCapacity * 2);
-			this.drop.akAmmo = this.game.rnd.integerInRange(0,player.ak.magazineCapacity * 2);
-			this.drop.resources = this.game.rnd.integerInRange(0,20) ;
+	
+			for(i = 0; i < this.playersCount;i++){
+				var dropPos = this.createDropCoords();
+				this.drops[i] = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
+				
+				this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
+				while(this.drops[i].shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
+					this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
+				}
+				this.drops[i].akAmmo = this.game.rnd.integerInRange(0,this.players[0].ak.magazineCapacity * 2);
+				this.drops[i].resources = this.game.rnd.integerInRange(0,20);
+				this.game.physics.arcade.enable(this.drops[i]);
+			}
 
 			this.dropTimer.pause();
 			this.dropTimer.add(1000, this.createDrop, this);
