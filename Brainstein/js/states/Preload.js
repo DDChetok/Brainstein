@@ -32,8 +32,9 @@ Brainstein.Preload = {
 
 		this.load.image('drop','assets/images/drop_ph.png');
 
-		this.load.image('deadPlayer', 'assets/images/dead_player_ph.png')
+		this.load.image('deadPlayer', 'assets/images/dead_player_ph.png');
 
+		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');
 	},
 
 	create: function(){

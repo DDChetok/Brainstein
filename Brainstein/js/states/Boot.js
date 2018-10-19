@@ -13,7 +13,6 @@ Brainstein.Boot = {
 		this.game.stage.backgroundColor = '#fff';
 
 		//Scaling options
-		//this.scale.scaleMode = Phaser.ScaleManager.RESIZE;	//Changes the game size to match the display size
 		this.scale.minWidth = 240;
 		this.scale.maxHeight = 170;
 		this.scale.maxWidth = 2880;

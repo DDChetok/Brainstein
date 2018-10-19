@@ -1268,7 +1268,7 @@ Brainstein.Game = {
 	},
 
 	fadeComplete: function(){
-		this.state.start('MainMenu');
+		this.state.start('GameOver');
 	},
 
 	//-----------------DEATH & RESURRECTION METHODS-----------------
