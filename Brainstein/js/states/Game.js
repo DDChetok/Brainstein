@@ -1,8 +1,8 @@
 var Brainstein = Brainstein || {};
 Brainstein.Game = function(){};
 
-Brainstein.Game = {	
-	//-----------------PHASER METHODS-----------------
+Brainstein.Game = {		
+	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
 	create: function(){
 		//-----------------WORLD & LEVEL VARIABLES-----------------
 		//Set world dimension
@@ -142,8 +142,7 @@ Brainstein.Game = {
 		this.brain = this.game.add.sprite(180, 180, "brain");
 		this.game.physics.arcade.enable(this.brain);	
 	},
-	//-----------------CONSTRUCTOR METHODS-----------------
-	//#region [ rgba (0, 205, 30, 0.1) ]
+
 	createPlayer: function(x, y, sprite){
 		var player = this.game.add.sprite(x, y, sprite);			
 		player.anchor.setTo(0.5, 0.5);
@@ -263,7 +262,7 @@ Brainstein.Game = {
 	},
 	//#endregion
 
-	//-----------------UPDATE METHODS-----------------
+	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	update: function(){
 		this.allowEnemyAttack();
 
@@ -456,46 +455,6 @@ Brainstein.Game = {
 
 	},
 
-	//----------ROUND LOOP METHODS--------------
-	startRound: function(){
-		if(this.timeBetweenRounds > 0){
-			this.timeBetweenRounds -= 1;
-			this.restTimer.add(1000, this.startRound, this);
-			
-		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
-			this.restTimer.pause();
-			this.restTimer.add(1000, this.startRound, this);
-			this.resting = false; 
-			for(var i = 0; i < this.zombiesPerRound ; i++){
-				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
-			}
-
-		}
-	},
-
-	handleRound: function(){
-		if(this.enemies.length == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
-			this.resting = true; 
-			this.timeBetweenRounds = 3;
-			this.zombiesPerRound++;
-			this.restTimer.resume();
-			this.actualRound++;
-			
-			this.dropProbability = this.game.rnd.integerInRange(0,100);
-			this.dropTime = this.game.rnd.integerInRange(0,5);
-
-			if(this.dropProbability <= 100){ // % de probabilidades de que caigan los drops
-				this.dropComing = true;
-				this.dropTimer.resume();
-			}else{
-				this.dropComing = false;
-			}
-		}
-
-	},
-
-	//----------RANDOM METHODS--------------
-	//Handles the keyboard input
 	handleKeyboardInput: function(){
 
 		//----------------------PLAYER 1-----------------------
@@ -627,40 +586,48 @@ Brainstein.Game = {
 			this.players[1].grabBrainKeyJustPressed = false;					
 		}	
 	},
+	//#endregion
 
-	//Creates an enemy
-	createEnemy: function(x, y, texture){
-		var zombie = this.game.add.sprite(x, y, texture); 
-		this.game.physics.arcade.enable(zombie);
-		//zombie.scale.setTo(0.05);
-		zombie.anchor.setTo(0.5, 0.5);
-		zombie.pathFindingAvaible = true;
-		zombie.walkingSpeed = 70;
-		zombie.body.collideWorldBounds = true;
-		zombie.path = [];
-		zombie.target = "player"
-		zombie.targetBuilding;
-		zombie.pathStep = -1;	
-		zombie.hp = 10;	
-		zombie.attackSpeed = 1;
-		zombie.attackAvaible = true;	
-		zombie.actualHp = zombie.hp;	
-		zombie.damage = 5;
-		zombie.pos = this.enemyCount;
-		this.enemies[this.enemyCount] = zombie;		
-		this.enemyCount++;
+	//#region [ rgba (200, 0, 200, 0.1)] ROUND LOOP METHODS
+	startRound: function(){
+		if(this.timeBetweenRounds > 0){
+			this.timeBetweenRounds -= 1;
+			this.restTimer.add(1000, this.startRound, this);
+			
+		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
+			this.restTimer.pause();
+			this.restTimer.add(1000, this.startRound, this);
+			this.resting = false; 
+			for(var i = 0; i < this.zombiesPerRound ; i++){
+				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
+			}
+
+		}
 	},
 
+	handleRound: function(){
+		if(this.enemies.length == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
+			this.resting = true; 
+			this.timeBetweenRounds = 3;
+			this.zombiesPerRound++;
+			this.restTimer.resume();
+			this.actualRound++;
+			
+			this.dropProbability = this.game.rnd.integerInRange(0,100);
+			this.dropTime = this.game.rnd.integerInRange(0,5);
 
-	//Sprite gets killed when colliding with other
-	spriteKill: function(player,sprite){
-		sprite.kill();
-		player.weapon = sprite.name;
-		player.actualAmmo = sprite.magazine;
+			if(this.dropProbability <= 100){ // % de probabilidades de que caigan los drops
+				this.dropComing = true;
+				this.dropTimer.resume();
+			}else{
+				this.dropComing = false;
+			}
+		}
+
 	},
-
-
-	//----------PHYSICS METHODS--------------
+	//#endregion
+	
+	//#region [rgba (0, 200, 200, 0.1)] PHYSICS METHODS
 	//Recognize a colision between sprites
 	spritesOverlapSolve: function(){
 		this.game.physics.arcade.overlap(this.enemies, this.brain, this.gameOver, null, this);
@@ -719,9 +686,17 @@ Brainstein.Game = {
 		player.resources += drop.resources;
 		drop.kill();
 
-	},		
+	},
 	
-	//-----------------SHOOTING METHODS-----------------
+	//Sprite gets killed when colliding with other
+	spriteKill: function(player,sprite){
+		sprite.kill();
+		player.weapon = sprite.name;
+		player.actualAmmo = sprite.magazine;
+	},
+	//#endregion
+	
+	//#region [rgba(200, 200, 0, 0.1)] SHOOTING METHODS
 	fire: function(weapon, player){
 		if (this.game.time.now > weapon.nextFire && this.bullets.countDead() > 0)
    		{
@@ -862,9 +837,9 @@ Brainstein.Game = {
 			}      	
    		
 	},
+	//#endregion
 
-
-	//-----------------PATHFINDING METHODS-----------------
+	//#region [rgba(0, 0, 200, 0.1)] PATHFINDING METHODS
 	//Inits pathfinding
 	//Calculates the enemy target position and calls find path
 	moveEnemy: function(enemy){
@@ -1061,8 +1036,9 @@ Brainstein.Game = {
 			this.enemies[i].pathFindingAvaible = true;
 		}
 	},
+	//#endregion
 
-	//-----------------BUILDING METHODS-----------------
+	//#region [rgba(250, 200, 90, 0.1)] BUILDING METHODS
 	startBuilding: function(player){
 		var vectorPlayerPointer;		
 
@@ -1190,8 +1166,9 @@ Brainstein.Game = {
 		}
 		return newArray;
 	},
+	//#endregion
 
-	//--------------DROP METHODS------------------
+	//#region [rgba(200, 0, 0, 0.1)] DROP METHODS
 	createDrop: function(){
 
 		
@@ -1243,8 +1220,9 @@ Brainstein.Game = {
 		}
 
 	},
+	//#endregion
 
-	//-----------------BRAIN METHODS-----------------
+	//#region [rgba(100, 100, 100, 0.1)] BRAIN METHODS
 	grabBrain: function(player){
 		if(Phaser.Point.distance(player, this.brain.position) < 26){
 			player.speed = 50;			
@@ -1260,9 +1238,9 @@ Brainstein.Game = {
 		player.speed = 200;
 		player.holdingBrain = false;
 	},
-
+	//#endregion
 	
-	//-----------------GAME OVER METHODS-----------------
+	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
 		console.log("Unlucky game over");				
 		this.camera.fade('#ff0000', 2000);
@@ -1272,9 +1250,9 @@ Brainstein.Game = {
 	fadeComplete: function(){
 		this.state.start('GameOver');
 	},
+	//#endregion
 
-
-	//-----------------DEATH & RESURRECTION METHODS-----------------
+	//#region [rgba(90, 0, 90, 0.1)] DEATH & RESURRECTION METHODS
 	killPlayer: function(player){
 		player.dead = true;
 		player.body.enable = false;
@@ -1297,5 +1275,5 @@ Brainstein.Game = {
 		player.loadTexture('erwin');	
 
 	}
-
+	//#endregion
 }	
