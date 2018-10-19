@@ -19,6 +19,9 @@ Brainstein.Game = {
 		//Create map layers
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
 		this.collisionLayer = this.map.createLayer('collisionLayer');
+		this.backgroundLayer.renderSettings.enableScrollDelta = true;
+		this.collisionLayer.renderSettings.enableScrollDelta = true;
+
 		//Collision on blockedLayer
 		this.setCollisionLayer();
 		//Resizes the game world to match the layer dimensions
@@ -93,9 +96,7 @@ Brainstein.Game = {
 		this.reloadTextPlayer1 = this.game.add.text(0, 0, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.reloadTextPlayer1.fixedToCamera = true;
 		this.reloadTextPlayer2 = this.game.add.text(this.game.width - 400, 0, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
-		this.reloadTextPlayer2.fixedToCamera = true;
-
-		//Keyboard	
+		this.reloadTextPlayer2.fixedToCamera = true;	
 
 		//-----------------BUILDING VARIABLES-----------------		
 		this.destructableBuildings = [];
@@ -104,6 +105,7 @@ Brainstein.Game = {
 		this.buildCost = 1;		
 		//this.resourcesText = this.game.add.text(650, 0, "Recursos: " + this.players[0].resources, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		//this.resourcesText.fixedToCamera = true;
+
 		//-----------------ROUND LOOP VARIABLES-----------------
 		this.timeBetweenRounds = 2; //Tiempo entre rondas(numero)
 		
@@ -121,6 +123,10 @@ Brainstein.Game = {
 		this.actualRound = 0;
 		this.actualRoundText = this.game.add.text(300, 0, "Ronda actual:" + this.actualRound, { font: "20px Arial", fill: "#40FF00", align: "center" });
 		this.actualRoundText.fixedToCamera = true;
+
+		this.spawnPoints = [];
+		this.spawnPointsCount = 0;
+
 		//----------------DROPS-------------------
 		this.dropTime = this.game.rnd.integerInRange(0,5);
 
@@ -136,8 +142,7 @@ Brainstein.Game = {
 	
 		this.dropProbability;
 		this.dropComing = false;
-		//-----------------------------------------
-
+		
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
 		this.game.physics.arcade.enable(this.brain);	
@@ -260,6 +265,10 @@ Brainstein.Game = {
 		}
 		return weapon;
 	},
+
+	createSpawnPoint: function(){
+		
+	}
 	//#endregion
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
@@ -599,9 +608,9 @@ Brainstein.Game = {
 			this.restTimer.add(1000, this.startRound, this);
 			this.resting = false; 
 			for(var i = 0; i < this.zombiesPerRound ; i++){
-				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
+				this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
 			}
-
+			
 		}
 	},
 
@@ -622,6 +631,8 @@ Brainstein.Game = {
 			}else{
 				this.dropComing = false;
 			}
+
+			this.teleportBrain();
 		}
 
 	},
@@ -1213,7 +1224,7 @@ Brainstein.Game = {
 
 		dropCoord = this.getCoordFromPosition(dropPos);
 
-		if(this.gridIndices[dropCoord.row][dropCoord.column]  != -1){ //Si es distinto de -1 (-1 = tierra), si tocamos rio volvemos a llamar la funcion
+		if(this.gridIndices[dropCoord.column][dropCoord.row]  != -1){ //Si es distinto de -1 (-1 = tierra), si tocamos rio volvemos a llamar la funcion
 			return dropPos = this.createDropCoords();
 		}else{
 			return dropPos;
@@ -1237,6 +1248,25 @@ Brainstein.Game = {
 
 		player.speed = 200;
 		player.holdingBrain = false;
+	},
+
+	teleportBrain: function(){
+		for(var i = 0; i < this.playersCount; i++){
+			this.players[i].holdingBrain = false;
+			this.players[i].speed = 200;
+		}
+		var brainPos = {x: 0, y: 0};
+		brainPos.x = this.game.rnd.integerInRange(0,this.levelDimensions.columns * this.tileDimensions.x);
+		brainPos.y = this.game.rnd.integerInRange(0,this.levelDimensions.rows * this.tileDimensions.y);		
+
+		var randomCell = this.getCoordFromPosition(brainPos);
+
+		if(this.gridIndices[randomCell.column][randomCell.row] != -1){
+			this.teleportBrain();
+		} else {
+			this.brain.position.x = brainPos.x;
+			this.brain.position.y = brainPos.y;
+		}
 	},
 	//#endregion
 	
