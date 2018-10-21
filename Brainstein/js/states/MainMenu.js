@@ -9,14 +9,14 @@ Brainstein.MainMenu = {
 		this.background.height = (this.game.height);
 
 		//Start game text
-		var text = "Press enter to begin";
+		var text = "Press enter";
 		var style = {font: "30px Arial", fill: '#000', align:"center"};
 		var h = this.game.add.text(this.game.width / 2 - 130, this.game.height - 50, text, style);
 	},
 
 	update: function(){
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
-			this.game.state.start('Game');
+			this.game.state.start('LevelSelection');
 		}
 	}
 

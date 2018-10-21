@@ -3,30 +3,13 @@ Brainstein.Game = function(){};
 
 Brainstein.Game = {		
 	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
+	init: function(){
+		this.levelSelected = Brainstein.LevelSelection.levelSelected;
+	},
+
 	create: function(){
-		//-----------------WORLD & LEVEL VARIABLES-----------------
-		//Set world dimension
-		this.game.world.setBounds(0, 0, 320, 320);		
-		//this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');		
 
-		//Create Tiled map
-		this.map = this.game.add.tilemap('level1');
-		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
-		this.map.addTilesetImage('tileset', 'gameTiles');
-		this.levelDimensions = {rows: this.map.layers[1].data.length, columns: this.map.layers[1].data[0].length};
-		this.tileDimensions = {x: this.map.tileWidth, y: this.map.tileHeight};
-
-		//Create map layers
-		this.backgroundLayer = this.map.createLayer('backgroundLayer');
-		this.collisionLayer = this.map.createLayer('collisionLayer');
-		this.backgroundLayer.renderSettings.enableScrollDelta = true;
-		this.collisionLayer.renderSettings.enableScrollDelta = true;
-
-		//Collision on blockedLayer
-		this.setCollisionLayer();
-		//Resizes the game world to match the layer dimensions
-		this.backgroundLayer.resizeWorld();		
-		this.camera.flash('#000000');
+		this.createLevel();
 
 		this.resurrectTimer;
 		this.resurrectTimerTotal = 0;
@@ -127,15 +110,7 @@ Brainstein.Game = {
 
 		this.actualRound = 0;
 		this.actualRoundText = this.game.add.text(300, 0, "Ronda actual:" + this.actualRound, { font: "20px Arial", fill: "#40FF00", align: "center" });
-		this.actualRoundText.fixedToCamera = true;
-
-		this.spawnPoints = [];
-		this.spawnPointsCount = 0;
-
-		this.createSpawnPoint(32, 500, "spawnPoint");
-		this.createSpawnPoint(750, 500, "spawnPoint");
-		this.createSpawnPoint(750, 32, "spawnPoint");
-
+		this.actualRoundText.fixedToCamera = true;		
 		//----------------DROPS-------------------
 		this.dropTime = this.game.rnd.integerInRange(0,5);
 
@@ -155,6 +130,52 @@ Brainstein.Game = {
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
 		this.game.physics.arcade.enable(this.brain);	
+	},
+
+	createLevel: function(){
+		//Create Tiled map & spawnPoints
+		this.spawnPoints = [];
+		this.spawnPointsCount = 0;			
+		switch(this.levelSelected){
+			case 0:			
+				this.map = this.game.add.tilemap('level1');	
+
+				//Level spawnPoints
+				this.createSpawnPoint(32, 500, "spawnPoint");
+				this.createSpawnPoint(750, 500, "spawnPoint");
+				this.createSpawnPoint(750, 32, "spawnPoint");
+		
+			break;
+			case 1:			
+				this.map = this.game.add.tilemap('level2');		
+				//Level spawnPoints
+				this.createSpawnPoint(32, 500, "spawnPoint");
+				this.createSpawnPoint(750, 500, "spawnPoint");
+				this.createSpawnPoint(750, 32, "spawnPoint");
+			break;
+			case 2:
+				this.map = this.game.add.tilemap('level3');	
+				//Level spawnPoints
+				this.createSpawnPoint(32, 32, "spawnPoint");	
+			break;
+		}
+
+		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
+		this.map.addTilesetImage('tileset', 'gameTiles');
+		this.levelDimensions = {rows: this.map.layers[1].data.length, columns: this.map.layers[1].data[0].length};
+		this.tileDimensions = {x: this.map.tileWidth, y: this.map.tileHeight};
+
+		//Create map layers
+		this.backgroundLayer = this.map.createLayer('backgroundLayer');
+		this.collisionLayer = this.map.createLayer('collisionLayer');
+		this.backgroundLayer.renderSettings.enableScrollDelta = true;
+		this.collisionLayer.renderSettings.enableScrollDelta = true;
+
+		//Collision on blockedLayer
+		this.setCollisionLayer();
+		//Resizes the game world to match the layer dimensions
+		this.backgroundLayer.resizeWorld();		
+		this.camera.flash('#000000');
 	},
 
 	createPlayer: function(x, y, sprite){
@@ -1321,8 +1342,8 @@ Brainstein.Game = {
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
 		console.log("Unlucky game over");				
-		//this.camera.fade('#ff0000', 2000);
-		//this.camera.onFadeComplete.add(this.fadeComplete, this);
+		this.camera.fade('#ff0000', 2000);
+		this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
 
 	fadeComplete: function(){

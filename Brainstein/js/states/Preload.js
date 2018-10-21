@@ -12,7 +12,12 @@ Brainstein.Preload = {
 		this.load.setPreloadSprite(this.preloadBar);
 
 		//Load game assets
+		//Levels
 		this.load.tilemap('level1', 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);	
+		this.load.tilemap('level2', 'assets/tilemaps/level2.json', null, Phaser.Tilemap.TILED_JSON);	
+		this.load.tilemap('level3', 'assets/tilemaps/level3.json', null, Phaser.Tilemap.TILED_JSON);	
+
+		//Images
 		this.load.image('gameTiles', 'assets/images/open_tileset.png');
 		this.load.image('mainMenuSplash','assets/images/main_menu.png');
 		this.load.image('darwin', 'assets/images/darwin_sprite_ph.png');
