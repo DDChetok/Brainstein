@@ -125,6 +125,7 @@ Brainstein.Game = {
 		this.dropTimer.pause();
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
+		this.brain.anchor.setTo(0.5, 0.5);
 		this.brain.width = 60;
 		this.brain.height = 60;
 		this.game.physics.arcade.enable(this.brain);
@@ -134,28 +135,18 @@ Brainstein.Game = {
 	createLevel: function(){
 		//Create Tiled map & spawnPoints
 		this.spawnPoints = [];
-		this.spawnPointsCount = 0;			
+		this.spawnPointsCount = 0;				
+
 		switch(this.levelSelected){
 			case 0:			
 				this.map = this.game.add.tilemap('level1');	
-
-				//Level spawnPoints
-				this.createSpawnPoint(21 * this.tileDimensions.x, 20 * this.tileDimensions.y, "spawnPoint");
-				this.createSpawnPoint(42 * this.tileDimensions.x, 11 * this.tileDimensions.y, 500, "spawnPoint");
-				this.createSpawnPoint(750, 32, "spawnPoint");
 		
 			break;
 			case 1:			
-				this.map = this.game.add.tilemap('level2');		
-				//Level spawnPoints
-				this.createSpawnPoint(32, 500, "spawnPoint");
-				this.createSpawnPoint(750, 500, "spawnPoint");
-				this.createSpawnPoint(750, 32, "spawnPoint");
+				this.map = this.game.add.tilemap('level2');				
 			break;
 			case 2:
-				this.map = this.game.add.tilemap('level3');	
-				//Level spawnPoints
-				this.createSpawnPoint(32, 32, "spawnPoint");	
+				this.map = this.game.add.tilemap('level3');					
 			break;
 		}
 
@@ -164,6 +155,28 @@ Brainstein.Game = {
 		this.levelDimensions = {rows: this.map.layers[1].data.length, columns: this.map.layers[1].data[0].length};
 		this.tileDimensions = {x: this.map.tileWidth, y: this.map.tileHeight};
 
+
+		//Creates SpawnPoints
+		switch(this.levelSelected){
+			case 0:					
+				//Level spawnPoints
+				this.createSpawnPoint(21 * this.tileDimensions.x, 20 * this.tileDimensions.y, "spawnPoint");
+				this.createSpawnPoint(42 * this.tileDimensions.x, 11 * this.tileDimensions.y, 500, "spawnPoint");
+				this.createSpawnPoint(750, 32, "spawnPoint");
+		
+			break;
+			case 1:						
+				//Level spawnPoints
+				this.createSpawnPoint(32, 500, "spawnPoint");
+				this.createSpawnPoint(750, 500, "spawnPoint");
+				this.createSpawnPoint(750, 32, "spawnPoint");
+			break;
+			case 2:			
+				//Level spawnPoints
+				this.createSpawnPoint(32, 32, "spawnPoint");	
+			break;
+		}
+		
 		//Create map layers
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
 		this.collisionLayer = this.map.createLayer('collisionLayer');
