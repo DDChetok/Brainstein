@@ -31,8 +31,7 @@ Brainstein.Game = {
 		//All animation here	
 
 		//Enable player physics
-		this.game.physics.startSystem(Phaser.Physics.ARCADE);		
-		//this.game.physics.arcade.enable(this.enemies);	
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);				
 
 		this.resurrectTimer = this.game.time.create(false);	
 
@@ -88,16 +87,6 @@ Brainstein.Game = {
 		this.reloadTextPlayer2 = this.game.add.text(this.game.width - 400, 0, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.reloadTextPlayer2.fixedToCamera = true;	
 
-		//-----------------BUILDING VARIABLES-----------------		
-		this.destructableBuildings = [];
-		this.destructableBuildingsCount = 0;
-
-		this.buildCost = 1;		
-		//this.resourcesText = this.game.add.text(650, 0, "Recursos: " + this.players[0].resources, { font: "20px Arial", fill: "#ffff00", align: "center" });
-		//this.resourcesText.fixedToCamera = true;
-
-		
-		this.maxResources = 20;
 		//-----------------ROUND LOOP VARIABLES-----------------
 		this.timeBetweenRounds = 3; //Tiempo entre rondas(numero)
 		
@@ -134,8 +123,6 @@ Brainstein.Game = {
 
 		this.dropTimer.start();
 		this.dropTimer.pause();
-		//-----------------------------------------
-
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
 		this.brain.width = 60;
@@ -185,7 +172,7 @@ Brainstein.Game = {
 		this.collisionLayer.renderSettings.enableScrollDelta = true;
 		this.backgroundLayer2.renderSettings.enableScrollDelta = true;
 		//Collision on blockedLayer
-		this.setCollisionLayer();
+		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
 		//Resizes the game world to match the layer dimensions
 		this.backgroundLayer.resizeWorld();		
 		this.backgroundLayer2.resizeWorld();	
@@ -228,15 +215,6 @@ Brainstein.Game = {
 		player.resurrecting = false;
 		player.resurrectText = this.game.add.text(player.position.x - 20, player.position.y - 20, " ", { font: "20px Arial", fill: "#ffff00", align: "center" })
 
-		player.resources = 5;
-		player.resourceText = this.game.add.text(150 * (this.playersCount * 3), 450, "Recursos jugador " + this.playersCount + ": " + player.resources,{ font: "20px Arial", fill: "#ABA7A7", align: "center" });
-		player.resourceText.fixedToCamera = true;
-		player.notEnoughResourcesText = this.game.add.text(player.x,player.y, " ",{ font: "10px Arial", fill: "#FF0000", align: "center" });
-		player.notEnoughResourcesTimer = this.game.time.create(false);
-		player.notEnoughResourcesTimer.add(2000,this.deleteNotEnoughResourcesText,this,player);
-		player.notEnoughResourcesTimer.start();
-		player.notEnoughResourcesTimer.pause();
-
 		player.shot = [];
 		player.actualShot = 0;
 
@@ -244,8 +222,7 @@ Brainstein.Game = {
 		player.dropCatchedTimer = this.game.time.create(false);
 		player.dropCatchedTimer.add(2000,this.deleteDropText,this,player);
 		player.dropCatchedTimer.start();
-		player.dropCatchedTimer.pause();
-	
+		player.dropCatchedTimer.pause();	
 
 		this.game.physics.arcade.enable(player);	
 		player.body.collideWorldBounds = true;
@@ -257,7 +234,7 @@ Brainstein.Game = {
 
 	//Creates an enemy
 	createEnemy: function(texture){
-		var zombie, spawnPoint, x, y;
+		var zombie, x, y;
 		var spawnPointIndex = this.game.rnd.integerInRange(0, this.spawnPointsCount -1); //Chooses the spawpoint it will appear in.
 		x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
 		y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
@@ -265,18 +242,15 @@ Brainstein.Game = {
 		zombie.height = 60;
 		zombie.width = 60;
 		this.game.physics.arcade.enable(zombie);
-		//zombie.scale.setTo(0.05);
 		zombie.anchor.setTo(0.5, 0.5);
 		zombie.pathFindingAvaible = true;
 		zombie.walkingSpeed = 70;
 		zombie.body.collideWorldBounds = true;
 		zombie.path = [];
-		zombie.target = "player"
-		zombie.targetBuilding;
+		zombie.target = "player"	
 		zombie.pathStep = -1;	
 		zombie.hp = 10;	
 		zombie.attackSpeed = 1;
-		zombie.attackAvaible = true;	
 		zombie.actualHp = zombie.hp;	
 		zombie.damage = 5;
 		zombie.pos = this.enemyCount;
@@ -295,9 +269,7 @@ Brainstein.Game = {
 			player1Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.R),
 			player1Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.ONE),
 			player1AK: this.game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-			player1Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),
-			player1Shovel: this.game.input.keyboard.addKey(Phaser.Keyboard.FOUR),
-			player1Build: this.game.input.keyboard.addKey(Phaser.Keyboard.E),		
+			player1Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),				
 			player1GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),	
 			player1Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.F),	
 
@@ -309,13 +281,9 @@ Brainstein.Game = {
 			player2Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_ADD), 
 			player2Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7), 
 			player2AK: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8), 
-			player2Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9), 
-			player2Shovel: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_4),
-			player2Build: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6),	
+			player2Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9), 			
 			player2GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_0),
-			player2Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_SUBTRACT),
-
-			retry: this.game.input.keyboard.addKey(Phaser.Keyboard.R),
+			player2Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_SUBTRACT),		
 		};
 	},	
 
@@ -347,8 +315,6 @@ Brainstein.Game = {
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	update: function(){
-		this.allowEnemyAttack();
-
 		for(var i = 0; i < this.playersCount; i++){
 			
 			this.players[i].body.velocity.x = 0;
@@ -356,11 +322,7 @@ Brainstein.Game = {
 					
 			//Shooting and building		
 			if(!this.players[i].holdingBrain && !this.players[i].dead && !this.players[i].resurrecting){
-				if(!this.players[i].building){
-					this.handleShooting(this.players[i]);		
-				} else {
-					this.handleBuilding(this.players[i]);
-				}
+				this.handleShooting(this.players[i]);
 			}		
 
 			if(this.players[i].holdingBrain){
@@ -390,7 +352,7 @@ Brainstein.Game = {
 		this.handleRound();
 
 		//Collisions
-		this.game.physics.arcade.collide(this.players, this.collisionLayer);	
+		this.game.physics.arcade.collide(this.players, this.collisionLayer);			
 		this.spritesOverlapSolve();
 
 		//Checks if the OTHER player is dead
@@ -454,13 +416,7 @@ Brainstein.Game = {
 					enemy.body.velocity.y = 0;
 				}
 			}			
-		}
-		if(enemy.targetBuilding!= null){
-			if(Phaser.Point.distance(enemy.position, enemy.targetBuilding.position) < 20 && enemy.attackAvaible){
-				this.damageBuilding(enemy.targetBuilding, enemy);		
-				enemy.attackAvaible = false;			
-			}
-		}
+		}		
 	},	
 	
 	updateText: function(){
@@ -493,10 +449,6 @@ Brainstein.Game = {
 
 			case "ak":
 				this.reloadTextPlayer2.setText("AK P1:" + this.players[1].ak.actualMagazine + "/" + this.players[1].akActualAmmo);
-				break;
-
-			case "shovel":
-				this.reloadTextPlayer2.setText("Pala destruyebloques");
 				break;
 		}
 
@@ -538,15 +490,10 @@ Brainstein.Game = {
 		
 		for(i = 0; i < this.playersCount; i++){
 			this.players[i].dropCatchedText.x = this.players[i].x - 150;
-			this.players[i].dropCatchedText.y = this.players[i].y - 25;
-
-			this.players[i].notEnoughResourcesText.x = this.players[i].x - 75;
-			this.players[i].notEnoughResourcesText.y = this.players[i].y - 10;
+			this.players[i].dropCatchedText.y = this.players[i].y - 25;			
 		}
 
-		for(i = 0; i < this.playersCount;i++){ //Texto de los recursos de los jugadores
-			this.players[i].resourceText.setText("Recursos jugador " + (i+1) + ": " + this.players[i].resources);
-		}
+	
 		
 
 		if(this.resting == true){
@@ -584,27 +531,7 @@ Brainstein.Game = {
 		} else if(this.actionKeys.player1AK.isDown){
 			this.players[0].weapon = 'ak';
 		} else if(this.actionKeys.player1Shotgun.isDown){
-			this.players[0].weapon = 'shotgun';
-		}else if(this.actionKeys.player1Shovel.isDown){
-			this.players[0].weapon = 'shovel';
-		}
-
-		//Change player state to building
-		if(this.actionKeys.player1Build.isDown){
-			if(!this.players[0].buildKeyJustPressed){
-				this.players[0].building = !this.players[0].building;
-				this.players[0].buildKeyJustPressed = true;					
-				if(this.players[0].building){
-					this.startBuilding(this.players[0]);
-					console.log("Building");
-				} else {
-					this.endBuilding(this.players[0]);
-				}
-			}		
-		}
-
-		if(this.actionKeys.player1Build.isUp){
-			this.players[0].buildKeyJustPressed = false;						
+			this.players[0].weapon = 'shotgun';		
 		}
 
 		//Grab brain
@@ -651,26 +578,7 @@ Brainstein.Game = {
 		} else if(this.actionKeys.player2AK.isDown){
 			this.players[1].weapon = 'ak';
 		} else if(this.actionKeys.player2Shotgun.isDown){
-			this.players[1].weapon = 'shotgun';
-		}else if(this.actionKeys.player2Shovel.isDown){
-			this.players[1].weapon = 'shovel';
-		}
-
-		//Change player state to building
-		if(this.actionKeys.player2Build.isDown){
-			if(!this.players[1].buildKeyJustPressed){
-				this.players[1].building = !this.players[1].building;
-				this.players[1].buildKeyJustPressed = true;		
-				if(this.players[1].building){
-					this.startBuilding(this.players[1]);
-				} else {
-					this.endBuilding(this.players[1]);
-				}
-			}		
-		}
-
-		if(this.actionKeys.player2Build.isUp){
-			this.buildKeyJustPressed = false;			
+			this.players[1].weapon = 'shotgun';		
 		}
 
 		//Grab brain
@@ -744,38 +652,14 @@ Brainstein.Game = {
 	spritesOverlapSolve: function(){
 		this.game.physics.arcade.overlap(this.enemies, this.brain, this.gameOver, null, this);
 		this.game.physics.arcade.collide(this.players, this.enemies, this.playerZombieColision,null,this);
+		this.game.physics.arcade.collide(this.players,this.drops,this.playerDropColision,null,this);			
+
 		for(i = 0; i < this.playersCount;i++){
 			this.game.physics.arcade.overlap(this.players[i].shot, this.enemies, this.bulletZombieColision,null,this);
-		}
+			this.game.physics.arcade.overlap(this.players[i].shot, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
+		}	
 
-		this.game.physics.arcade.collide(this.players,this.drops,this.playerDropColision,null,this);	
-		this.game.physics.arcade.overlap(this.players,this.destructableBuildings,this.playerBuildingColision,null,this);	
-
-		/*for(i = 0; i < this.playersCount;i++){
-			for(j = 0; j < this.destructableBuildingsCount;j++){
-				var distance = Phaser.Point.distance(this.players[i],this.destructableBuildings[j]);
-				if(distance <= this.tileDimensions.x  || distance <= this.tileDimensions.y){
-					this.playerBuildingColision(this.players[i],this.destructableBuildings[j]);
-				}
-			}
-		}*/
 		
-	},
-
-	playerBuildingColision: function(player,building){
-		if(player.weapon == "shovel"){
-			this.map.layers[1].data[building.coordinates.row][building.coordinates.column].index = -1;
-			this.gridIndices[building.coordinates.row][building.coordinates.column] = -1;
-			this.easyStar.setAcceptableTiles(this.gridIndices);
-			building.kill();
-			this.destructableBuildingsCount--;
-			this.reorganizeArray(this.destructableBuildings, this.destructableBuildingsCount, building);
-			this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
-			if(player.resources < 20){
-				player.resources++;
-			}
-			
-		}
 		
 	},
 
@@ -830,6 +714,10 @@ Brainstein.Game = {
 		player.resources += drop.resources;
 		player.dropCatchedTimer.resume();
 		player.dropCatchedText.setText(drop.shotgunAmmo + "Balas escopeta/" + drop.akAmmo + " Balas AK/" + drop.resources + " Recursos");
+	},
+
+	bulletCollsionLayerCollision: function(bullet, layerCollision){
+		console.log("PAM");
 	},
 	
 	//Sprite gets killed when colliding with other
@@ -1038,9 +926,7 @@ Brainstein.Game = {
 			}
 
 			targetPosition = new Phaser.Point(targetPlayer.position.x, targetPlayer.position.y);		
-			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
-		} else if (enemy.target == "building") {			
-			this.findPathToBuilding(enemy);
+			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);			
 		} else if (enemy.target == "brain"){				
 			targetPosition = new Phaser.Point(this.brain.position.x, this.brain.position.y);		
 			this.findPath(enemy.position, targetPosition, this.assignPath, enemy);	
@@ -1095,13 +981,8 @@ Brainstein.Game = {
 
 				callback.call(enemy, pathPositions, enemy);	
 				this.updateEnemy(enemy);			
-			} else {	
-				//Couldn't find a path to the player	
-				if(enemy.targetBuilding == null){					
-					enemy.target = "building";			
-					this.findPathToBuilding(enemy);		
-				}			
-			}
+			} 						
+			
 		} else {
 			if(path !== null){		
 				//A path to the building was found
@@ -1117,31 +998,6 @@ Brainstein.Game = {
 	},				
 
 
-	//Finds a path to a building instead of the player
-	findPathToBuilding: function(enemy){		
-		var minDistance = Number.MAX_SAFE_INTEGER;
-		for(var i = 0; i < this.destructableBuildingsCount; i++){
-			var distance = Phaser.Point.distance(enemy.position, this.destructableBuildings[i].position);
-			if(distance < minDistance){
-				minDistance = distance;
-				enemy.targetBuilding = this.destructableBuildings[i];
-				break;
-			}
-		}	
-
-		var x = enemy.targetBuilding.coordinates.column;
-		var y = enemy.targetBuilding.coordinates.row;
-		var originalIndex = this.map.layers[1].data[y][x].index			
-
-		if(enemy.targetBuilding != null){
-			this.map.layers[1].data[y][x].index = -1;
-			this.initPathfinding();
-			this.findPath(enemy.position, enemy.targetBuilding.position, this.assignPath, enemy);		
-			this.map.layers[1].data[y][x].index = originalIndex;
-			this.initPathfinding();
-		}		
-	},
-
 	//Returns if the subject has reached the target position
 	reachedTargetPosition: function(targetPosition, subject){
 		var distance;
@@ -1152,7 +1008,7 @@ Brainstein.Game = {
 	//Finds a path from an origin to a target
 	findPath: function(originPosition, targetPosition, callback, enemy){		
 
-		if(enemy.pathFindingAvaible || enemy.target == "building"){
+		if(enemy.pathFindingAvaible){
 			var originCoord = this.getCoordFromPosition(originPosition);
 			var targetCoord = this.getCoordFromPosition(targetPosition);
 
@@ -1213,150 +1069,8 @@ Brainstein.Game = {
 	},
 	//#endregion
 
-	//#region [rgba(250, 200, 90, 0.1)] BUILDING METHODS
-	startBuilding: function(player){
-		var vectorPlayerPointer;		
-
-		vectorPlayerPointer = {
-			x: this.game.input.mousePointer.worldX - player.position.x,
-			y: this.game.input.mousePointer.worldY - player.position.y
-		};
-
-		vectorPlayerPointer = this.normalize(vectorPlayerPointer);
-
-		player.wallPointer = this.game.add.sprite(0.1 * vectorPlayerPointer.x, 0.1 * vectorPlayerPointer.y, 'wallTile');
-		player.wallPointer.anchor.setTo(0.5, 0.5);
-		player.wallPointer.alpha = 0.6;	
-	},
-
-	handleBuilding: function(player){
-		var vectorPlayerPointer, buildingCell, buildingPointer;
-		var distanceToPlayer = 30;		
-
-		vectorPlayerPointer = {
-			x: this.game.input.mousePointer.worldX - player.position.x,
-			y: this.game.input.mousePointer.worldY - player.position.y
-		};
-
-		vectorPlayerPointer = this.normalize(vectorPlayerPointer);
-
-		buildingPointer = {
-			x: player.position.x + vectorPlayerPointer.x * distanceToPlayer,
-			y: player.position.y + vectorPlayerPointer.y * distanceToPlayer
-		};			
-		
-		buildingCell = this.getCoordFromPosition(buildingPointer);
-
-		player.wallPointer.position.x = buildingCell.column * this.tileDimensions.x + this.tileDimensions.x * 0.5;
-		player.wallPointer.position.y = buildingCell.row * this.tileDimensions.y + this.tileDimensions.y * 0.5;	
-
-		player.wallPointer.isAbleToBuild = true;
-
-		if(buildingCell.row < 0) buildingCell.row = 0;
-		if(buildingCell.row > 49) buildingCell.row = 49;
-		if(buildingCell.column < 0) buildingCell.column = 0;
-		if(buildingCell.column > 49) buildingCell.column = 49;
-
-		if(this.map.layers[1].data[buildingCell.row][buildingCell.column].index != -1){
-			isAbleToBuild = false;
-			player.wallPointer.loadTexture('redWallTile', 0);
-		} else {
-			isAbleToBuild = true;
-			player.wallPointer.loadTexture('wallTile', 0);
-		}
-		
-		if(this.game.input.activePointer.isDown && isAbleToBuild){	
-			this.build(buildingCell, player.wallPointer, player);				
-		}
-		
-	},
-
-	endBuilding:function(player){
-		player.wallPointer.kill();
-		player.building = false;
-	},
-
-	//Returns a vector normalized
-	normalize: function(vector){
-		var norm = vector.x * vector.x + vector.y * vector.y;
-		norm = Math.sqrt(norm);
-	
-		return{x: vector.x / norm, y: vector.y / norm};
-	},
-
-	build: function(buildingCell, wallPointer, player){
-		if(player.resources > 0){
-			var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
-			var wall = this.game.add.sprite(position.x, position.y, 'wallTile');
-			wall.coordinates = {
-				row: buildingCell.row,
-				column: buildingCell.column
-			}
-			wall.hits = 1;
-			this.destructableBuildingsCount++;
-			wall.pos = this.destructableBuildingsCount - 1;
-
-			this.game.physics.arcade.enable(wall);
-
-			this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
-			this.initPathfinding();
-			this.setCollisionLayer();
-			this.destructableBuildings[this.destructableBuildingsCount - 1] = wall;
-
-			player.resources-= this.buildCost;
-		}else{
-			player.notEnoughResourcesText.setText("NO TIENES RECURSOS SUFICIENTES");
-			player.notEnoughResourcesTimer.resume();
-		}
-		
-	},
-
-	setCollisionLayer: function(){
-		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
-	},	
-
-	damageBuilding: function(building, enemy){	
-		building.kill();	
-		this.destructableBuildingsCount--;
-		this.reorganizeArray(this.destructableBuildings, this.destructableBuildingsCount, building);
-		enemy.targetBuilding = null;
-		enemy.target = "player";			
-	},
-
-	allowEnemyAttack: function(){
-		for(var i = 0; i < this.enemies.length; i++){
-			this.enemies[i].attackAvaible = true;	
-		}
-	},
-
-	reorganizeArray: function(array, count, object){
-		if(count > 0){
-			var newArray = [];
-			for (var i = 0; i < object.pos; i++){
-				newArray[i] = array[i];
-			}
-
-			for (var j = object.pos; j < count; j++){
-				newArray[j] = array[j+1];
-				newArray[j].pos--;
-			}
-			array = newArray;
-		} else {
-			array.length = 0;
-		}
-	},
-
-	deleteNotEnoughResourcesText:function(player){
-		player.notEnoughResourcesTimer.pause();
-		player.notEnoughResourcesText.setText("");
-		player.notEnoughResourcesTimer.add(2000,this.deleteNotEnoughResourcesText,this,player);
-	},
-	//#endregion
-
 	//#region [rgba(200, 0, 0, 0.1)] DROP METHODS
-	createDrop: function(){
-
-		
+	createDrop: function(){		
 		for(i = 0; i < this.playersCount;i++){
 			if(this.drops[i] != null){
 				this.drops[i].kill();
