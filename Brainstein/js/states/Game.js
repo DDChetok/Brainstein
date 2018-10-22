@@ -76,7 +76,7 @@ Brainstein.Game = {
 		this.actionKeys = this.createKeys();
 		
 		//FPS
-		this.game.time.desiredFps = 60;
+		this.game.time.desiredFps = 30;
 
 		//The camera will follow the player			
 		this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
@@ -140,8 +140,8 @@ Brainstein.Game = {
 				this.map = this.game.add.tilemap('level1');	
 
 				//Level spawnPoints
-				this.createSpawnPoint(32, 500, "spawnPoint");
-				this.createSpawnPoint(750, 500, "spawnPoint");
+				this.createSpawnPoint(21 * this.tileDimensions.x, 20 * this.tileDimensions.y, "spawnPoint");
+				this.createSpawnPoint(42 * this.tileDimensions.x, 11 * this.tileDimensions.y, 500, "spawnPoint");
 				this.createSpawnPoint(750, 32, "spawnPoint");
 		
 			break;
@@ -172,7 +172,7 @@ Brainstein.Game = {
 		this.collisionLayer.renderSettings.enableScrollDelta = true;
 		this.backgroundLayer2.renderSettings.enableScrollDelta = true;
 		//Collision on blockedLayer
-		this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
+		this.map.setCollisionBetween(1, 5000, true, 'collisionLayer');
 		//Resizes the game world to match the layer dimensions
 		this.backgroundLayer.resizeWorld();		
 		this.backgroundLayer2.resizeWorld();	
@@ -939,7 +939,7 @@ Brainstein.Game = {
 		for(var i = 0; i < this.levelDimensions.rows; i++){
 			this.gridIndices[i] = [this.levelDimensions.columns];
 			for(var j = 0; j < this.levelDimensions.columns; j++){
-				this.gridIndices[i][j] = this.map.layers[1].data[j][i].index;
+				this.gridIndices[i][j] = this.map.layers[2].data[j][i].index;
 			}
 		}
 
@@ -1087,6 +1087,8 @@ Brainstein.Game = {
 			for(i = 0; i < this.playersCount;i++){
 				var dropPos = this.createDropCoords();
 				this.drops[i] = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
+				this.drops[i].width = 60;
+				this.drops[i].height = 60;
 				
 				this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
 				while(this.drops[i].shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
