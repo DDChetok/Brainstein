@@ -19,7 +19,7 @@ Brainstein.Game = {
 		this.players = [];
 		this.playersCount = 0;
 		this.createPlayer(20, 150, 'erwin');	
-		this.createPlayer(30, 150, 'erwin');		
+		this.createPlayer(30, 150, 'darwin');		
 
 		//Create text	
 		this.hpTextPlayer1 = this.game.add.text(0, 520, "HP:" + this.players[0].actualHp + "/" + this.players[0].hp, { font: "55px Arial", fill: "#faaa00", align: "center" });
@@ -138,6 +138,8 @@ Brainstein.Game = {
 
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
+		this.brain.width = 60;
+		this.brain.height = 60;
 		this.game.physics.arcade.enable(this.brain);
 		
 	},
@@ -171,25 +173,29 @@ Brainstein.Game = {
 		}
 
 		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
-		this.map.addTilesetImage('tileset', 'gameTiles');
+		this.map.addTilesetImage('tilesheet_complete_2X', 'gameTiles');
 		this.levelDimensions = {rows: this.map.layers[1].data.length, columns: this.map.layers[1].data[0].length};
 		this.tileDimensions = {x: this.map.tileWidth, y: this.map.tileHeight};
 
 		//Create map layers
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
 		this.collisionLayer = this.map.createLayer('collisionLayer');
+		this.backgroundLayer2 = this.map.createLayer('backgroundLayer2');
 		this.backgroundLayer.renderSettings.enableScrollDelta = true;
 		this.collisionLayer.renderSettings.enableScrollDelta = true;
-
+		this.backgroundLayer2.renderSettings.enableScrollDelta = true;
 		//Collision on blockedLayer
 		this.setCollisionLayer();
 		//Resizes the game world to match the layer dimensions
 		this.backgroundLayer.resizeWorld();		
+		this.backgroundLayer2.resizeWorld();	
 		this.camera.flash('#000000');
 	},
 
 	createPlayer: function(x, y, sprite){
-		var player = this.game.add.sprite(x, y, sprite);			
+		var player = this.game.add.sprite(x, y, sprite);
+		player.width = 60;
+		player.height = 60;			
 		player.anchor.setTo(0.5, 0.5);
 		player.hp = 30;
 		player.actualHp = player.hp;
@@ -256,6 +262,8 @@ Brainstein.Game = {
 		x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
 		y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
 		zombie = this.game.add.sprite(x, y, texture); 	
+		zombie.height = 60;
+		zombie.width = 60;
 		this.game.physics.arcade.enable(zombie);
 		//zombie.scale.setTo(0.05);
 		zombie.anchor.setTo(0.5, 0.5);
