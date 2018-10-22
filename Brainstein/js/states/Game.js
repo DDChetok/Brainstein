@@ -3,28 +3,13 @@ Brainstein.Game = function(){};
 
 Brainstein.Game = {		
 	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
+	init: function(){
+		this.levelSelected = Brainstein.LevelSelection.levelSelected;
+	},
+
 	create: function(){
-		//-----------------WORLD & LEVEL VARIABLES-----------------
-		//Set world dimension
-		this.game.world.setBounds(0, 0, 320, 320);		
-		//this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'floor_tile');		
 
-		//Create Tiled map
-		this.map = this.game.add.tilemap('level1');
-		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
-		this.map.addTilesetImage('tileset', 'gameTiles');
-		this.levelDimensions = {rows: this.map.layers[1].data.length, columns: this.map.layers[1].data[0].length};
-		this.tileDimensions = {x: this.map.tileWidth, y: this.map.tileHeight};
-
-		//Create map layers
-		this.backgroundLayer = this.map.createLayer('backgroundLayer');
-		this.collisionLayer = this.map.createLayer('collisionLayer');
-		//Collision on blockedLayer
-		this.setCollisionLayer();
-		//Resizes the game world to match the layer dimensions
-		this.backgroundLayer.resizeWorld();	
-
-		this.camera.flash('#000000');
+		this.createLevel();
 
 		this.resurrectTimer;
 		this.resurrectTimerTotal = 0;
@@ -76,7 +61,13 @@ Brainstein.Game = {
 		this.easyStar = new EasyStar.js();
 		this.initPathfinding();		
 
-		this.game.time.events.repeat(Phaser.Timer.SECOND * 1.5, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
+		//Optimization
+		this.enemyHordeLenght = 2;
+		this.lastEnemyUpdated = -1;
+		this.hordeTimer = this.game.time.create(false);
+		this.hordeTimer.add(250,this.createHorde, this);
+
+		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
 		//this.game.time.events.repeat(Phaser.Timer.SECOND * 0.1, 9223372036854775807, this.allowEnemyAttack, this);
 
 		//-----------------ADITIONAL VARIABLES-----------------
@@ -93,9 +84,7 @@ Brainstein.Game = {
 		this.reloadTextPlayer1 = this.game.add.text(0, 0, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.reloadTextPlayer1.fixedToCamera = true;
 		this.reloadTextPlayer2 = this.game.add.text(this.game.width - 400, 0, " ", { font: "20px Arial", fill: "#ffff00", align: "center" });
-		this.reloadTextPlayer2.fixedToCamera = true;
-
-		//Keyboard	
+		this.reloadTextPlayer2.fixedToCamera = true;	
 
 		//-----------------BUILDING VARIABLES-----------------		
 		this.destructableBuildings = [];
@@ -104,6 +93,7 @@ Brainstein.Game = {
 		this.buildCost = 1;		
 		//this.resourcesText = this.game.add.text(650, 0, "Recursos: " + this.players[0].resources, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		//this.resourcesText.fixedToCamera = true;
+
 		//-----------------ROUND LOOP VARIABLES-----------------
 		this.timeBetweenRounds = 2; //Tiempo entre rondas(numero)
 		
@@ -114,13 +104,13 @@ Brainstein.Game = {
 		this.restTimerText = this.game.add.text(500, 500, this.timeBetweenRounds, { font: "20px Arial", fill: "#faaa00", align: "center" });
 		this.restTimerText.fixedToCamera = true;
 		
-		this.zombiesPerRound = 1;
+		this.zombiesPerRound = 10;
 
 		this.resting = true;
 
 		this.actualRound = 0;
 		this.actualRoundText = this.game.add.text(300, 0, "Ronda actual:" + this.actualRound, { font: "20px Arial", fill: "#40FF00", align: "center" });
-		this.actualRoundText.fixedToCamera = true;
+		this.actualRoundText.fixedToCamera = true;		
 		//----------------DROPS-------------------
 		this.dropTime = this.game.rnd.integerInRange(0,5);
 
@@ -136,11 +126,56 @@ Brainstein.Game = {
 	
 		this.dropProbability;
 		this.dropComing = false;
-		//-----------------------------------------
-
+		
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
 		this.game.physics.arcade.enable(this.brain);	
+	},
+
+	createLevel: function(){
+		//Create Tiled map & spawnPoints
+		this.spawnPoints = [];
+		this.spawnPointsCount = 0;			
+		switch(this.levelSelected){
+			case 0:			
+				this.map = this.game.add.tilemap('level1');	
+
+				//Level spawnPoints
+				this.createSpawnPoint(32, 500, "spawnPoint");
+				this.createSpawnPoint(750, 500, "spawnPoint");
+				this.createSpawnPoint(750, 32, "spawnPoint");
+		
+			break;
+			case 1:			
+				this.map = this.game.add.tilemap('level2');		
+				//Level spawnPoints
+				this.createSpawnPoint(32, 500, "spawnPoint");
+				this.createSpawnPoint(750, 500, "spawnPoint");
+				this.createSpawnPoint(750, 32, "spawnPoint");
+			break;
+			case 2:
+				this.map = this.game.add.tilemap('level3');	
+				//Level spawnPoints
+				this.createSpawnPoint(32, 32, "spawnPoint");	
+			break;
+		}
+
+		//The first parameter is the tileset name as specified in Tiled, the second is the key to the asset
+		this.map.addTilesetImage('tileset', 'gameTiles');
+		this.levelDimensions = {rows: this.map.layers[1].data.length, columns: this.map.layers[1].data[0].length};
+		this.tileDimensions = {x: this.map.tileWidth, y: this.map.tileHeight};
+
+		//Create map layers
+		this.backgroundLayer = this.map.createLayer('backgroundLayer');
+		this.collisionLayer = this.map.createLayer('collisionLayer');
+		this.backgroundLayer.renderSettings.enableScrollDelta = true;
+		this.collisionLayer.renderSettings.enableScrollDelta = true;
+
+		//Collision on blockedLayer
+		this.setCollisionLayer();
+		//Resizes the game world to match the layer dimensions
+		this.backgroundLayer.resizeWorld();		
+		this.camera.flash('#000000');
 	},
 
 	createPlayer: function(x, y, sprite){
@@ -189,8 +224,12 @@ Brainstein.Game = {
 	},
 
 	//Creates an enemy
-	createEnemy: function(x, y, texture){
-		var zombie = this.game.add.sprite(x, y, texture); 
+	createEnemy: function(texture){
+		var zombie, spawnPoint, x, y;
+		var spawnPointIndex = this.game.rnd.integerInRange(0, this.spawnPointsCount -1); //Chooses the spawpoint it will appear in.
+		x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
+		y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
+		zombie = this.game.add.sprite(x, y, texture); 	
 		this.game.physics.arcade.enable(zombie);
 		//zombie.scale.setTo(0.05);
 		zombie.anchor.setTo(0.5, 0.5);
@@ -259,6 +298,14 @@ Brainstein.Game = {
 			angle : angle
 		}
 		return weapon;
+	},
+
+	createSpawnPoint: function(x, y, sprite){
+		var spawnPoint = this.game.add.sprite(x, y, sprite);	
+		spawnPoint.spawnArea = 3; //Cells around the spawnPoint
+
+		this.spawnPoints[this.spawnPointsCount] = spawnPoint;
+		this.spawnPointsCount++;
 	},
 	//#endregion
 
@@ -595,18 +642,17 @@ Brainstein.Game = {
 			this.restTimer.add(1000, this.startRound, this);
 			
 		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
-			this.restTimer.pause();
-			this.restTimer.add(1000, this.startRound, this);
-			this.resting = false; 
-			for(var i = 0; i < this.zombiesPerRound ; i++){
-				var zombie = this.createEnemy(150 + (i * 100), 30 + (i * 100), 'zombie');
-			}
-
+			this.restTimer.pause();	
+			this.restTimer.add(1000, this.startRound, this);		
+			this.resting = false; 			
+			
+			this.createHorde();
+			this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght) - 1, this.createHorde, this);			
 		}
 	},
 
 	handleRound: function(){
-		if(this.enemies.length == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
+		if(this.enemyCount == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
 			this.resting = true; 
 			this.timeBetweenRounds = 3;
 			this.zombiesPerRound++;
@@ -622,8 +668,17 @@ Brainstein.Game = {
 			}else{
 				this.dropComing = false;
 			}
+
+			this.teleportBrain();
 		}
 
+	},
+
+	createHorde: function(){
+		for(var j = 0; j < this.enemyHordeLenght && j + this.enemyHordeLenght <= this.zombiesPerRound; j++){
+				this.createEnemy('zombie');				
+		}			
+	
 	},
 	//#endregion
 	
@@ -656,6 +711,7 @@ Brainstein.Game = {
 		if(zombie.actualHp <= 0){
 			zombie.kill();
 			this.enemyCount--;
+			this.lastEnemyUpdated = -1;
 			if(this.enemyCount > 0){
 				var newEnemies = [this.enemyCount]; //Array auxiliar
 				for(var i = 0;i < zombie.pos;i++){
@@ -845,7 +901,7 @@ Brainstein.Game = {
 	moveEnemy: function(enemy){
 		if(this.brain != null){
 			//Checks what is closer, a player or the brain
-			var minDistance = Number.POSITIVE_INFINITY, tmp;
+			var minDistance = Number.POSITIVE_INFINITY, spawnPointIndex;
 			for(var i = 0; i < this.playersCount; i++){
 				if(Phaser.Point.distance(enemy.position, this.brain.position) < Phaser.Point.distance(enemy.position, this.players[i].position)){
 					enemy.target = "brain";
@@ -871,17 +927,17 @@ Brainstein.Game = {
 			minDistance = Number.POSITIVE_INFINITY;	
 			for(var i = 0; i < this.playersCount; i++){
 				if(!this.players[i].dead){
-					tmp = Phaser.Point.distance(enemy.position, this.players[i].position);	
-					if(tmp < minDistance){
-						minDistance = tmp;
+					spawnPointIndex = Phaser.Point.distance(enemy.position, this.players[i].position);	
+					if(spawnPointIndex < minDistance){
+						minDistance = spawnPointIndex;
 					}
 				}
 			}
 
 			for(var j = 0; j < this.playersCount; j++){
 				if(!this.players[j].dead){
-					tmp = Phaser.Point.distance(enemy.position, this.players[j].position);	
-					if(tmp == minDistance){
+					spawnPointIndex = Phaser.Point.distance(enemy.position, this.players[j].position);	
+					if(spawnPointIndex == minDistance){
 						targetPlayer = this.players[j];
 					}
 				}
@@ -1031,10 +1087,35 @@ Brainstein.Game = {
 		
 	},
 
+	//Allows pathfinding to a horde of enemies
 	allowPathfinding: function(){
-		for(var i = 0; i<this.enemyCount; i++){
-			this.enemies[i].pathFindingAvaible = true;
-		}
+		if(this.enemyCount != 0){			
+
+			if(this.lastEnemyUpdated >= this.enemyCount - 1){							
+				this.lastEnemyUpdated = -1;
+				this.allowPathfinding();
+			} else {
+				if(this.lastEnemyUpdated + this.enemyHordeLenght > this.enemyCount){
+					for(var i = 0; i < this.enemyCount; i++){
+						this.enemies[this.lastEnemyUpdated + 1].pathFindingAvaible = true;
+						if(this.lastEnemyUpdated + 1 >= this.enemyCount - 1){
+							this.lastEnemyUpdated = -1;
+							return;
+						}
+						this.lastEnemyUpdated++;
+					}
+				} else {
+					for(var i = 0; i < this.enemyHordeLenght; i++){
+						this.enemies[this.lastEnemyUpdated + 1].pathFindingAvaible = true;
+						if(this.lastEnemyUpdated + 1 >= this.enemyCount - 1){
+							this.lastEnemyUpdated = -1;
+							return;
+						}
+						this.lastEnemyUpdated++;
+					}
+				}				
+			}
+		}		
 	},
 	//#endregion
 
@@ -1112,7 +1193,7 @@ Brainstein.Game = {
 	build: function(buildingCell, wallPointer, player){
 		if(player.resources > 0){
 			var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
-			wall = this.game.add.sprite(position.x, position.y, 'wallTile');
+			var wall = this.game.add.sprite(position.x, position.y, 'wallTile');
 			wall.coordinates = {
 				row: buildingCell.row,
 				column: buildingCell.column
@@ -1152,12 +1233,12 @@ Brainstein.Game = {
 
 	reorganizeArray: function(array, count, object){
 		if(array.length > 0){
-			var newArray = [this.count];
+			var newArray = [];
 			for (var i = 0; i < object.pos; i++){
 				newArray[i] = array[i];
 			}
 
-			for (var j = 0; j < count; j++){
+			for (var j = object.pos; j < count; j++){
 				newArray[j] = array[j+1];
 				newArray[j].pos--;
 			}
@@ -1213,7 +1294,7 @@ Brainstein.Game = {
 
 		dropCoord = this.getCoordFromPosition(dropPos);
 
-		if(this.gridIndices[dropCoord.row][dropCoord.column]  != -1){ //Si es distinto de -1 (-1 = tierra), si tocamos rio volvemos a llamar la funcion
+		if(this.gridIndices[dropCoord.column][dropCoord.row]  != -1){ //Si es distinto de -1 (-1 = tierra), si tocamos rio volvemos a llamar la funcion
 			return dropPos = this.createDropCoords();
 		}else{
 			return dropPos;
@@ -1238,13 +1319,32 @@ Brainstein.Game = {
 		player.speed = 200;
 		player.holdingBrain = false;
 	},
+
+	teleportBrain: function(){
+		for(var i = 0; i < this.playersCount; i++){
+			this.players[i].holdingBrain = false;
+			this.players[i].speed = 200;
+		}
+		var brainPos = {x: 0, y: 0};
+		brainPos.x = this.game.rnd.integerInRange(0,this.levelDimensions.columns * this.tileDimensions.x);
+		brainPos.y = this.game.rnd.integerInRange(0,this.levelDimensions.rows * this.tileDimensions.y);		
+
+		var randomCell = this.getCoordFromPosition(brainPos);
+
+		if(this.gridIndices[randomCell.column][randomCell.row] != -1){
+			this.teleportBrain();
+		} else {
+			this.brain.position.x = brainPos.x;
+			this.brain.position.y = brainPos.y;
+		}
+	},
 	//#endregion
 	
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
 		console.log("Unlucky game over");				
-		this.camera.fade('#ff0000', 2000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		//this.camera.fade('#ff0000', 2000);
+		//this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
 
 	fadeComplete: function(){
@@ -1274,6 +1374,6 @@ Brainstein.Game = {
 		player.body.enable = true;
 		player.loadTexture('erwin');	
 
-	}
+	},
 	//#endregion
 }	
