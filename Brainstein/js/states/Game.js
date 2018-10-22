@@ -62,12 +62,12 @@ Brainstein.Game = {
 		this.initPathfinding();		
 
 		//Optimization
-		this.enemyHordeLenght = 10;
+		this.enemyHordeLenght = 2;
 		this.lastEnemyUpdated = -1;
 		this.hordeTimer = this.game.time.create(false);
 		this.hordeTimer.add(250,this.createHorde, this);
 
-		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
+		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
 		//this.game.time.events.repeat(Phaser.Timer.SECOND * 0.1, 9223372036854775807, this.allowEnemyAttack, this);
 
 		//-----------------ADITIONAL VARIABLES-----------------
@@ -104,7 +104,7 @@ Brainstein.Game = {
 		this.restTimerText = this.game.add.text(500, 500, this.timeBetweenRounds, { font: "20px Arial", fill: "#faaa00", align: "center" });
 		this.restTimerText.fixedToCamera = true;
 		
-		this.zombiesPerRound = 50;
+		this.zombiesPerRound = 10;
 
 		this.resting = true;
 
@@ -646,7 +646,8 @@ Brainstein.Game = {
 			this.restTimer.add(1000, this.startRound, this);		
 			this.resting = false; 			
 			
-			this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght), this.createHorde, this);			
+			this.createHorde();
+			this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght) - 1, this.createHorde, this);			
 		}
 	},
 
@@ -1192,7 +1193,7 @@ Brainstein.Game = {
 	build: function(buildingCell, wallPointer, player){
 		if(player.resources > 0){
 			var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
-			wall = this.game.add.sprite(position.x, position.y, 'wallTile');
+			var wall = this.game.add.sprite(position.x, position.y, 'wallTile');
 			wall.coordinates = {
 				row: buildingCell.row,
 				column: buildingCell.column
@@ -1232,12 +1233,12 @@ Brainstein.Game = {
 
 	reorganizeArray: function(array, count, object){
 		if(array.length > 0){
-			var newArray = [this.count];
+			var newArray = [];
 			for (var i = 0; i < object.pos; i++){
 				newArray[i] = array[i];
 			}
 
-			for (var j = 0; j < count; j++){
+			for (var j = object.pos; j < count; j++){
 				newArray[j] = array[j+1];
 				newArray[j].pos--;
 			}
@@ -1342,8 +1343,8 @@ Brainstein.Game = {
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
 		console.log("Unlucky game over");				
-		this.camera.fade('#ff0000', 2000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		//this.camera.fade('#ff0000', 2000);
+		//this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
 
 	fadeComplete: function(){
