@@ -29,25 +29,9 @@ Brainstein.Game = {
 		this.resurrectTimer;
 		this.resurrectTimerTotal = 0;
 
-		//-----------------WEAPON VARIABLES-----------------
-		//Bullets and reload
-		for(var i = 0; i < this.playersCount; i++){
-			this.players[i].reloadTimer.add(2000, this.reloadMethod, this, this.players[i]);
-		}
-	
-		this.bullets = this.game.add.group(); 
-		this.bullets.enableBody = true;
-   		this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-		this.bullets.createMultiple(50, 'bullet');
-		this.bullets.setAll('anchor.x', 0.5);
-		this.bullets.setAll('anchor.y', 0.5);
-    	this.bullets.setAll('checkWorldBounds', true);
-		this.bullets.setAll('outOfBoundsKill', true);
-		this.shot = [];
-
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player
-		this.players = [2];
+		this.players = [];
 		this.playersCount = 0;
 		this.createPlayer(20, 150, 'erwin');	
 		this.createPlayer(30, 150, 'erwin');		
@@ -65,7 +49,25 @@ Brainstein.Game = {
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);		
 		//this.game.physics.arcade.enable(this.enemies);	
 
-		this.resurrectTimer = this.game.time.create(false);		
+		this.resurrectTimer = this.game.time.create(false);	
+
+		//-----------------WEAPON VARIABLES-----------------
+		//Bullets and reload
+		for(var i = 0; i < this.playersCount; i++){
+			this.players[i].reloadTimer.add(2000, this.reloadMethod, this, this.players[i]);
+		}
+	
+		this.bullets = this.game.add.group(); 
+		this.bullets.enableBody = true;
+   		this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+		this.bullets.createMultiple(50, 'bullet');
+		this.bullets.setAll('anchor.x', 0.5);
+		this.bullets.setAll('anchor.y', 0.5);
+    	this.bullets.setAll('checkWorldBounds', true);
+		this.bullets.setAll('outOfBoundsKill', true);
+		this.shot = [];
+
+		
 
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
@@ -102,10 +104,10 @@ Brainstein.Game = {
 		this.destructableBuildingsCount = 0;
 
 		this.buildCost = 1;		
-		//this.resourcesText = this.game.add.text(650, 0, "Recursos: " + this.players[0].resources, { font: "20px Arial", fill: "#ffff00", align: "center" });
-		//this.resourcesText.fixedToCamera = true;
+		
+		this.maxResources = 20;
 		//-----------------ROUND LOOP VARIABLES-----------------
-		this.timeBetweenRounds = 2; //Tiempo entre rondas(numero)
+		this.timeBetweenRounds = 3; //Tiempo entre rondas(numero)
 		
 		this.restTimer = this.game.time.create(false); //Timer entre rondas(objeto timer)
 		this.restTimer.add(1000, this.startRound, this);
@@ -131,16 +133,20 @@ Brainstein.Game = {
 		this.dropTimer.start();
 		this.dropTimer.pause();
 	
-		this.dropText = this.game.add.text(650, 250, "Next drop in: " + this.dropTime, { font: "20px Arial", fill: "#ffff00", align: "center" });
+		this.dropText = this.game.add.text(650, 250, " " + this.dropTime, { font: "20px Arial", fill: "#ffff00", align: "center" });
 		this.dropText.fixedToCamera = true;
 	
 		this.dropProbability;
 		this.dropComing = false;
+
+		this.dropTimer.start();
+		this.dropTimer.pause();
 		//-----------------------------------------
 
 		//-----------------BRAIN VARIABLES-----------------
 		this.brain = this.game.add.sprite(180, 180, "brain");
-		this.game.physics.arcade.enable(this.brain);	
+		this.game.physics.arcade.enable(this.brain);
+		
 	},
 	//-----------------CONSTRUCTOR METHODS-----------------
 	createPlayer: function(x, y, sprite){
@@ -157,6 +163,7 @@ Brainstein.Game = {
 		player.pistol = this.createWeapon("pistol",0,100,12,1,5,12,Number.POSITIVE_INFINITY,0,0);
 		player.shotgun = this.createWeapon("shotgun",0,120,12,3,8,0,50,300,0.25);
 		player.ak = this.createWeapon("ak",0,50,30,1,8,0,200,0,0);
+		player.shovel = false;
 
 		player.reloadTimer = this.game.time.create(false);
 		player.reloadTimer.add(1000, this.reloadMethod, this,player);
@@ -176,9 +183,24 @@ Brainstein.Game = {
 		player.resurrecting = false;
 		player.resurrectText = this.game.add.text(player.position.x - 20, player.position.y - 20, " ", { font: "20px Arial", fill: "#ffff00", align: "center" })
 
-		player.resources = 0;
+		player.resources = 5;
 		player.resourceText = this.game.add.text(150 * (this.playersCount * 3), 450, "Recursos jugador " + this.playersCount + ": " + player.resources,{ font: "20px Arial", fill: "#ABA7A7", align: "center" });
 		player.resourceText.fixedToCamera = true;
+		player.notEnoughResourcesText = this.game.add.text(player.x,player.y, " ",{ font: "10px Arial", fill: "#FF0000", align: "center" });
+		player.notEnoughResourcesTimer = this.game.time.create(false);
+		player.notEnoughResourcesTimer.add(2000,this.deleteNotEnoughResourcesText,this,player);
+		player.notEnoughResourcesTimer.start();
+		player.notEnoughResourcesTimer.pause();
+
+		player.shot = [];
+		player.actualShot = 0;
+
+		player.dropCatchedText = this.game.add.text(player.x, player.y, " " , { font: "20px Arial", fill: "#00FF00", align: "center" });;
+		player.dropCatchedTimer = this.game.time.create(false);
+		player.dropCatchedTimer.add(2000,this.deleteDropText,this,player);
+		player.dropCatchedTimer.start();
+		player.dropCatchedTimer.pause();
+	
 
 		this.game.physics.arcade.enable(player);	
 		player.body.collideWorldBounds = true;
@@ -223,6 +245,7 @@ Brainstein.Game = {
 			player1Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.ONE),
 			player1AK: this.game.input.keyboard.addKey(Phaser.Keyboard.TWO),
 			player1Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),
+			player1Shovel: this.game.input.keyboard.addKey(Phaser.Keyboard.FOUR),
 			player1Build: this.game.input.keyboard.addKey(Phaser.Keyboard.E),		
 			player1GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),	
 			player1Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.F),	
@@ -236,6 +259,7 @@ Brainstein.Game = {
 			player2Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7), 
 			player2AK: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8), 
 			player2Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9), 
+			player2Shovel: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_4),
 			player2Build: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_6),	
 			player2GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_0),
 			player2Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_SUBTRACT),
@@ -392,6 +416,10 @@ Brainstein.Game = {
 			case "ak":
 				this.reloadTextPlayer1.setText("AK P1:" + this.players[0].ak.actualMagazine + "/" + this.players[0].akActualAmmo);
 				break;
+
+			case "shovel":
+				this.reloadTextPlayer1.setText("Pala destruyebloques");
+				break;
 		}
 
 		switch(this.players[1].weapon){
@@ -405,6 +433,10 @@ Brainstein.Game = {
 
 			case "ak":
 				this.reloadTextPlayer2.setText("AK P1:" + this.players[1].ak.actualMagazine + "/" + this.players[1].akActualAmmo);
+				break;
+
+			case "shovel":
+				this.reloadTextPlayer2.setText("Pala destruyebloques");
 				break;
 		}
 
@@ -438,11 +470,20 @@ Brainstein.Game = {
 			this.dropText.setText("Next drop in: " + this.dropTime);
 		}else if(this.dropComing == false && this.resting == true && this.actualRound > 0){
 			this.dropText.setText("TE QUEDASTE SIN DROP");
-		}else{
+		}else if(this.resting == false){
 			this.dropText.setText("No caen durante la ronda" + this.dropTime);
+		}else{
+			this.dropText.setText(" ");
 		}
 		
-		
+		for(i = 0; i < this.playersCount; i++){
+			this.players[i].dropCatchedText.x = this.players[i].x - 150;
+			this.players[i].dropCatchedText.y = this.players[i].y - 25;
+
+			this.players[i].notEnoughResourcesText.x = this.players[i].x - 75;
+			this.players[i].notEnoughResourcesText.y = this.players[i].y - 10;
+		}
+
 		for(i = 0; i < this.playersCount;i++){ //Texto de los recursos de los jugadores
 			this.players[i].resourceText.setText("Recursos jugador " + (i+1) + ": " + this.players[i].resources);
 		}
@@ -524,6 +565,8 @@ Brainstein.Game = {
 			this.players[0].weapon = 'ak';
 		} else if(this.actionKeys.player1Shotgun.isDown){
 			this.players[0].weapon = 'shotgun';
+		}else if(this.actionKeys.player1Shovel.isDown){
+			this.players[0].weapon = 'shovel';
 		}
 
 		//Change player state to building
@@ -589,6 +632,8 @@ Brainstein.Game = {
 			this.players[1].weapon = 'ak';
 		} else if(this.actionKeys.player2Shotgun.isDown){
 			this.players[1].weapon = 'shotgun';
+		}else if(this.actionKeys.player2Shovel.isDown){
+			this.players[1].weapon = 'shovel';
 		}
 
 		//Change player state to building
@@ -663,9 +708,39 @@ Brainstein.Game = {
 	spritesOverlapSolve: function(){
 		this.game.physics.arcade.overlap(this.enemies, this.brain, this.gameOver, null, this);
 		this.game.physics.arcade.collide(this.players, this.enemies, this.playerZombieColision,null,this);
-		this.game.physics.arcade.collide(this.shot, this.enemies, this.bulletZombieColision,null,this);
-		this.game.physics.arcade.overlap(this.shot, this.enemies, this.bulletZombieColision,null,this);		
-		this.game.physics.arcade.collide(this.players,this.drops,this.playerDropColision,null,this);
+		for(i = 0; i < this.playersCount;i++){
+			this.game.physics.arcade.overlap(this.players[i].shot, this.enemies, this.bulletZombieColision,null,this);
+		}
+
+		this.game.physics.arcade.collide(this.players,this.drops,this.playerDropColision,null,this);	
+		this.game.physics.arcade.overlap(this.players,this.destructableBuildings,this.playerBuildingColision,null,this);	
+
+		/*for(i = 0; i < this.playersCount;i++){
+			for(j = 0; j < this.destructableBuildingsCount;j++){
+				var distance = Phaser.Point.distance(this.players[i],this.destructableBuildings[j]);
+				if(distance <= this.tileDimensions.x  || distance <= this.tileDimensions.y){
+					this.playerBuildingColision(this.players[i],this.destructableBuildings[j]);
+				}
+			}
+		}*/
+		
+	},
+
+	playerBuildingColision: function(player,building){
+		if(player.weapon == "shovel"){
+			this.map.layers[1].data[building.coordinates.row][building.coordinates.column].index = -1;
+			this.gridIndices[building.coordinates.row][building.coordinates.column] = -1;
+			this.easyStar.setAcceptableTiles(this.gridIndices);
+			building.kill();
+			this.destructableBuildingsCount--;
+			this.reorganizeArray(this.destructableBuildings, this.destructableBuildingsCount, building);
+			this.map.setCollisionBetween(1, 100, true, 'collisionLayer');
+			if(player.resources < 20){
+				player.resources++;
+			}
+			
+		}
+		
 	},
 
 	playerZombieColision: function(player,zombie){
@@ -712,11 +787,12 @@ Brainstein.Game = {
 	},
 
 	playerDropColision: function(player,drop){
+		drop.kill();
 		player.shotgunActualAmmo += drop.shotgunAmmo;
 		player.akActualAmmo += drop.akAmmo;
 		player.resources += drop.resources;
-		drop.kill();
-
+		player.dropCatchedTimer.resume();
+		player.dropCatchedText.setText(drop.shotgunAmmo + "Balas escopeta/" + drop.akAmmo + " Balas AK/" + drop.resources + " Recursos");
 	},		
 	
 	//-----------------SHOOTING METHODS-----------------
@@ -724,10 +800,16 @@ Brainstein.Game = {
 		if (this.game.time.now > weapon.nextFire && this.bullets.countDead() > 0)
    		{
         	weapon.nextFire = this.game.time.now + weapon.fireRate;	
-			this.shot[weapon.numberOfBullets] = this.bullets.getFirstDead();
-			this.shot[weapon.numberOfBullets].damage = weapon.damage;
-        	this.shot[weapon.numberOfBullets].reset(player.x - 8, player.y - 8);
-	       	this.game.physics.arcade.moveToPointer(this.shot[weapon.numberOfBullets], 300);
+			player.shot[player.actualShot] = this.bullets.getFirstDead();
+			player.shot[player.actualShot].damage = weapon.damage;
+        	player.shot[player.actualShot].reset(player.x - 8, player.y - 8);
+	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], 300);
+
+			player.actualShot++;
+
+			if(player.actualShot >= player.ak.maxAmmo){
+				player.actualShot = 0;
+			}
 
 			if(weapon.name == "pistol"){
 				player.pistol.actualMagazine -= weapon.numberOfBullets;
@@ -749,16 +831,16 @@ Brainstein.Game = {
 
 			for(i = 0;i < weapon.numberOfBullets;i++){
 			
-				this.shot[i] = this.bullets.getFirstDead();
-				this.shot[i].damage = weapon.damage;
-				this.shot[i].reset(player.x - 8, player.y - 8);
+				player.shot[i] = this.bullets.getFirstDead();
+				player.shot[i].damage = weapon.damage;
+				player.shot[i].reset(player.x - 8, player.y - 8);
 				
 				if(i == 0){
-					var angle = this.game.physics.arcade.angleToPointer(this.shot[i]);
+					var angle = this.game.physics.arcade.angleToPointer(player.shot[i]);
 				}else{
-					var angle = this.game.physics.arcade.angleToPointer(this.shot[i]) + (j * weapon.angle);
+					var angle = this.game.physics.arcade.angleToPointer(player.shot[i]) + (j * weapon.angle);
 				}				
-				this.shot[i].body.velocity.setToPolar(angle,weapon.speed);
+				player.shot[i].body.velocity.setToPolar(angle,weapon.speed);
 				
 				j = j*-1;
 			}
@@ -1134,14 +1216,17 @@ Brainstein.Game = {
 	build: function(buildingCell, wallPointer, player){
 		if(player.resources > 0){
 			var position = {x: wallPointer.position.x - this.tileDimensions.x * 0.5, y:  wallPointer.position.y - this.tileDimensions.y * 0.5};
-			wall = this.game.add.sprite(position.x, position.y, 'wallTile');
+			var wall = this.game.add.sprite(position.x, position.y, 'wallTile');
 			wall.coordinates = {
 				row: buildingCell.row,
 				column: buildingCell.column
 			}
 			wall.hits = 1;
 			this.destructableBuildingsCount++;
-			wall.pos = this.destructableBuildingsCount;
+			wall.pos = this.destructableBuildingsCount - 1;
+
+			this.game.physics.arcade.enable(wall);
+
 			this.map.layers[1].data[wall.coordinates.row][wall.coordinates.column].index = 99;		
 			this.initPathfinding();
 			this.setCollisionLayer();
@@ -1149,7 +1234,8 @@ Brainstein.Game = {
 
 			player.resources-= this.buildCost;
 		}else{
-			this.notEnoughResourcesText = this.game.add.text(250, 250, "NO TIENES RECURSOS SUFICIENTES", { font: "20px Arial", fill: "#FF0000", align: "center" });
+			player.notEnoughResourcesText.setText("NO TIENES RECURSOS SUFICIENTES");
+			player.notEnoughResourcesTimer.resume();
 		}
 		
 	},
@@ -1173,20 +1259,26 @@ Brainstein.Game = {
 	},
 
 	reorganizeArray: function(array, count, object){
-		if(array.length > 0){
-			var newArray = [this.count];
+		if(count > 0){
+			var newArray = [];
 			for (var i = 0; i < object.pos; i++){
 				newArray[i] = array[i];
 			}
 
-			for (var j = 0; j < count; j++){
+			for (var j = object.pos; j < count; j++){
 				newArray[j] = array[j+1];
 				newArray[j].pos--;
 			}
+			array = newArray;
 		} else {
 			array.length = 0;
 		}
-		return newArray;
+	},
+
+	deleteNotEnoughResourcesText:function(player){
+		player.notEnoughResourcesTimer.pause();
+		player.notEnoughResourcesText.setText("");
+		player.notEnoughResourcesTimer.add(2000,this.deleteNotEnoughResourcesText,this,player);
 	},
 
 	//--------------DROP METHODS------------------
@@ -1215,7 +1307,7 @@ Brainstein.Game = {
 					this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
 				}
 				this.drops[i].akAmmo = this.game.rnd.integerInRange(0,this.players[0].ak.magazineCapacity * 2);
-				this.drops[i].resources = this.game.rnd.integerInRange(0,20);
+				this.drops[i].resources = this.game.rnd.integerInRange(0,this.maxResources - this.players[i].resources);
 				this.game.physics.arcade.enable(this.drops[i]);
 			}
 
@@ -1242,6 +1334,12 @@ Brainstein.Game = {
 
 	},
 
+	deleteDropText: function(player){
+		player.dropCatchedTimer.pause();
+		player.dropCatchedText.setText("");
+		player.dropCatchedTimer.add(2000,this.deleteDropText,this,player);
+	},
+
 	//-----------------BRAIN METHODS-----------------
 	grabBrain: function(player){
 		if(Phaser.Point.distance(player, this.brain.position) < 26){
@@ -1263,8 +1361,8 @@ Brainstein.Game = {
 		console.log("Unlucky game over");				
 		//this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2 - 200, "GAME OVER", { font: "100px Arial", fill: "#993333", align: "center" });	
 		//this.game.add.text(this.levelDimensions.columns * this.tileDimensions.x / 2 - 300, this.levelDimensions.rows * this.tileDimensions.y / 2, "Press R To restart", { font: "50px Arial", fill: "#993333", align: "center" });
-		this.camera.fade('#ff0000', 2000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		//this.camera.fade('#ff0000', 2000);
+		//this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
 
 	fadeComplete: function(){
