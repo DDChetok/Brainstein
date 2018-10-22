@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.2" tiledversion="1.2.0" name="tilesheet_complete_2X" tilewidth="64" tileheight="64" tilecount="2160" columns="54">
- <image source="assets/Tilesheet/tilesheet_complete_2X.png" width="3456" height="2560"/>
+ <image source="tilesheet_complete_2X.png" width="3456" height="2560"/>
  <terraintypes>
   <terrain name="carretera" tile="1168"/>
   <terrain name="Nuevo Terreno" tile="0"/>
