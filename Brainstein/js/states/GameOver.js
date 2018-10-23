@@ -18,8 +18,8 @@ Brainstein.GameOver = {
     },
 
     update: function(){
-        if(this.game.input.keyboard.isDown(Phaser.Keyboard.R)){
+        if(this.game.input.keyboard.isDown(Phaser.Keyboard.R)){			
 			this.game.state.start('Game');
 		}
-    }
+	}
 }

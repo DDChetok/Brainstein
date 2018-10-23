@@ -129,6 +129,10 @@ Brainstein.Game = {
 		this.brain.width = 60;
 		this.brain.height = 60;
 		this.game.physics.arcade.enable(this.brain);
+		this.arrow = this.game.add.sprite(this.game.width / 2, this.game.height / 2, "arrow");
+		this.arrow.fixedToCamera = true;
+		this.arrow.width = this.game.width / 2;
+		this.arrow.anchor.setTo(0, 0.5);
 		
 	},
 
@@ -397,13 +401,21 @@ Brainstein.Game = {
 			}				
 		} else {
 			this.players[1].resurrectText.setText(" ");
-		}
+		}	
 
 		//Finds a path from enemy to player and updates its position			
 		for(var i = 0; i < this.enemies.length; i++){
 			this.moveEnemy(this.enemies[i]);			
 		}
-	
+
+		//Updates arrow rotation
+		this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);	
+
+		if(this.game.input.keyboard.justPressed(Phaser.Keyboard.M)){        
+			this.arrow.rotation -= Math.PI / 6; 
+		}
+
+		this.arrow.width = this.game.height / 2 + (this.game.width / 2 - this.game.height / 2) * Math.abs(Math.cos(this.arrow.rotation));	
 	},
 	//Updates an enemy position
 	updateEnemy: function(enemy){		
@@ -541,10 +553,13 @@ Brainstein.Game = {
 		//Weapons inventory
 		if(this.actionKeys.player1Pistol.isDown){
 			this.players[0].weapon = 'pistol';
+			this.players[0].loadTexture('erwin');
 		} else if(this.actionKeys.player1AK.isDown){
 			this.players[0].weapon = 'ak';
+			this.players[0].loadTexture('erwinAk');
 		} else if(this.actionKeys.player1Shotgun.isDown){
-			this.players[0].weapon = 'shotgun';		
+			this.players[0].weapon = 'shotgun';	
+			this.players[0].loadTexture('erwinShotgun');	
 		}
 
 		//Grab brain
@@ -1206,6 +1221,12 @@ Brainstein.Game = {
 			}
 		}
 
+		if(this.players[0].dead){
+			this.game.camera.follow(this.players[1], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		} else {
+			this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		}
+
 		if(gameOver) this.gameOver();
 	},
 
@@ -1216,4 +1237,4 @@ Brainstein.Game = {
 
 	},
 	//#endregion
-}	
+}

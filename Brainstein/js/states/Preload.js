@@ -14,7 +14,7 @@ Brainstein.Preload = {
 		//Load game assets
 		//Levels
 		this.load.tilemap('level1', 'assets/tilemaps/laboratorio.json', null, Phaser.Tilemap.TILED_JSON);	
-		this.load.tilemap('level2', 'assets/tilemaps/level2.json', null, Phaser.Tilemap.TILED_JSON);	
+		this.load.tilemap('level2', 'assets/tilemaps/zombiehenge.json', null, Phaser.Tilemap.TILED_JSON);	
 		this.load.tilemap('level3', 'assets/tilemaps/level3.json', null, Phaser.Tilemap.TILED_JSON);	
 
 		//Images
@@ -22,6 +22,10 @@ Brainstein.Preload = {
 		this.load.image('mainMenuSplash','assets/images/main_menu.png');
 		this.load.image('darwin', 'assets/images/darwin pistol.png');
 		this.load.image('erwin', 'assets/images/erwin pistol.png');
+		this.load.image('darwinAk', 'assets/images/darwin rifle.png');
+		this.load.image('erwinAk', 'assets/images/erwin rifle.png');
+		this.load.image('erwinShotgun', 'assets/images/erwin shotgun.png');
+		this.load.image('darwinShotgun', 'assets/images/darwin shotgun.png');
 		this.load.image('zombie', 'assets/images/zombie normal.png');	
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
 	
@@ -31,6 +35,7 @@ Brainstein.Preload = {
 		this.load.image('deadPlayer', 'assets/images/tumba sprite.png');
 		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');
 		this.load.image('spawnPoint', 'assets/images/spawnPoint.png');
+		this.load.image('arrow', 'assets/images/flechaPruebas.png');
 	},
 
 	create: function(){
