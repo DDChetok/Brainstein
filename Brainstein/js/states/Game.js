@@ -195,7 +195,7 @@ Brainstein.Game = {
 	createPlayer: function(x, y, sprite){
 		var player = this.game.add.sprite(x, y, sprite);
 		player.width = 60;
-		player.height = 60;			
+		player.height = 60;
 		player.anchor.setTo(0.5, 0.5);
 		player.hp = 30;
 		player.actualHp = player.hp;
@@ -761,7 +761,16 @@ Brainstein.Game = {
         	weapon.nextFire = this.game.time.now + weapon.fireRate;	
 			player.shot[player.actualShot] = this.bullets.getFirstDead();
 			player.shot[player.actualShot].damage = weapon.damage;
-        	player.shot[player.actualShot].reset(player.x - 8, player.y - 8);
+			if(weapon.name == "pistol"){
+				var x, y;
+				x = player.position.x + (30 * Math.cos(player.rotation));
+				y = player.position.y + (30 * Math.sin(player.rotation));
+				player.shot[player.actualShot].reset(x, y);
+			}else if(weapon.name == "ak"){
+				player.shot[player.actualShot].reset(player.x - 8, player.y - 8);
+			}else if(weapon.name == "shotgun"){
+				player.shot[player.actualShot].reset(player.x - 8, player.y - 8);
+			}
 	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], 300);
 
 			player.actualShot++;
