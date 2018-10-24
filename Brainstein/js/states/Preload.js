@@ -36,7 +36,7 @@ Brainstein.Preload = {
 		this.load.image('deadPlayer', 'assets/images/tumba sprite.png');
 		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');
 		this.load.image('spawnPoint', 'assets/images/spawnPoint.png');
-		this.load.image('arrow', 'assets/images/flechaPruebas.png');
+		this.load.image('arrow', 'assets/images/flecha.png');
 	},
 
 	create: function(){

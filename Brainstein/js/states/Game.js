@@ -200,7 +200,7 @@ Brainstein.Game = {
 		var player = this.game.add.sprite(x, y, sprite);
 		player.width = 60;
 		player.height = 60;
-		player.anchor.setTo(0.5, 0.5);
+		player.anchor.setTo(0.25, 0.5);
 		player.hp = 30;
 		player.actualHp = player.hp;
 		player.weapon = "pistol";
@@ -210,7 +210,7 @@ Brainstein.Game = {
 		player.akActualAmmo = 0;
 
 		player.pistol = this.createWeapon("pistol",0,400,12,1,5,12,Number.POSITIVE_INFINITY,0,0);
-		player.shotgun = this.createWeapon("shotgun",0,600,12,3,8,12,50,300,0.25);
+		player.shotgun = this.createWeapon("shotgun",0,600,12,3,8,12,50,700,0.25);
 		player.ak = this.createWeapon("ak",0,50,30,1,8,20,200,0,0);
 		player.shovel = false;
 
@@ -782,11 +782,12 @@ Brainstein.Game = {
 				y = player.position.y + (30 * Math.sin(player.rotation));
 				player.shot[player.actualShot].reset(x, y);
 			}else if(weapon.name == "ak"){
-				player.shot[player.actualShot].reset(player.x - 8, player.y - 8);
-			}else if(weapon.name == "shotgun"){
-				player.shot[player.actualShot].reset(player.x - 8, player.y - 8);
+				var x, y;
+				x = player.position.x + (50 * Math.cos(player.rotation));
+				y = player.position.y + (50 * Math.sin(player.rotation));
+				player.shot[player.actualShot].reset(x, y);
 			}
-	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], 300);
+	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], 700);
 
 			player.actualShot++;
 
@@ -816,7 +817,11 @@ Brainstein.Game = {
 			
 				player.shot[i] = this.bullets.getFirstDead();
 				player.shot[i].damage = weapon.damage;
-				player.shot[i].reset(player.x - 8, player.y - 8);
+
+				var x, y;
+				x = player.position.x + (50 * Math.cos(player.rotation));
+				y = player.position.y + (50 * Math.sin(player.rotation));
+				player.shot[i].reset(x, y);
 				
 				if(i == 0){
 					var angle = this.game.physics.arcade.angleToPointer(player.shot[i]);
