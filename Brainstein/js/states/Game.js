@@ -133,6 +133,8 @@ Brainstein.Game = {
 		this.arrow.fixedToCamera = true;
 		this.arrow.width = this.game.width / 2;
 		this.arrow.anchor.setTo(0, 0.5);
+
+		this.camera.target = this.players[0];
 		
 	},
 
@@ -412,13 +414,21 @@ Brainstein.Game = {
 		}
 
 		//Updates arrow rotation
-		this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);	
-
-		if(this.game.input.keyboard.justPressed(Phaser.Keyboard.M)){        
-			this.arrow.rotation -= Math.PI / 6; 
+		if(Phaser.Point.distance(this.camera.target.position, this.brain.position) < this.game.height / 2 ||
+		   Phaser.Point.distance(this.camera.target.position, this.brain.position) < this.game.width / 2){
+			this.arrow.fixedToCamera = false;
+			this.arrow.anchor.setTo(1, 0.5);	
+			this.arrow.rotation = Math.PI * 1.5;
+			this.arrow.position.x = this.brain.position.x;
+			this.arrow.position.y = this.brain.position.y + 100;		
+		} else {
+			this.arrow.fixedToCamera = true;
+			this.arrow.anchor.setTo(0, 0.5);
+			this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);	
+			this.arrow.width = this.game.height / 2;
+			this.arrow.position.x = this.game.camera.x;
+			this.arrow.position.y = this.game.camera.y;			
 		}
-
-		this.arrow.width = this.game.height / 2 + (this.game.width / 2 - this.game.height / 2) * Math.abs(Math.cos(this.arrow.rotation));	
 	},
 	//Updates an enemy position
 	updateEnemy: function(enemy){		
@@ -1244,9 +1254,11 @@ Brainstein.Game = {
 		}
 
 		if(this.players[0].dead){
-			this.game.camera.follow(this.players[1], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+			this.game.camera.follow(this.players[1], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);
+			this.camera.target = this.players[1];	
 		} else {
 			this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+			this.camera.target = this.players[0];
 		}
 
 		if(gameOver) this.gameOver();

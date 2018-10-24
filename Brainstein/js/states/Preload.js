@@ -30,13 +30,13 @@ Brainstein.Preload = {
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
 	
 		//this.load.image('bullet', 'assets/images/bala2_ph.png');	
-		this.load.image('bullet', 'assets/images/bala_ph_dani.png');	
+		this.load.image('bullet', 'assets/images/bala_ph_dani.jpg');	
 		this.load.image('brain', 'assets/images/cerebro sprite.png');
 		this.load.image('drop','assets/images/drop sprite.png');
 		this.load.image('deadPlayer', 'assets/images/tumba sprite.png');
 		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');
 		this.load.image('spawnPoint', 'assets/images/spawnPoint.png');
-		this.load.image('arrow', 'assets/images/flechaPruebas.png');
+		this.load.image('arrow', 'assets/images/flecha.png');
 	},
 
 	create: function(){
