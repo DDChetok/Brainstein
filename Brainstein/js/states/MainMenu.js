@@ -10,8 +10,8 @@ Brainstein.MainMenu = {
 
 		//Start game text
 		var text = "Press enter";
-		var style = {font: "30px Arial", fill: '#000', align:"center"};
-		var h = this.game.add.text(this.game.width / 2 - 130, this.game.height - 50, text, style);
+		var style = {font: "50px Chakra Petch", fill: '#000', align:"center"};
+		var h = this.game.add.text(this.game.width / 2 - 125, this.game.height - 65, text, style);
 	},
 
 	update: function(){

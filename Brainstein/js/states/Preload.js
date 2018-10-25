@@ -26,8 +26,8 @@ Brainstein.Preload = {
 		this.load.image('erwinAk', 'assets/images/erwin rifle.png');
 		this.load.image('erwinShotgun', 'assets/images/erwin shotgun.png');
 		this.load.image('darwinShotgun', 'assets/images/darwin shotgun.png');
-		this.load.image('zombie', 'assets/images/zombie normal.png');	
-		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
+		this.load.image('zombie', 'assets/images/zombie normal.png');		
+		this.load.image('plantilla', 'assets/images/plantilla.png');		
 	
 		//this.load.image('bullet', 'assets/images/bala2_ph.png');	
 		this.load.image('bullet', 'assets/images/bala_ph_dani.jpg');	
