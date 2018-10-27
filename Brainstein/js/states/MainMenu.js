@@ -9,9 +9,10 @@ Brainstein.MainMenu = {
 		this.background.height = (this.game.height);
 
 		//Start game text
-		var text = "Press enter";
-		var style = {font: "50px Chakra Petch", fill: '#000', align:"center"};
-		var h = this.game.add.text(this.game.width / 2 - 125, this.game.height - 65, text, style);
+		var text = " PRESS \nENTER";
+		var style = {font: "60px Chakra Petch", fill: '#04f31d', align:"center"};
+		//var h = this.game.add.text(this.game.width / 2 - 125, this.game.height - 65, text, style);
+		var h = this.game.add.text(this.game.width / 2 -110, this.game.height/2, text, style);
 	},
 
 	update: function(){

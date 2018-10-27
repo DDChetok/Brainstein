@@ -19,7 +19,7 @@ Brainstein.Preload = {
 
 		//Images
 		this.load.image('gameTiles', 'assets/images/tilesheet_complete_2X.png');
-		this.load.image('mainMenuSplash','assets/images/main_menu.png');
+		this.load.image('mainMenuSplash','assets/images/menu_ppal.png');
 		this.load.image('darwin', 'assets/images/darwin pistol.png');
 		this.load.image('erwin', 'assets/images/erwin pistol.png');
 		this.load.image('darwinAk', 'assets/images/darwin rifle.png');
