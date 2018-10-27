@@ -251,8 +251,8 @@ Brainstein.Game = {
 		x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
 		y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
 		zombie = this.game.add.sprite(x, y, texture); 	
-		zombie.height = 60;
-		zombie.width = 60;
+		//zombie.height = 60;
+		//zombie.width = 60;
 		this.game.physics.arcade.enable(zombie);
 		zombie.anchor.setTo(0.5, 0.5);
 		zombie.pathFindingAvaible = true;

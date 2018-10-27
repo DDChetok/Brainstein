@@ -28,10 +28,14 @@ Brainstein.Preload = {
 		this.load.image('erwinAk', 'assets/images/erwin rifle.png');
 		this.load.image('erwinShotgun', 'assets/images/erwin shotgun.png');
 		this.load.image('darwinShotgun', 'assets/images/darwin shotgun.png');
-		this.load.image('zombie', 'assets/images/zombie normal.png');				
+		//this.load.image('zombie', 'assets/images/zombie normal.png');				
+		this.load.image('zombie', 'assets/images/zombie de dani.png');	
+		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
+	
+		//this.load.image('bullet', 'assets/images/bala2_ph.png');	
 		this.load.image('bullet', 'assets/images/bala_ph_dani.jpg');	
 		this.load.image('brain', 'assets/images/cerebro sprite.png');
-		this.load.image('drop','assets/images/drop sprite.png');
+		this.load.image('drop','assets/images/drop de dani.png');
 		this.load.image('deadPlayer', 'assets/images/tumba sprite.png');
 		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');	
 		this.load.image('arrow', 'assets/images/flecha.png');
