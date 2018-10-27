@@ -5,7 +5,9 @@ Brainstein.Preload = {
 	//Loading the game assets
 	preload: function(){
 		//Show logo in loading screen
-		this.logo = this.add.sprite(this.game.world.centerX, this.game.world.center, 'logo');
+		this.logo = this.add.sprite(0, 0, 'logo');
+		this.logo.width = this.game.width;
+		this.logo.height = this.game.height;
 		this.logo.anchor.setTo(0.5);
 		this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY + 128, 'preloadBar');
 		this.preloadBar.anchor.setTo(0.5);
@@ -26,17 +28,15 @@ Brainstein.Preload = {
 		this.load.image('erwinAk', 'assets/images/erwin rifle.png');
 		this.load.image('erwinShotgun', 'assets/images/erwin shotgun.png');
 		this.load.image('darwinShotgun', 'assets/images/darwin shotgun.png');
-		this.load.image('zombie', 'assets/images/zombie normal.png');		
-		this.load.image('plantilla', 'assets/images/plantilla.png');		
-	
-		//this.load.image('bullet', 'assets/images/bala2_ph.png');	
+		this.load.image('zombie', 'assets/images/zombie normal.png');				
 		this.load.image('bullet', 'assets/images/bala_ph_dani.jpg');	
 		this.load.image('brain', 'assets/images/cerebro sprite.png');
 		this.load.image('drop','assets/images/drop sprite.png');
 		this.load.image('deadPlayer', 'assets/images/tumba sprite.png');
-		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');
-		this.load.image('spawnPoint', 'assets/images/spawnPoint.png');
+		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');	
 		this.load.image('arrow', 'assets/images/flecha.png');
+		this.load.image('healthBar', 'assets/images/barra_vida.png')
+		this.load.image('redHealthBar', 'assets/images/barra_vida_roja.png')
 	},
 
 	create: function(){
