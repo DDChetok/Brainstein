@@ -1222,8 +1222,11 @@ Brainstein.Game = {
 		playerDead.dead = false;
 		playerDead.body.enable = true;
 		playerDead.actualHp = playerDead.hp / 4;
-		playerDead.loadTexture('erwin');
-		
+		if(playerDead == this.players[0]){
+			playerDead.loadTexture('erwin');
+		}else{
+		playerDead.loadTexture('darwin');
+			}
 		this.healthBarPercent(playerDead, playerDead.actualHp / 30);
 
 		playerAlive.resurrecting = false;
