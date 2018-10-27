@@ -605,10 +605,13 @@ Brainstein.Game = {
 		//Weapons inventory
 		if(this.actionKeys.player2Pistol.isDown){
 			this.players[1].weapon = 'pistol';
+			this.players[1].loadTexture('darwin');
 		} else if(this.actionKeys.player2AK.isDown){
 			this.players[1].weapon = 'ak';
+			this.players[1].loadTexture('darwinAk');
 		} else if(this.actionKeys.player2Shotgun.isDown){
 			this.players[1].weapon = 'shotgun';		
+			this.players[1].loadTexture('darwinShotgun');
 		}
 
 		//Grab brain
@@ -1179,15 +1182,15 @@ Brainstein.Game = {
 		}
 
 	},
-	//#endregion
 
-	//#region [rgba(100, 100, 100, 0.1)] BRAIN METHODS
 	deleteDropText: function(player){
 		player.dropCatchedTimer.pause();
 		player.dropCatchedText.setText("");
 		player.dropCatchedTimer.add(2000,this.deleteDropText,this,player);
 	},
+		//#endregion
 
+	//#region [rgba(100, 100, 100, 0.1)] BRAIN METHODS
 	//-----------------BRAIN METHODS-----------------
 	grabBrain: function(player){
 		if(Phaser.Point.distance(player, this.brain.position) < 26){
@@ -1227,8 +1230,10 @@ Brainstein.Game = {
 	
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
-		this.camera.fade('#ff0000', 2000);
+		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);			
+		this.camera.fade('#ff0000', 3000);
 		this.camera.onFadeComplete.add(this.fadeComplete, this);
+
 	},
 
 	fadeComplete: function(){

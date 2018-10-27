@@ -8,9 +8,7 @@ Brainstein.Preload = {
 		this.logo = this.add.sprite(0, 0, 'logo');
 		this.logo.width = this.game.width;
 		this.logo.height = this.game.height;
-		this.logo.anchor.setTo(0.5);
-		this.preloadBar = this.add.sprite(this.game.world.centerX, this.game.world.centerY + 128, 'preloadBar');
-		this.preloadBar.anchor.setTo(0.5);
+		this.preloadBar = this.add.sprite(this.game.world.centerX - 130, this.game.world.height - 50 , 'preloadBar');	
 		this.load.setPreloadSprite(this.preloadBar);
 
 		//Load game assets
@@ -27,12 +25,10 @@ Brainstein.Preload = {
 		this.load.image('darwinAk', 'assets/images/darwin rifle.png');
 		this.load.image('erwinAk', 'assets/images/erwin rifle.png');
 		this.load.image('erwinShotgun', 'assets/images/erwin shotgun.png');
-		this.load.image('darwinShotgun', 'assets/images/darwin shotgun.png');
-		//this.load.image('zombie', 'assets/images/zombie normal.png');				
+		this.load.image('darwinShotgun', 'assets/images/darwin shotgun.png');			
 		this.load.image('zombie', 'assets/images/zombie de dani.png');	
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
 	
-		//this.load.image('bullet', 'assets/images/bala2_ph.png');	
 		this.load.image('bullet', 'assets/images/bala_ph_dani.jpg');	
 		this.load.image('brain', 'assets/images/cerebro sprite.png');
 		this.load.image('drop','assets/images/drop de dani.png');
