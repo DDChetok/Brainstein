@@ -44,6 +44,8 @@ Brainstein.Game = {
 		this.lastEnemyUpdated = -1;
 		this.hordeTimer = this.game.time.create(false);
 		this.hordeTimer.add(250,this.createHorde, this);
+		this.hordeTimer.start();
+		this.hordeTimer.pause();
 
 		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
 		//-----------------ADITIONAL VARIABLES-----------------
@@ -626,10 +628,12 @@ Brainstein.Game = {
 			this.restTimer.pause();	
 			this.restTimer.add(1000, this.startRound, this);		
 			this.resting = false; 			
-			
+	
 			this.createHorde();
-			this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght) - 1, this.createHorde, this);			
-		}
+				if(this.enemies.length < this.zombiesPerRound){
+					this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght)-1 , this.createHorde, this);			
+				}
+			}
 	},
 
 	handleRound: function(){
@@ -653,7 +657,7 @@ Brainstein.Game = {
 	},
 
 	createHorde: function(){
-		for(var j = 0; j < this.enemyHordeLenght && j + this.enemyHordeLenght <= this.zombiesPerRound; j++){
+		for(var j = 0; j < this.enemyHordeLenght ; j++){
 				this.createEnemy('zombie');				
 		}			
 	
@@ -1023,8 +1027,7 @@ Brainstein.Game = {
 			callback.call(enemy, pathPositions, enemy);	
 			this.updateEnemy(enemy);			
 		}				
-	},				
-
+	},		
 
 	//Returns if the subject has reached the target position
 	reachedTargetPosition: function(targetPosition, subject){
