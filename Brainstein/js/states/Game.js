@@ -40,7 +40,7 @@ Brainstein.Game = {
 		this.initPathfinding();		
 
 		//Optimization
-		this.enemyHordeLenght = 1;
+		this.enemyHordeLenght = 5;
 		this.lastEnemyUpdated = -1;
 		this.hordeTimer = this.game.time.create(false);
 		this.hordeTimer.add(250,this.createHorde, this);
@@ -64,19 +64,21 @@ Brainstein.Game = {
 		this.game.time.desiredFps = 30;
 
 		//-----------------ROUND LOOP VARIABLES-----------------
-		this.timeBetweenRounds = 3; //Tiempo entre rondas(numero)
+		this.timeBetweenRounds = 10; //Tiempo entre rondas(numero)
 		
 		this.restTimer = this.game.time.create(false); //Timer entre rondas(objeto timer)
 		this.restTimer.add(1000, this.startRound, this);
 		this.restTimer.start(); //EMPIEZA LA RONDA 1
 		
-		this.zombiesPerRound = 1;
+		this.zombiesPerRound = 10;
 		this.resting = true;
 		this.actualRound = 0;		
 		//----------------DROPS-------------------
-		this.dropTime = this.game.rnd.integerInRange(0,5);
+		this.dropTime = 2;
 
 		this.drops = [];
+		
+		this.maxDrops = 6;
 
 		this.dropTimer = this.game.time.create(false);
 		this.dropTimer.add(1000,this.createDrop, this);
@@ -539,13 +541,13 @@ Brainstein.Game = {
 		}
 
 		//Weapons inventory
-		if(this.actionKeys.player1Pistol.isDown){
+		if(this.actionKeys.player1Pistol.isDown && !this.players[0].dead){
 			this.players[0].weapon = 'pistol';
 			this.players[0].loadTexture('erwin');
-		} else if(this.actionKeys.player1AK.isDown){
+		} else if(this.actionKeys.player1AK.isDown && !this.players[0].dead){
 			this.players[0].weapon = 'ak';
 			this.players[0].loadTexture('erwinAk');
-		} else if(this.actionKeys.player1Shotgun.isDown){
+		} else if(this.actionKeys.player1Shotgun.isDown && !this.players[0].dead){
 			this.players[0].weapon = 'shotgun';	
 			this.players[0].loadTexture('erwinShotgun');	
 		}
@@ -588,13 +590,13 @@ Brainstein.Game = {
 		}
 
 		//Weapons inventory
-		if(this.actionKeys.player2Pistol.isDown){
+		if(this.actionKeys.player2Pistol.isDown && !this.players[1].dead){
 			this.players[1].weapon = 'pistol';
 			this.players[1].loadTexture('darwin');
-		} else if(this.actionKeys.player2AK.isDown){
+		} else if(this.actionKeys.player2AK.isDown && !this.players[1].dead){
 			this.players[1].weapon = 'ak';
 			this.players[1].loadTexture('darwinAk');
-		} else if(this.actionKeys.player2Shotgun.isDown){
+		} else if(this.actionKeys.player2Shotgun.isDown && !this.players[1].dead){
 			this.players[1].weapon = 'shotgun';		
 			this.players[1].loadTexture('darwinShotgun');
 		}
@@ -639,18 +641,13 @@ Brainstein.Game = {
 	handleRound: function(){
 		if(this.enemyCount == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
 			this.resting = true; 
-			this.timeBetweenRounds = 3;
-			this.zombiesPerRound++;
+			this.timeBetweenRounds = 25;
+			this.zombiesPerRound += 5;
 			this.restTimer.resume();
 			this.actualRound++;
 			
-			this.dropProbability = this.game.rnd.integerInRange(0,100);
-			this.dropTime = this.game.rnd.integerInRange(0,5);
-
-			if(this.dropProbability <= 100){ // % de probabilidades de que caigan los drops
 				this.dropTimer.resume();
-			}
-
+			
 			this.teleportBrain();
 		}
 
@@ -688,15 +685,12 @@ Brainstein.Game = {
 
 	playerZombieColision: function(player,zombie){
 		if(player.beingPushed == false){
-			player.beingPushed = true;
-			var playerPush = this.game.physics.arcade.velocityFromRotation(zombie.rotation); //Calculamos la velocidad para empujar al jugador a partir de la rotación del zombie
+			player.beingPushed = true;			
 			player.actualHp -= zombie.damage;
 			this.healthBarPercent(player, player.actualHp / 30)
 				if(player.actualHp <= 0){
 					this.killPlayer(player);		
 				}
-			player.vectorPush = playerPush;
-			player.zombiePushing = zombie;
 			player.nextEnemyHitTimer.resume();
 		}	
 	},
@@ -724,17 +718,6 @@ Brainstein.Game = {
 			}		
 		}
 	},
-	
-	/*playerPushed: function(){
-		for(i = 0;i < this.players.length; i++){
-			if(this.players[i].beingPushed == true && this.game.physics.arcade.distanceBetween(this.players[i], this.players[i].zombiePushing) < 20){
-				this.players[i].body.velocity.setTo(this.players[i].vectorPush.x *100 , this.players[i].vectorPush.y *100);	
-			}else{
-				this.players[i].beingPushed = false;
-			}
-		}
-		
-	},*/
 
 	playerDropColision: function(player,drop){
 		drop.kill();
@@ -1101,7 +1084,7 @@ Brainstein.Game = {
 
 	//#region [rgba(200, 0, 0, 0.1)] DROP METHODS
 	createDrop: function(){		
-		for(i = 0; i < this.playersCount;i++){
+		for(i = 0; i < this.maxDrops;i++){
 			if(this.drops[i] != null){
 				this.drops[i].kill();
 			}
@@ -1109,24 +1092,21 @@ Brainstein.Game = {
 
 		if(this.dropTime > 0){
 
-			this.dropTime -= 1;
+			this.dropTime--;
 			this.dropTimer.add(1000, this.createDrop, this);
 
 		}else{
 	
-			for(i = 0; i < this.playersCount;i++){
-				var dropPos = {
-					x: 100,
-					y: 100
-				}//this.createDropCoords();
+			for(i = 0; i < this.maxDrops;i++){
+				var dropPos = this.createDropCoords();
 				this.drops[i] = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
 				this.drops[i].width = 60;
 				this.drops[i].height = 60;
 				
 				this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
-				while(this.drops[i].shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
-					this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
-				}
+					while(this.drops[i].shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
+						this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
+					}
 				this.drops[i].akAmmo = this.game.rnd.integerInRange(0,this.players[0].ak.magazineCapacity * 2);
 				this.drops[i].health = this.game.rnd.integerInRange(5, 15)	
 				this.game.physics.arcade.enable(this.drops[i]);
@@ -1241,8 +1221,10 @@ Brainstein.Game = {
 	resurrectPlayer: function(playerDead,playerAlive){
 		playerDead.dead = false;
 		playerDead.body.enable = true;
-		playerDead.actualHp = playerDead.hp;
-		playerDead.loadTexture('erwin');	
+		playerDead.actualHp = playerDead.hp / 4;
+		playerDead.loadTexture('erwin');
+		
+		this.healthBarPercent(playerDead, playerDead.actualHp / 30);
 
 		playerAlive.resurrecting = false;
 
