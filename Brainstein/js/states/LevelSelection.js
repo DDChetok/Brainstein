@@ -13,7 +13,7 @@ Brainstein.LevelSelection = {
         this.levelSelected = 0;
 
 		//Start game text
-		var text = "Level selected: \n" + this.levels[this.levelSelected];
+		var text = "Level selected: \n" + this.levels[this.levelSelected] + "\n<-  ->";
 		var style = {font: "30px Chakra Petch", fill: '#04f31d', align:"center"};
 		this.h = this.game.add.text(this.game.width / 2 - 100, this.game.height /2 + 20, text, style);
 	},
@@ -28,7 +28,7 @@ Brainstein.LevelSelection = {
             if(this.levelSelected > this.levels.length - 1){
                 this.levelSelected = 0;
             }
-            this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]);
+            this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]+ "\n<-  ->");
             
         }
     
@@ -37,7 +37,7 @@ Brainstein.LevelSelection = {
             if(this.levelSelected < 0){
                 this.levelSelected = this.levels.length - 1;
             }
-            this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]);              
+            this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]+ "\n<-  ->");              
         }     
 	}
 
