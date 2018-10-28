@@ -2,7 +2,7 @@
 Un juego desarrollado por *Numbah004*.
 ## 1. Introducción
 Este documento tiene como objetivo principal plasmar el diseño y los elementos que debe incluir el videojuego *Brainstein*. Este videojuego esta pensado para ser jugado en navegadores web de ordenadores.
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/brainstein%203.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/brainstein%203.png)
 *Portada del juego*
 
 ### 1.1 Concepto del juego
@@ -45,30 +45,27 @@ Para poder hacer frente a los zombis, los jugadores podrán contar con un abanic
 - Granada: explosiona en área al tiempo de ser disparada.
 
 ### 2.3 Construcción:
-En todo momento durante la partida, ambos jugadores tienen la posibilidad de construir paredes, puertas o redes para forzar a los zombis a seguir cierto camino o dificultar su avance. Construir cuesta recursos, que se consiguen matando a los enemigos. Cada jugador tiene sus propios recursos.
-
-Para construir, el jugador deberá escoger el elemento que quiere construir (así como elegiría un arma) y delante de él aparecerá la silueta del objeto que quiere construir, para que el jugador pueda ver fácilmente la posición en la que se construiría. Si el jugador se mueve antes de finalizar la construcción, la silueta del elemento a construir se moverá con él hasta que confirme la construcción. Mientras se tenga elegida una construcción, el jugador no podrá disparar. Una vez finalizada la construcción, ésta no se podrá mover.
-Cada construcción tiene una vida definida. Si un zombi ve que su camino ha sido bloqueado, puede elegir buscar otro camino o atacar a la estructura que le bloquea el paso. Cuando la vida de una estructura llega a 0, ésta es destruida. Los jugadores pueden disparar a través de las construcciones.
-Las construcciones disponibles en *Brainstein* son: 
-- Barricada: tiene una vida elevada, pero los jugadores no pueden atravesarla.
-- Puerta: tiene menos vida que una barricada, pero los jugadores pueden abrirla y cerrarla para poder moverse a través de ella.
-- Red: no impide el paso de los zombis, si no que los ralentiza. Pierde vida a medida que pasa el tiempo.
+Esta mecánica al final ha sido eliminada del juego
 
 ### 2.4 Zombis
-Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso cerebro de Einstein. Hay varios tipos de zombi en el juego, cada uno con una vida o habilidades distintas. Cuando la vida de un zombi llega a cero, este zombi muere y otorga al jugador que le ha derrotado una cantidad de dinero definida por el tipo de zombi. Todos los zombis atacan cuerpo a cuerpo salvo una excepción.
+Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso cerebro de Einstein. Hay varios tipos de zombi en el juego, cada uno con una vida o habilidades distintas. Cuando la vida de un zombi llega a cero, este zombi muere y otorga al jugador que le ha derrotado una cantidad de dinero definida por el tipo de zombi. Todos los zombis atacan cuerpo a cuerpo salvo una excepción. Los zombis aparecerán en el mapa a través de spawnpoints que habrá situados por el mapa, y aparecerá en uno de ellos de manera aleatoria.
 - Normie: el zombi más común. Tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra su camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura. El camino que escogerá se decidirá mediante un algoritmo de "Pathfinding", el A*, hasta que lleguen a golpear a los jugadores o al cerebro.
 - Tankie: es un zombi con una gran cantidad de vida. Se dirige en línea recta hacia el cerebro de Einstein, destruyendo cualquier estructura que se encuentre en su camino.
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20tankie.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/boceto%20tankie.png)
 *Boceto del tankie*
 - Zombi a propulsión: tiene una vida media, pero cuando se encuentra una estructura bloqueando el camino, en vez de atacarla, la saltará. Se dirigirá en línea recta saltando estructuras hasta el objetivo más cercano, es decir, el cerebro o alguno de los 2 jugadores.
 
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20propulsion.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/boceto%20propulsion.png)
 *Boceto del zombi a propulsión*
 
 - Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia. El camino que recorrerá será igual que el de los "normies" ya que no puede saltar ni destruir estructuras. Será implementado por el algoritmo A*. Su recorrido terminará cuando lleguen a una distancia a la cual sus proyectiles alcancen a los jugadores o al cerebro. Si los jugadores salen de su rango de disparo, el escupidor volverá a perseguirlos.
 
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/boceto%20escupidor.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/boceto%20escupidor.png)
 *Boceto del escupidor*
+
+**Inteligencia artificial**
+Para la inteligencia artificial de los zombis se utilizará el algoritmo A*, en el que el zombi perseguirá a su objetivo más cercano, ya sea un jugador o el cerebro. 
+Para facilitar la implementación del algoritmo A*, se utilizará la librería [EasyStar](https://www.easystarjs.com/).
 
 ### 2.5 El cerebro de Einstein 
 El preciado cerebro de Einstein es lo que ambos jugadores deben defender con sus vidas. Tiene una cantidad de vida predefinida, y si esta llega a cero los jugadores pierden. Si los jugadores consideran que el cerebro está en una zona peligrosa o poco ventajosa, tienen la opción de moverlo. Para ello, uno de los jugadores tendrá que cogerlo para llevarlo a otro lugar. Mientras lo tenga cogido, se moverá más lento, no podrá disparar ni podrá abrir o cerrar puertas. Siempre tiene la opción de dejarlo en un punto arbitrario del camino para recogerlo más tarde.
@@ -79,7 +76,7 @@ Si ambos jugadores están muertos a la vez, pierden. Sin embargo, puede darse la
 La cámara será completamente cenital, teniendo visión en todo momento de la totalidad de la pantalla. Para jugar se necesitará ratón y teclado. El teclado se utilizará para el movimiento y para cambiar de arma y de construcción mientras que el ratón se utilizará para apuntar, disparar y construir.
 
 ## 3. El flujo de juego
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/ingame%20demo.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/ingame%20demo.png)
 *Demo de como se vería el juego in-game*
 A lo largo de esta sección se detallará el transcurso de una partida típica de
 *Brainstein*. Se comentarán los pasos que ha de seguir el Jugador desde el
@@ -87,13 +84,13 @@ inicio de una partida hasta finalizarla. Poco a poco vamos desgranando el funcio
 
 Los jugadores comienzan la partida y tienen unos segundos antes de que empiece la primera oleada. En este tiempo deberán analizar la pantalla, ver posible puntos fuertes y débiles, y mover el cerebro de Einstein si lo viesen necesario, aunque lo normal sería que no les diese tiempo antes de que la oleada comenzase.
 
-Comienza la primera oleada, la más sencilla de todas, y comienza la acción. Los jugadores deberán cooperar y llegar a una estrategia de construcción mientras compiten por llevarse la mayor cantidad de oro. Una vez finalizada la primera oleada, tienen un poco de tiempo para relajarse, ver posibles fallos en su estrategia o en su estructura, antes de volver a ponerse a cubierto porque llega la siguiente oleada de zombis. Las oleadas son cada vez más y más complicadas hasta que los jugadores al final caen derrotados. En ese punto, se guarda la marca que han conseguido y se compara con otras posibles marcas que hayan podido conseguir.
+Comienza la primera oleada, la más sencilla de todas, y comienza la acción.  Una vez finalizada la primera oleada, tienen un poco de tiempo para relajarse, ver posibles fallos en su estrategia o en su estructura, antes de volver a ponerse a cubierto porque llega la siguiente oleada de zombis. Las oleadas son cada vez más y más complicadas hasta que los jugadores al final caen derrotados. En ese punto, se guarda la marca que han conseguido y se compara con otras posibles marcas que hayan podido conseguir.
 
 Al acabar tendrán la opción de empezar otra partida o salir del juego.
 
 ## 4.Interfaz
 En esta sección se explicará con detalle cada una de las pantallas que componen *Brainstein*. Además, se indicarán las transiciones entre ellas así como la utilidad de cada elemento de la GUI (*Graphical USer Interface*).
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/flujo%20de%20pantallas.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/flujo%20de%20pantallas.png)
 *Diagrama de flujo de las pantallas*
 
 ### 4.1 Menú Principal
@@ -101,13 +98,13 @@ Lista y descripción de todos los componentes del *Menú principal*:
 - Botón jugar: Al pulsarlo cambian las opciones del menú, apareciendo "partida pública" y "partida privada" .Si pulsamos partida pública nos lleva a la pantalla de *Asiganción de personajes*. Si pulsamos partida privada el menú vuelve a cambiar para mostrar la posibilidad de crear una partida privada o de unirse a una ya creada. El botón para crear una partida privada lleva a la pantalla de "Asignación de personajes" mientras que el botón para unirse hace cambiar de nuevo el menú para mostrar el luegar donde introducir la clave de esa partida. Si la contraseña introducida es correcta, el jugador pasa a la pantalla de "Asignación de personaje" donde le está esperando su compañero. Cada vez que cambia el menú,este incluye un botó de "volver" para regresar al anterior menú. 
 - Botón opciones: al pulsarlo lleva a la pantalla *Opciones*.
 - Botón salir: al pulsarlo lleva de vuelta al Sistema Operativo. 
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20principal.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Menu%20principal.jpeg)
 *Menú principal del juego*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20publica%20privada.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Menu%20publica%20privada.jpeg)
 *Cambios en el menú*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20crear%20unirse.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Menu%20crear%20unirse.jpeg)
 *Cambios en el menú*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Menu%20clave.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Menu%20clave.jpeg)
 *Cambios en el menú*
 
 ### 4.2 Asignación de personajes
@@ -115,26 +112,25 @@ En esta pantalla será cuando se busque a otro jugador para poder comenzar la pa
 
 ### 4.3 Selección de mapa
 En esta pantalla los jugadores podrán elegir el mapa en la que querrán jugar, así como opciones especiales que quieran aplicar a su partida (handicap, más probabilidad de objetos, menos, etc...)
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Mapa%201.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Mapa%201.jpeg)
 *Prototipo mapa 1*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Mapa%202.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Mapa%202.jpeg)
 *Prototipo mapa 2*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/Mapa%203.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Mapa%203.jpeg)
 *Prototipo mapa 3*
 
 ### 4.4 Partida
 Aquí los jugadores podrán jugar a la vez que pueden consultar de un vistazo información relevante para la partida:
 - Vida de su personaje
-- Dinero actual
 - Número de oleada actual
 - Tipo de arma seleccionada
 - Munición actual
 - Munición máxima
 
 Al ser derrotados, aparecerá un texto en mitad de la pantalla para informar a los jugadores de que han perdido.
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/banner%20derrota%201.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/banner%20derrota%201.png)
 *Versión 1 del texto de derrota*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/art/banner%20derrota%202.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/banner%20derrota%202.png)
 *Versión 2 del texto de derrota*
 
 ### 4.5 Opciones
@@ -153,7 +149,6 @@ El emparejamiento entre jugadores se hará teniendo en cuenta el mayor récord d
 Aunque las mecánicas del juego son bastantes simples, el juego puede ser expandido si se ve que sobra tiempo o recursos. Posibles ampliaciones que se podrían efectuar son, por ejemplo:
 - Nuevos tipos de arma, con distinto tipos de efecto y munición.
 - Nuevos tipos de zombis, que ataquen o tengan una distinción característica, como, por ejemplo, que exploten.
-- Nuevas construcciones, con distinta vida y efectos.
 - Nuevos personajes, un nuevo compañero de Erwin y Darwin, como por ejemplo el gato de Erwin.
 Como se ha dicho más arriba, estas expansiones solo se plantearían, diseñarían o dessarollarían si se diese el caso de que sobrase tiempo o de que se extiendese la fecha límite habiendo acabado la base del juego.
 
