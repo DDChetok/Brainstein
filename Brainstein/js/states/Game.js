@@ -14,8 +14,8 @@ Brainstein.Game = {
 		//Create player
 		this.players = [];
 		this.playersCount = 0;
-		this.createPlayer(100, 150, 'erwin');	
-		this.createPlayer(150, 250, 'darwin');			
+		this.createPlayer(300, 150, 'erwin');	
+		this.createPlayer(150, 450, 'darwin');			
 
 		this.resurrectTimer = this.game.time.create(false);	
 		//-----------------WEAPON VARIABLES-----------------
@@ -105,7 +105,7 @@ Brainstein.Game = {
 		this.actualRoundNumberText.anchor.setTo(0.5, 0.5);
 		this.actualRoundNumberText.fixedToCamera = true;	
 		
-		this.restTimerText = this.game.add.text(this.game.width / 2, 100, this.timeBetweenRounds, { font: "20px Chakra Petch", fill: "#1d84b5", align: "center" });
+		this.restTimerText = this.game.add.text(this.game.width / 2, 100, this.timeBetweenRounds, { font: "20px Chakra Petch", fill: "#00530b", align: "center" });
 		this.restTimerText.anchor.setTo(0.5, 0.5)
 		this.restTimerText.fixedToCamera = true;	
 	},
@@ -151,7 +151,8 @@ Brainstein.Game = {
 			break;
 			case 2:			
 				//Level spawnPoints
-				this.createSpawnPoint(32, 32);	
+				this.createSpawnPoint(32, 500);	
+				this.createSpawnPoint(700, 200);	
 			break;
 		}
 		
@@ -1182,9 +1183,9 @@ Brainstein.Game = {
 	
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
-		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);			
+		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);			
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
+		this.camera.onFadeComplete.add(this.fadeComplete, this);
 
 	},
 

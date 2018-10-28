@@ -15,11 +15,12 @@ Brainstein.Preload = {
 		//Levels
 		this.load.tilemap('level1', 'assets/tilemaps/laboratorio.json', null, Phaser.Tilemap.TILED_JSON);	
 		this.load.tilemap('level2', 'assets/tilemaps/zombiehenge.json', null, Phaser.Tilemap.TILED_JSON);	
-		this.load.tilemap('level3', 'assets/tilemaps/level3.json', null, Phaser.Tilemap.TILED_JSON);	
+		this.load.tilemap('level3', 'assets/tilemaps/ratlabyrinth.json', null, Phaser.Tilemap.TILED_JSON);	
 
 		//Images
 		this.load.image('gameTiles', 'assets/images/tilesheet_complete_2X.png');
 		this.load.image('mainMenuSplash','assets/images/menu_ppal.png');
+		this.load.image('mainMenuSplashEnter','assets/images/menu_ppal_press_enter.png');
 		this.load.image('darwin', 'assets/images/darwin pistol.png');
 		this.load.image('erwin', 'assets/images/erwin pistol.png');
 		this.load.image('darwinAk', 'assets/images/darwin rifle.png');

@@ -12,8 +12,9 @@ Brainstein.GameOver = {
 
 		//Start game text
 		var text = "Press R to retry";
-		var style = {font: "30px Arial", fill: '#fff', align:"center"};
-	    this.game.add.text(this.game.width / 2 - 130, this.game.height - 50, text, style);
+		var style = {font: "50px Chakra Petch", fill: '#fff', align:"center"};
+		var h = this.game.add.text(this.game.width / 2, this.game.height - 50, text, style);
+		h.anchor.setTo(0.5, 0.5);
         this.camera.flash('#ff0000', 2000);
     },
 
