@@ -145,15 +145,13 @@ Brainstein.Game = {
 			break;
 			case 1:						
 				//Level spawnPoints
-				this.createSpawnPoint(14 * this.tileDimensions.x, 4 * this.tileDimensions.y);
-				this.createSpawnPoint(9 * this.tileDimensions.x, 9 * this.tileDimensions.y);
+				this.createSpawnPoint(14 * this.tileDimensions.x, 4 * this.tileDimensions.y);				
 				this.createSpawnPoint(16 * this.tileDimensions.x, 22 * this.tileDimensions.y);
 			break;
 			case 2:			
 				//Level spawnPoints
 				this.createSpawnPoint(22 * this.tileDimensions.x, 5 * this.tileDimensions.y);
-				this.createSpawnPoint(22 * this.tileDimensions.x, 22 * this.tileDimensions.y);
-				this.createSpawnPoint(15 * this.tileDimensions.x, 16 * this.tileDimensions.y);	
+				this.createSpawnPoint(22 * this.tileDimensions.x, 22 * this.tileDimensions.y);				
 			break;
 		}
 		
