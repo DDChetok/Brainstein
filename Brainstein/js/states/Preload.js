@@ -21,19 +21,22 @@ Brainstein.Preload = {
 		this.load.image('gameTiles', 'assets/images/tilesheet_complete_2X.png');
 		this.load.image('mainMenuSplash','assets/images/menu_ppal.png');
 		this.load.image('mainMenuSplashEnter','assets/images/menu_ppal_press_enter.png');
-		this.load.image('darwin', 'assets/images/darwin pistol.png');
-		this.load.image('erwin', 'assets/images/erwin pistol.png');
-		this.load.image('darwinAk', 'assets/images/darwin rifle.png');
-		this.load.image('erwinAk', 'assets/images/erwin rifle.png');
-		this.load.image('erwinShotgun', 'assets/images/erwin shotgun.png');
-		this.load.image('darwinShotgun', 'assets/images/darwin shotgun.png');			
-		this.load.image('zombie', 'assets/images/zombie de dani.png');	
+		this.load.image('menuLvl1','assets/images/menu_lvl_1.png');
+		this.load.image('menuLvl2','assets/images/menu_lvl_2.png');
+		this.load.image('menuLvl3','assets/images/menu_lvl_3.png');
+		this.load.image('darwin', 'assets/images/darwin pistol redim.png');
+		this.load.image('erwin', 'assets/images/erwin pistol redim.png');
+		this.load.image('darwinAk', 'assets/images/darwin rifle redim.png');
+		this.load.image('erwinAk', 'assets/images/erwin rifle redim.png');
+		this.load.image('erwinShotgun', 'assets/images/erwin shotgun redim.png');
+		this.load.image('darwinShotgun', 'assets/images/darwin shotgun redim.png');			
+		this.load.image('zombie', 'assets/images/zombie normal redim.png');	
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
 	
 		this.load.image('bullet', 'assets/images/bala_ph.png');	
-		this.load.image('brain', 'assets/images/cerebro sprite.png');
-		this.load.image('drop','assets/images/drop de dani.png');
-		this.load.image('deadPlayer', 'assets/images/tumba sprite.png');
+		this.load.image('brain', 'assets/images/cerebro sprite redim.png');
+		this.load.image('drop','assets/images/drop sprite redim.png');
+		this.load.image('deadPlayer', 'assets/images/tumba sprite redim.png');
 		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');	
 		this.load.image('arrow', 'assets/images/flecha.png');
 		this.load.image('healthBar', 'assets/images/barra_vida.png')

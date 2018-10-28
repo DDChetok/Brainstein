@@ -13,9 +13,10 @@ Brainstein.LevelSelection = {
         this.levelSelected = 0;
 
 		//Start game text
-		var text = "Level selected: \n" + this.levels[this.levelSelected] + "\n<-  ->";
-		var style = {font: "30px Chakra Petch", fill: '#04f31d', align:"center"};
-		this.h = this.game.add.text(this.game.width / 2 - 100, this.game.height /2 + 20, text, style);
+		//var text = "Level selected: \n" + this.levels[this.levelSelected] + "\n<-  ->";
+		//var style = {font: "30px Chakra Petch", fill: '#04f31d', align:"center"};
+        //this.h = this.game.add.text(this.game.width / 2 - 100, this.game.height /2 + 20, text, style);
+        
 	},
 
 	update: function(){
@@ -28,19 +29,29 @@ Brainstein.LevelSelection = {
             if(this.levelSelected > this.levels.length - 1){
                 this.levelSelected = 0;
             }
-            this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]+ "\n<-  ->");
-           
-            
         }
-    
+
         if(this.game.input.keyboard.justPressed(Phaser.Keyboard.LEFT)){        
             this.levelSelected--;
             if(this.levelSelected < 0){
                 this.levelSelected = this.levels.length - 1;
             }
-            this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]+ "\n<-  ->");              
-        }     
+        }
+        
+        switch(this.levelSelected){
+            case 0:
+                this.background.loadTexture('menuLvl1');
+                break;
+            case 1:   
+            this.background.loadTexture('menuLvl2');
+                break;
+            case 2:
+            this.background.loadTexture('menuLvl3');
+                break;     
+        }
+
+
 	}
 
-
 }
+
