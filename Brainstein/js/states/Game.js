@@ -145,14 +145,15 @@ Brainstein.Game = {
 			break;
 			case 1:						
 				//Level spawnPoints
-				this.createSpawnPoint(32, 500);
-				this.createSpawnPoint(750, 500);
-				this.createSpawnPoint(750, 32);
+				this.createSpawnPoint(14 * this.tileDimensions.x, 4 * this.tileDimensions.y);
+				this.createSpawnPoint(9 * this.tileDimensions.x, 9 * this.tileDimensions.y);
+				this.createSpawnPoint(16 * this.tileDimensions.x, 22 * this.tileDimensions.y);
 			break;
 			case 2:			
 				//Level spawnPoints
-				this.createSpawnPoint(32, 500);	
-				this.createSpawnPoint(700, 200);	
+				this.createSpawnPoint(22 * this.tileDimensions.x, 5 * this.tileDimensions.y);
+				this.createSpawnPoint(22 * this.tileDimensions.x, 22 * this.tileDimensions.y);
+				this.createSpawnPoint(15 * this.tileDimensions.x, 16 * this.tileDimensions.y);	
 			break;
 		}
 		
@@ -247,8 +248,8 @@ Brainstein.Game = {
 		x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
 		y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
 		zombie = this.game.add.sprite(x, y, texture); 	
-		//zombie.height = 60;
-		//zombie.width = 60;
+		zombie.height = 40;
+		zombie.width = 40;
 		this.game.physics.arcade.enable(zombie);
 		zombie.anchor.setTo(0.5, 0.5);
 		zombie.pathFindingAvaible = true;
@@ -314,7 +315,7 @@ Brainstein.Game = {
 
 	createSpawnPoint: function(x, y){
 		var spawnPoint = this.game.add.sprite(x, y);	
-		spawnPoint.spawnArea = 3; //Cells around the spawnPoint
+		spawnPoint.spawnArea = 2; //Cells around the spawnPoint
 
 		this.spawnPoints[this.spawnPointsCount] = spawnPoint;
 		this.spawnPointsCount++;
@@ -332,9 +333,13 @@ Brainstein.Game = {
 				this.handleShooting(this.players[i]);
 			}		
 
-			if(this.players[i].holdingBrain){
-				this.brain.position.x = this.players[i].position.x;
-				this.brain.position.y = this.players[i].position.y;
+			if(this.players[i].holdingBrain){						
+				var x, y;
+				x = this.players[i].position.x + (35 * Math.cos(this.players[i].rotation));
+				y = this.players[i].position.y + (35 * Math.sin(this.players[i].rotation));
+
+				this.brain.position.x = x;
+				this.brain.position.y = y;
 			}
 
 			//Player movement
