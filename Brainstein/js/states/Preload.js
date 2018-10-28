@@ -30,7 +30,7 @@ Brainstein.Preload = {
 		this.load.image('erwinAk', 'assets/images/erwin rifle redim.png');
 		this.load.image('erwinShotgun', 'assets/images/erwin shotgun redim.png');
 		this.load.image('darwinShotgun', 'assets/images/darwin shotgun redim.png');			
-		this.load.image('zombie', 'assets/images/zombie normal redim.png');	
+		this.load.image('zombie', 'assets/images/zombie ajust redim.png');	
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
 	
 		this.load.image('bullet', 'assets/images/bala_ph.png');	
