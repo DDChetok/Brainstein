@@ -28,8 +28,8 @@ Brainstein.LevelSelection = {
             if(this.levelSelected > this.levels.length - 1){
                 this.levelSelected = 0;
             }
-           // this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]+ "\n<-  ->");
-           this.background.loadTexture('ElSprite')
+            this.h.text = ("Level selected: \n" + this.levels[this.levelSelected]+ "\n<-  ->");
+           
             
         }
     
