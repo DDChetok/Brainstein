@@ -86,7 +86,7 @@ Brainstein.Game = {
 		this.dropTimer.pause();		
 
 		//-----------------BRAIN VARIABLES-----------------
-		this.brain = this.game.add.sprite(180, 180, "brain");
+		this.brain = this.game.add.sprite(260, 240, "brain");
 		this.brain.anchor.setTo(0.5, 0.5);
 		this.brain.width = 64;
 		this.brain.height = 64;
