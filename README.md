@@ -150,6 +150,7 @@ Aunque las mecánicas del juego son bastantes simples, el juego puede ser expand
 - Nuevos tipos de arma, con distinto tipos de efecto y munición.
 - Nuevos tipos de zombis, que ataquen o tengan una distinción característica, como, por ejemplo, que exploten.
 - Nuevos personajes, un nuevo compañero de Erwin y Darwin, como por ejemplo el gato de Erwin.
+- Nuevos escenarios.
 Como se ha dicho más arriba, estas expansiones solo se plantearían, diseñarían o dessarollarían si se diese el caso de que sobrase tiempo o de que se extiendese la fecha límite habiendo acabado la base del juego.
 
 ## 8. Equipo desarrollador
