@@ -34,6 +34,7 @@ Brainstein.Preload = {
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
 	
 		this.load.image('bullet', 'assets/images/bala_ph.png');	
+		this.load.image('bulletParticle', 'assets/images/bala_particula.png');		
 		this.load.image('brain', 'assets/images/cerebro sprite redim.png');
 		this.load.image('drop','assets/images/drop sprite redim.png');
 		this.load.image('deadPlayer', 'assets/images/tumba sprite redim.png');

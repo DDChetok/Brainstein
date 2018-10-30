@@ -108,6 +108,10 @@ Brainstein.Game = {
 		this.restTimerText = this.game.add.text(this.game.width / 2, 100, this.timeBetweenRounds, { font: "20px Chakra Petch", fill: "#00530b", align: "center" });
 		this.restTimerText.anchor.setTo(0.5, 0.5)
 		this.restTimerText.fixedToCamera = true;	
+
+		//-----------------PARTICLE VARIABLES-----------------
+		this.emitter = this.game.add.emitter(0, 0, 100);
+		this.emitter.makeParticles("bulletParticle");
 	},
 
 	createLevel: function(){
@@ -702,6 +706,8 @@ Brainstein.Game = {
 	bulletZombieColision: function(shot,zombie){
 		zombie.actualHp -= shot.damage;
 		shot.kill();
+		this.game.camera.shake(0.001, 100);
+		this.particleBurst(zombie.position);
 
 		if(zombie.actualHp <= 0){
 			zombie.kill();
@@ -737,6 +743,7 @@ Brainstein.Game = {
 
 	bulletCollsionLayerCollision: function(bullet){
 		bullet.kill();
+		this.particleBurst(bullet.position);
 	},
 	
 	//Sprite gets killed when colliding with other
@@ -757,7 +764,7 @@ Brainstein.Game = {
    		{
         	weapon.nextFire = this.game.time.now + weapon.fireRate;	
 			player.shot[player.actualShot] = this.bullets.getFirstDead();
-			player.shot[player.actualShot].damage = weapon.damage;
+			player.shot[player.actualShot].damage = weapon.damage;	
 			if(weapon.name == "pistol"){
 				var x, y;
 				x = player.position.x + (30 * Math.cos(player.rotation));
@@ -1186,7 +1193,8 @@ Brainstein.Game = {
 	
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
-		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);			
+		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
 		this.camera.onFadeComplete.add(this.fadeComplete, this);
 
@@ -1237,4 +1245,13 @@ Brainstein.Game = {
 
 	},
 	//#endregion
+
+	particleBurst(position){
+		this.emitter.x = position.x;
+		this.emitter.y = position.y;
+
+		this.emitter.start(true, 1000, null, 5);
+	},
+
+
 }
