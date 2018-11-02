@@ -61,7 +61,7 @@ Brainstein.Game = {
 		//-----------------CAMERA VARIABLES-----------------	
 		this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);			
 		this.camera.target = this.players[0];
-		this.game.time.desiredFps = 30;
+		this.game.time.desiredFps = 60;
 
 		//-----------------ROUND LOOP VARIABLES-----------------
 		this.timeBetweenRounds = 10; //Tiempo entre rondas(numero)
@@ -112,6 +112,17 @@ Brainstein.Game = {
 		//-----------------PARTICLE VARIABLES-----------------
 		this.emitter = this.game.add.emitter(0, 0, 100);
 		this.emitter.makeParticles("bulletParticle");
+
+		//-----------------OPTIMIZATION VARIABLES-----------------
+		this.rS = new rStats( {
+			values: {
+				frame: { caption: 'Total frame time (ms)', over: 16 },
+				raf: { caption: 'Time since last rAF (ms)' },
+				fps: { caption: 'Framerate (FPS)', below: 50 },
+				action1: { caption: 'Render action #1 (ms)' },
+				render: { caption: 'WebGL Render (ms)' }
+			}
+		} );
 	},
 
 	createLevel: function(){
@@ -326,6 +337,10 @@ Brainstein.Game = {
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	update: function(){
+		this.rS('Frame').start();
+		this.rS('rAF').tick();
+		this.rS('FPS').frame();
+		
 		for(var i = 0; i < this.playersCount; i++){			
 			this.players[i].body.velocity.x = 0;
 			this.players[i].body.velocity.y = 0;
@@ -406,6 +421,11 @@ Brainstein.Game = {
 			this.arrow.alpha = 1;
 			this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);			
 		}
+
+		this.rS('Frame').end();
+		this.rS().update();
+
+		requestAnimationFrame(this.update);
 	},
 	//Updates an enemy position
 	updateEnemy: function(enemy){		
@@ -1252,6 +1272,4 @@ Brainstein.Game = {
 
 		this.emitter.start(true, 1000, null, 5);
 	},
-
-
 }
