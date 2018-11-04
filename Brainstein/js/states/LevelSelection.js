@@ -21,11 +21,13 @@ Brainstein.LevelSelection = {
 
 	update: function(){
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
+            this.game.switchOptionSound.play();
 			this.game.state.start('Game');
         }
         
         if(this.game.input.keyboard.justPressed(Phaser.Keyboard.RIGHT)){         
             this.levelSelected++;
+            this.game.switchOptionSound.play();
             if(this.levelSelected > this.levels.length - 1){
                 this.levelSelected = 0;
             }
@@ -33,6 +35,7 @@ Brainstein.LevelSelection = {
 
         if(this.game.input.keyboard.justPressed(Phaser.Keyboard.LEFT)){        
             this.levelSelected--;
+            this.game.switchOptionSound.play();
             if(this.levelSelected < 0){
                 this.levelSelected = this.levels.length - 1;
             }
