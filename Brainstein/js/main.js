@@ -1,5 +1,5 @@
 var Brainstein = Brainstein || {};
-Brainstein.game = new Phaser.Game(1024, 600, Phaser.AUTO, ' ');
+Brainstein.game = new Phaser.Game(window.innerWidth, window.innerHeight - 40, Phaser.AUTO, ' ');
 
 Brainstein.game.state.add('Boot', Brainstein.Boot);
 Brainstein.game.state.add('Preload', Brainstein.Preload);

@@ -1,7 +1,7 @@
 var Brainstein = Brainstein || {};
 Brainstein.Game = function(){};
 
-Brainstein.Game = {		
+Brainstein.Game = {
 	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
 	init: function(){
 		this.levelSelected = Brainstein.LevelSelection.levelSelected;
@@ -202,7 +202,7 @@ Brainstein.Game = {
 		player.weapon = "pistol";	
 		player.pistolActualAmmo = Number.POSITIVE_INFINITY;
 		player.shotgunActualAmmo = 0;
-		player.akActualAmmo = 0;
+		player.akActualAmmo = 2000;
 
 		player.pistol = this.createWeapon("pistol",0,400,12,1,5,12,Number.POSITIVE_INFINITY,700,0);
 		player.shotgun = this.createWeapon("shotgun",0,600,12,3,8,12,50,700,0.25);
@@ -336,9 +336,7 @@ Brainstein.Game = {
 	//#endregion
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
-	update: function(){
-		this.rS('Frame').start();
-		this.rS('rAF').tick();
+	update: function(){	
 		this.rS('FPS').frame();
 		
 		for(var i = 0; i < this.playersCount; i++){			
@@ -422,7 +420,6 @@ Brainstein.Game = {
 			this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);			
 		}
 
-		this.rS('Frame').end();
 		this.rS().update();
 
 		requestAnimationFrame(this.update);
@@ -775,6 +772,13 @@ Brainstein.Game = {
 
 	healthBarPercent: function(player, percent){			
 		player.healthBar.width = 115 * percent;
+	},
+
+	particleBurst(position){
+		this.emitter.x = position.x;
+		this.emitter.y = position.y;
+
+		this.emitter.start(true, 1000, null, 5);
 	},
 	//#endregion		
 	
@@ -1264,12 +1268,5 @@ Brainstein.Game = {
 		playerAlive.resurrecting = false;
 
 	},
-	//#endregion
-
-	particleBurst(position){
-		this.emitter.x = position.x;
-		this.emitter.y = position.y;
-
-		this.emitter.start(true, 1000, null, 5);
-	},
+	//#endregion	
 }
