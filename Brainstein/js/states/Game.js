@@ -58,9 +58,8 @@ Brainstein.Game = {
 		this.arrow.width = this.game.height / 2;
 		this.arrow.anchor.setTo(0, 0.5);
 
-		//-----------------CAMERA VARIABLES-----------------	
-		this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);			
-		this.camera.target = this.players[0];
+		//-----------------CAMERA VARIABLES-----------------		
+		this.game.camera.target = null;
 		this.game.time.desiredFps = 60;
 
 		//-----------------ROUND LOOP VARIABLES-----------------
@@ -114,7 +113,7 @@ Brainstein.Game = {
 		this.emitter.makeParticles("bulletParticle");
 
 		//-----------------OPTIMIZATION VARIABLES-----------------
-		this.rS = new rStats( {
+		/*this.rS = new rStats( {
 			values: {
 				frame: { caption: 'Total frame time (ms)', over: 16 },
 				raf: { caption: 'Time since last rAF (ms)' },
@@ -122,14 +121,13 @@ Brainstein.Game = {
 				action1: { caption: 'Render action #1 (ms)' },
 				render: { caption: 'WebGL Render (ms)' }
 			}
-		} );
+		} );*/
 	},
 
 	createLevel: function(){
-
 		//Create Tiled map & spawnPoints
 		this.spawnPoints = [];
-		this.spawnPointsCount = 0;				
+		this.spawnPointsCount = 0;			
 
 		switch(this.levelSelected){
 			case 0:			
@@ -190,6 +188,36 @@ Brainstein.Game = {
 		this.camera.flash('#000000');
 
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+		//Select camera positions
+		this.cameraPositions = [];	
+		this.currentCameraPosition = 0;
+	
+		this.cameraXPositionsCount = Math.ceil((this.levelDimensions.columns * this.tileDimensions.x) / this.game.width);		
+		this.cameraYPositionsCount = Math.ceil((this.levelDimensions.rows * this.tileDimensions.y) / this.game.height);
+
+		var cameraPositionsX = [];		
+		var cameraPositionsY = [];		
+
+		var x1 = this.game.camera.position.x, y1 = this.game.camera.position.y, x2 = this.levelDimensions.columns * this.tileDimensions.x, y2 = this.levelDimensions.rows * this.tileDimensions.y;
+		for(var i = 0 ; i < this.cameraXPositionsCount; i++){					
+			cameraPositionsX[i] = x1 + (i / this.cameraXPositionsCount) * (x2 - x1);
+		}
+
+		for(var i = 0 ; i < this.cameraYPositionsCount; i++){			
+			cameraPositionsY[i] = y1 + (i / this.cameraYPositionsCount) * (y2 - y1);
+		}
+			
+		for(var y = 0, i = 0 ; y < this.cameraYPositionsCount; y++){					
+			for(var x = 0 ; x < this.cameraXPositionsCount; x++, i++){			
+				this.cameraPositions[i] = {
+					x: cameraPositionsX[x],
+					y: cameraPositionsY[y]
+				}				
+			}
+		}	
+		  
+		
 	},
 
 	createPlayer: function(x, y, sprite){
@@ -215,7 +243,7 @@ Brainstein.Game = {
 			
 		player.reloading = false;
 		player.holdingBrain = false;			
-		player.speed = 200;
+		player.speed = 500;
 		player.beingPushed = false;	
 		player.grabBrainKeyJustPressed = false;
 		player.dead = false;
@@ -336,9 +364,7 @@ Brainstein.Game = {
 	//#endregion
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
-	update: function(){	
-		this.rS('FPS').frame();
-		
+	update: function(){
 		for(var i = 0; i < this.playersCount; i++){			
 			this.players[i].body.velocity.x = 0;
 			this.players[i].body.velocity.y = 0;
@@ -412,17 +438,43 @@ Brainstein.Game = {
 		}
 
 		//Updates arrow rotation
-		if(Phaser.Point.distance(this.camera.target.position, this.brain.position) < this.game.height / 2||
+		/*if(Phaser.Point.distance(this.camera.target.position, this.brain.position) < this.game.height / 2||
 		   Phaser.Point.distance(this.camera.target.position, this.brain.position) < this.game.width / 2){
 			this.arrow.alpha = 0;			
 		} else {
 			this.arrow.alpha = 1;
 			this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);			
+		}*/
+
+		if(this.currentCameraPosition + 1 < this.cameraPositions.length){
+			if(this.cameraPositions[this.currentCameraPosition + 1].x != 0){ 
+				if(this.players[0].position.x >= this.cameraPositions[this.currentCameraPosition + 1].x){
+					console.log("Saliendo de la pantalla por la derecha");
+					this.currentCameraPosition++;
+					this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
+				}
+			} 
 		}
 
-		this.rS().update();
-
-		requestAnimationFrame(this.update);
+		if(this.players[0].position.x < this.cameraPositions[this.currentCameraPosition].x){
+			console.log("Saliendo de la pantalla por la izquierda");
+			this.currentCameraPosition--;
+			this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
+		}
+		
+		if(this.players[0].position.y < this.cameraPositions[this.currentCameraPosition].y){
+			console.log("Saliendo de la pantalla por arriba");		
+			this.currentCameraPosition -= this.cameraXPositionsCount;	
+			this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
+		}
+		
+		if(this.currentCameraPosition + this.cameraXPositionsCount < this.cameraPositions.length){
+			if(this.players[0].position.y >= this.cameraPositions[this.currentCameraPosition + this.cameraXPositionsCount].y){
+				console.log("Saliendo de la pantalla por la abajo");
+				this.currentCameraPosition += this.cameraXPositionsCount;	
+				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
+			}
+		}
 	},
 	//Updates an enemy position
 	updateEnemy: function(enemy){		
@@ -1217,10 +1269,10 @@ Brainstein.Game = {
 	
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
-		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
 
 	},
 
@@ -1241,15 +1293,7 @@ Brainstein.Game = {
 			if(!this.players[i].dead){
 				gameOver = false;
 			}
-		}
-
-		if(this.players[0].dead){
-			this.game.camera.follow(this.players[1], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);
-			this.camera.target = this.players[1];	
-		} else {
-			this.game.camera.follow(this.players[0], Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
-			this.camera.target = this.players[0];
-		}
+		}		
 
 		if(gameOver) this.gameOver();
 	},
