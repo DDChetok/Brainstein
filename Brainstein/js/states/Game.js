@@ -6,7 +6,7 @@ Brainstein.Game = {
 	init: function(){
 		this.levelSelected = Brainstein.LevelSelection.levelSelected;
 		this.game.mainMenuMusic.stop();
-		this.game.pressEnterSound.stop();
+		this.game.pressEnterSound.stop();		
 	},
 
 	create: function(){
@@ -56,9 +56,12 @@ Brainstein.Game = {
 			
 		//-----------------ARROW VARIABLES-----------------
 		this.arrow = this.game.add.sprite(this.game.width / 2, this.game.height / 2, "arrow");
-		this.arrow.fixedToCamera = true;
-		this.arrow.width = this.game.height / 2;
+	
+		this.arrow.width = 150;
+		this.arrow.height = 35;
 		this.arrow.anchor.setTo(0, 0.5);
+		this.arrow.position.x = this.players[0].position.x;
+		this.arrow.position.y = this.players[0].position.y;
 
 		//-----------------CAMERA VARIABLES-----------------		
 		this.game.camera.target = null;
@@ -154,9 +157,9 @@ Brainstein.Game = {
 		switch(this.levelSelected){
 			case 0:					
 				//Level spawnPoints
-				this.createSpawnPoint(21 * this.tileDimensions.x, 20 * this.tileDimensions.y);
-				this.createSpawnPoint(42 * this.tileDimensions.x, 11 * this.tileDimensions.y, 500);
-				this.createSpawnPoint(750, 32);
+				this.createSpawnPoint(19 * this.tileDimensions.x, 11 * this.tileDimensions.y);
+				this.createSpawnPoint(27 * this.tileDimensions.x, 23 * this.tileDimensions.y);
+				this.createSpawnPoint(26 * this.tileDimensions.x, 45 * this.tileDimensions.y);
 		
 			break;
 			case 1:						
@@ -245,8 +248,9 @@ Brainstein.Game = {
 		player.reloadTimer.pause();	
 			
 		player.reloading = false;
-		player.holdingBrain = false;			
-		player.speed = 500;
+		player.holdingBrain = false;
+		player.originalSpeed = 400;			
+		player.speed = player.originalSpeed;
 		player.beingPushed = false;	
 		player.grabBrainKeyJustPressed = false;
 		player.dead = false;
@@ -289,8 +293,23 @@ Brainstein.Game = {
 	createEnemy: function(texture){
 		var zombie, x, y;
 		var spawnPointIndex = this.game.rnd.integerInRange(0, this.spawnPointsCount -1); //Chooses the spawpoint it will appear in.
-		x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
-		y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
+	
+		//Choose random spawnpoint tile position
+		x = this.spawnPoints[spawnPointIndex].tile.row + this.tileDimensions.y / 2; 
+		y = this.spawnPoints[spawnPointIndex].tile.column + this.tileDimensions.x / 2;
+		
+		//Choose random tile around spawnpoint
+		x += this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
+		y += this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
+
+		var tile = this.getCoordFromPosition({x:x, y:y});
+		while(this.gridIndices[tile.column][tile.row] != -1){
+			x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
+			y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
+
+			tile = this.getCoordFromPosition({x:x, y:y});
+		}
+
 		zombie = this.game.add.sprite(x, y, texture); 	
 		zombie.height = 40;
 		zombie.width = 40;
@@ -361,6 +380,9 @@ Brainstein.Game = {
 
 	createSpawnPoint: function(x, y){
 		var spawnPoint = this.game.add.sprite(x, y);	
+		spawnPoint.width = 1;
+		spawnPoint.height = 1;
+		spawnPoint.tile = this.getCoordFromPosition(x, y);
 		spawnPoint.spawnArea = 2; //Cells around the spawnPoint
 
 		this.spawnPoints[this.spawnPointsCount] = spawnPoint;
@@ -443,39 +465,36 @@ Brainstein.Game = {
 		}
 
 		//Updates arrow rotation
-		/*if(Phaser.Point.distance(this.camera.target.position, this.brain.position) < this.game.height / 2||
-		   Phaser.Point.distance(this.camera.target.position, this.brain.position) < this.game.width / 2){
+		if(Phaser.Point.distance(this.players[0].position, this.brain.position) < 500){		   
 			this.arrow.alpha = 0;			
 		} else {
-			this.arrow.alpha = 1;
-			this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);			
-		}*/
+			this.arrow.alpha = 0.6;
+			this.arrow.position = this.players[0].position;
+			this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);	
+		}		
+			
 
 		if(this.currentCameraPosition + 1 < this.cameraPositions.length){
 			if(this.cameraPositions[this.currentCameraPosition + 1].x != 0){ 
-				if(this.players[0].position.x >= this.cameraPositions[this.currentCameraPosition + 1].x){
-					console.log("Saliendo de la pantalla por la derecha");
+				if(this.players[0].position.x >= this.cameraPositions[this.currentCameraPosition + 1].x){					
 					this.currentCameraPosition++;
 					this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 				}
 			} 
 		}
 
-		if(this.players[0].position.x < this.cameraPositions[this.currentCameraPosition].x){
-			console.log("Saliendo de la pantalla por la izquierda");
+		if(this.players[0].position.x < this.cameraPositions[this.currentCameraPosition].x){			
 			this.currentCameraPosition--;
 			this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 		}
 		
-		if(this.players[0].position.y < this.cameraPositions[this.currentCameraPosition].y){
-			console.log("Saliendo de la pantalla por arriba");		
+		if(this.players[0].position.y < this.cameraPositions[this.currentCameraPosition].y){			
 			this.currentCameraPosition -= this.cameraXPositionsCount;	
 			this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 		}
 		
 		if(this.currentCameraPosition + this.cameraXPositionsCount < this.cameraPositions.length){
-			if(this.players[0].position.y >= this.cameraPositions[this.currentCameraPosition + this.cameraXPositionsCount].y){
-				console.log("Saliendo de la pantalla por la abajo");
+			if(this.players[0].position.y >= this.cameraPositions[this.currentCameraPosition + this.cameraXPositionsCount].y){				
 				this.currentCameraPosition += this.cameraXPositionsCount;	
 				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 			}
@@ -714,10 +733,10 @@ Brainstein.Game = {
 			this.resting = false; 			
 	
 			this.createHorde();
-				if(this.enemies.length < this.zombiesPerRound){
-					this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght)-1 , this.createHorde, this);			
-				}
+			if(this.enemies.length < this.zombiesPerRound){
+				this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght)-1 , this.createHorde, this);			
 			}
+		}
 	},
 
 	handleRound: function(){
@@ -1237,8 +1256,8 @@ Brainstein.Game = {
 	//#region [rgba(100, 100, 100, 0.1)] BRAIN METHODS
 	//-----------------BRAIN METHODS-----------------
 	grabBrain: function(player){
-		if(Phaser.Point.distance(player, this.brain.position) < 26){
-			player.speed = 50;			
+		if(Phaser.Point.distance(player, this.brain.position) < 60){
+			player.speed = 100;			
 			return;
 		}		
 		player.holdingBrain = false;
@@ -1248,14 +1267,14 @@ Brainstein.Game = {
 		this.brain.position.x = player.position.x - 8;		
 		this.brain.position.y = player.position.y - 8;		
 
-		player.speed = 200;
+		player.speed = player.originalSpeed;
 		player.holdingBrain = false;
 	},
 
 	teleportBrain: function(){
 		for(var i = 0; i < this.playersCount; i++){
 			this.players[i].holdingBrain = false;
-			this.players[i].speed = 200;
+			this.players[i].speed = this.players[i].originalSpeed;
 		}
 		var brainPos = {x: 0, y: 0};
 		brainPos.x = this.game.rnd.integerInRange(0,this.levelDimensions.columns * this.tileDimensions.x);
