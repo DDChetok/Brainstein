@@ -5,6 +5,8 @@ Brainstein.Game = {
 	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
 	init: function(){
 		this.levelSelected = Brainstein.LevelSelection.levelSelected;
+		this.game.mainMenuMusic.stop();
+		this.game.pressEnterSound.stop();
 	},
 
 	create: function(){
@@ -106,7 +108,7 @@ Brainstein.Game = {
 		
 		this.restTimerText = this.game.add.text(this.game.width / 2, 100, this.timeBetweenRounds, { font: "20px Chakra Petch", fill: "#00530b", align: "center" });
 		this.restTimerText.anchor.setTo(0.5, 0.5)
-		this.restTimerText.fixedToCamera = true;	
+		this.restTimerText.fixedToCamera = true;
 
 		//-----------------PARTICLE VARIABLES-----------------
 		this.emitter = this.game.add.emitter(0, 0, 100);
@@ -122,6 +124,7 @@ Brainstein.Game = {
 				render: { caption: 'WebGL Render (ms)' }
 			}
 		} );*/
+		//----------------------------------------		
 	},
 
 	createLevel: function(){
@@ -322,6 +325,8 @@ Brainstein.Game = {
 			player1Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),				
 			player1GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),	
 			player1Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.F),	
+
+			pauseGame: this.game.input.keyboard.addKey(Phaser.Keyboard.ESC),
 
 			//PLAYER 2 KEYS
 			player2Up: this.game.input.keyboard.addKey(Phaser.Keyboard.UP), 
@@ -597,6 +602,13 @@ Brainstein.Game = {
 	handleKeyboardInput: function(){
 
 		//----------------------PLAYER 1-----------------------
+
+		if(this.actionKeys.pauseGame.isDown){
+			this.menuControles.alpha = 0.2;
+		}else{
+			this.menuControles.alpha = 0;
+		}
+
 		//Movement
 		if(this.actionKeys.player1Left.isDown){	
 			this.players[0].body.velocity.x -= this.players[0].speed;

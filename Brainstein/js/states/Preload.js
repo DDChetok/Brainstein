@@ -20,7 +20,10 @@ Brainstein.Preload = {
 		//Images
 		this.load.image('gameTiles', 'assets/images/tilesheet_complete_2X.png');
 		this.load.image('mainMenuSplash','assets/images/menu_ppal.png');
-		this.load.image('mainMenuSplashEnter','assets/images/menu_ppal_press_enter.png');
+		this.load.image('mainMenuSplashEnter','assets/images/menu_ppal.png');
+
+		this.load.image('pauseMenu','assets/images/pause_menu_ph.png');
+
 		this.load.image('menuLvl1','assets/images/menu_lvl_1.png');
 		this.load.image('menuLvl2','assets/images/menu_lvl_2.png');
 		this.load.image('menuLvl3','assets/images/menu_lvl_3.png');
@@ -40,8 +43,14 @@ Brainstein.Preload = {
 		this.load.image('deadPlayer', 'assets/images/tumba sprite redim.png');
 		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');	
 		this.load.image('arrow', 'assets/images/flecha.png');
-		this.load.image('healthBar', 'assets/images/barra_vida.png')
-		this.load.image('redHealthBar', 'assets/images/barra_vida_roja.png')
+		this.load.image('healthBar', 'assets/images/barra_vida.png');
+		this.load.image('redHealthBar', 'assets/images/barra_vida_roja.png');
+
+		//Music
+		this.load.audio('keyboardSound', 'assets/music/keyboard sound2.mp3');
+		this.load.audio('mainMenuMusic', 'assets/music/main menu music2.mp3');
+		this.load.audio('pressEnterSound', 'assets/music/press enter sound.mp3');
+		this.load.audio('switchOptionSound', 'assets/music/switch option sound.mp3');
 	},
 
 	create: function(){
