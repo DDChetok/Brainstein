@@ -602,13 +602,6 @@ Brainstein.Game = {
 	handleKeyboardInput: function(){
 
 		//----------------------PLAYER 1-----------------------
-
-		if(this.actionKeys.pauseGame.isDown){
-			this.menuControles.alpha = 0.2;
-		}else{
-			this.menuControles.alpha = 0;
-		}
-
 		//Movement
 		if(this.actionKeys.player1Left.isDown){	
 			this.players[0].body.velocity.x -= this.players[0].speed;
