@@ -15,7 +15,6 @@ Brainstein.Game = {
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player
 		this.players = [];
-		this.playersCount = 0;
 		this.createPlayer(300, 150, 'erwin');	
 		this.createPlayer(150, 450, 'darwin');			
 
@@ -96,12 +95,7 @@ Brainstein.Game = {
 		this.brain.height = 64;
 		this.game.physics.arcade.enable(this.brain);	
 
-		//-----------------TEXTS VARIABLES-----------------
-		this.reloadTextPlayer1 = this.game.add.text(0, 0, " ", { font: "20px Chakra Petch", fill: "#000", align: "center" });		
-		this.reloadTextPlayer1.anchor.setTo(0.5, 0.5);
-		this.reloadTextPlayer2 = this.game.add.text(this.game.width - 400, 0, " ", { font: "20px Chakra Petch", fill: "#000", align: "center" });	
-		this.reloadTextPlayer2.anchor.setTo(0.5, 0.5);
-
+		//-----------------TEXTS VARIABLES-----------------	
 		this.actualRoundText = this.game.add.text(this.game.width / 2, 20, "Ronda actual:", { font: "20px Chakra Petch", fill: "#0a2239", align: "center" });
 		this.actualRoundText.anchor.setTo(0.5, 0.5);
 		this.actualRoundText.fixedToCamera = true;	
@@ -227,66 +221,89 @@ Brainstein.Game = {
 	},
 
 	createPlayer: function(x, y, sprite){
+		//Sprite variables
 		var player = this.game.add.sprite(x, y, sprite);
 		player.width = 64;
 		player.height = 64;
 		player.anchor.setTo(0.25, 0.5);
-		player.hp = 30;
-		player.actualHp = player.hp;
-		player.weapon = "pistol";	
-		player.pistolActualAmmo = Number.POSITIVE_INFINITY;
-		player.shotgunActualAmmo = 0;
-		player.akActualAmmo = 2000;
 
+		//Player hp
+		player.hp = 30;
+		player.actualHp = player.hp;			
+
+		//Shooting
+		player.shot = [];
+		player.actualShot = 0;
+		//Player weapons		
 		player.pistol = this.createWeapon("pistol",0,400,12,1,5,12,Number.POSITIVE_INFINITY,700,0);
 		player.shotgun = this.createWeapon("shotgun",0,600,12,3,8,12,50,700,0.25);
 		player.ak = this.createWeapon("ak",0,50,30,1,8,20,200,700,0);
-
+		player.weapon = "pistol";	
+		//Player ammo
+		player.pistolActualAmmo = Number.POSITIVE_INFINITY;		
+		player.shotgunActualAmmo = 0;
+		player.akActualAmmo = 2000;
+		//Reloading
 		player.reloadTimer = this.game.time.create(false);
 		player.reloadTimer.add(1000, this.reloadMethod, this,player);
 		player.reloadTimer.start();
 		player.reloadTimer.pause();	
-			
+		//Shooting sprites		
+		if(this.players.length == 0){
+			player.sprites = ["erwin", "erwinAk", "erwinShotgun"];
+		} else if(this.players.length == 1){
+			player.sprites = ["darwin", "darwinAk", "darwinShotgun"];
+		}
+
+		//Player states
 		player.reloading = false;
-		player.holdingBrain = false;
-		player.originalSpeed = 400;			
-		player.speed = player.originalSpeed;
+		player.holdingBrain = false;		
 		player.beingPushed = false;	
 		player.grabBrainKeyJustPressed = false;
 		player.dead = false;
-		player.resurrecting = false;
-		player.resurrectText = this.game.add.text(player.position.x, player.position.y + 20, " ", { font: "30px Chakra Petch", fill: "#0a2239", align: "center" })
-		player.resurrectText.anchor.setTo(0.5, 0.5);
+		player.resurrecting = false;		
 
-		player.shot = [];
-		player.actualShot = 0;
-
-		player.dropCatchedText = this.game.add.text(player.x, player.y - 50, " " , { font: "15px Chakra Petch", fill: "#081346", align: "center" });
-		player.dropCatchedText.anchor.setTo(0.5, 0.5);
-		player.dropCatchedTimer = this.game.time.create(false);
-		player.dropCatchedTimer.add(2000,this.deleteDropText,this,player);
-		player.dropCatchedTimer.start();
-		player.dropCatchedTimer.pause();	
-
+		//Invulnerabilty after hit
 		player.nextEnemyHitTimer = this.game.time.create(false);
 		player.nextEnemyHitTimer.add(500,this.resetPlayerHitbox,this,player);
 		player.nextEnemyHitTimer.start();
 		player.nextEnemyHitTimer.pause();
 
+		//Health bar
 		player.redHealthBar = this.game.add.image(player.x - 58, player.y - 60, 'redHealthBar');
 		player.redHealthBar.width = 115;
 		player.redHealthBar.height = 10;
-
 		player.healthBar = this.game.add.image(player.x - 58, player.y - 60, 'healthBar');					
 		player.healthBar.width = 115;
 		player.healthBar.height = 10;	
 
+		//Physics
+		player.originalSpeed = 400;	
+		player.speed = player.originalSpeed;	
 		this.game.physics.arcade.enable(player);	
 		player.body.collideWorldBounds = true;
-
-		this.players[this.playersCount] = player;
-		this.playersCount++;
 		
+		//Texts
+		//Reload text
+		player.reloadTextPlayer = this.game.add.text(0, 0, " ", { font: "20px Chakra Petch", fill: "#000", align: "center" });		
+		player.reloadTextPlayer.anchor.setTo(0.5, 0.5);
+		//Drop Text & Text Timer
+		player.dropCatchedText = this.game.add.text(player.x, player.y - 50, " " , { font: "15px Chakra Petch", fill: "#081346", align: "center" });
+		player.dropCatchedText.anchor.setTo(0.5, 0.5);	
+		player.dropCatchedTimer = this.game.time.create(false);
+		player.dropCatchedTimer.add(2000,this.deleteDropText,this,player);
+		player.dropCatchedTimer.start();
+		player.dropCatchedTimer.pause();	
+		//Resurrect Text
+		player.resurrectText = this.game.add.text(player.position.x, player.position.y + 20, " ", { font: "30px Chakra Petch", fill: "#0a2239", align: "center" })
+		player.resurrectText.anchor.setTo(0.5, 0.5);
+
+		//Player keys
+		player.keys = {};
+		player.keys = this.createKeys();
+
+		//Add the player to the array of players
+		this.players[this.players.length] = player;		
 	},
 
 	//Creates an enemy
@@ -332,33 +349,38 @@ Brainstein.Game = {
 
 	//Returns an array with all the hotkeys
 	createKeys: function(){
-		return {
-			//PLAYER 1 KEYS
-			player1Up: this.game.input.keyboard.addKey(Phaser.Keyboard.W), 
-			player1Down: this.game.input.keyboard.addKey(Phaser.Keyboard.S), 
-			player1Left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
-			player1Right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
-			player1Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.R),
-			player1Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.ONE),
-			player1AK: this.game.input.keyboard.addKey(Phaser.Keyboard.TWO),
-			player1Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),				
-			player1GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),	
-			player1Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.F),	
-
-			pauseGame: this.game.input.keyboard.addKey(Phaser.Keyboard.ESC),
-
-			//PLAYER 2 KEYS
-			player2Up: this.game.input.keyboard.addKey(Phaser.Keyboard.UP), 
-			player2Down: this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN), 
-			player2Left: this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT), 
-			player2Right: this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT), 
-			player2Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_ADD), 
-			player2Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7), 
-			player2AK: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8), 
-			player2Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9), 			
-			player2GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_0),
-			player2Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_SUBTRACT),		
-		};
+		if(this.players.length == 0){
+			var keys =  {						
+				Up: this.game.input.keyboard.addKey(Phaser.Keyboard.W), 
+				Down: this.game.input.keyboard.addKey(Phaser.Keyboard.S), 
+				Left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
+				Right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
+				Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.R),
+				Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.ONE),
+				AK: this.game.input.keyboard.addKey(Phaser.Keyboard.TWO),
+				Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.THREE),				
+				GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),	
+				Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.F),	
+			}	
+		} else if(this.players.length == 1){
+			var keys = {
+				Up: this.game.input.keyboard.addKey(Phaser.Keyboard.UP), 
+				Down: this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN), 
+				Left: this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT), 
+				Right: this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT), 
+				Reload: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_ADD), 
+				Pistol: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_7), 
+				AK: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_8), 
+				Shotgun: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_9), 			
+				GrabBrain: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_0),
+				Resurrect: this.game.input.keyboard.addKey(Phaser.Keyboard.NUMPAD_SUBTRACT),	
+			}
+		} else if(this.players.length > 1){
+			console.error("Too many players");
+		}		
+		
+		return keys;
+					
 	},	
 
 	createWeapon: function(type,nextFire,fireRate,magazine,numberOfBullets,damage,actualMagazine,maxAmmo,speed,angle){
@@ -392,7 +414,7 @@ Brainstein.Game = {
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	update: function(){
-		for(var i = 0; i < this.playersCount; i++){			
+		for(var i = 0; i < this.players.length; i++){			
 			this.players[i].body.velocity.x = 0;
 			this.players[i].body.velocity.y = 0;
 					
@@ -428,35 +450,28 @@ Brainstein.Game = {
 		//Collisions				
 		this.collisionsAndOverlaps();
 
-		//Checks if the OTHER player is dead
-		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[1].dead && !this.players[0].dead){
-			this.players[0].resurrectText.setText("Press F to resurrect");
-			if(this.actionKeys.player1Resurrect.isDown){	
-				this.players[0].resurrecting = true;
-				this.resurrectTimer.add(3500, this.resurrectPlayer, this, this.players[1],this.players[0]);	
-				this.resurrectTimer.start();	
-				this.players[0].resurrectText.setText(Math.floor(this.resurrectTimer.duration/1000) + 1);		
-			} else {
-				this.resurrectTimer.stop();
-				this.players[0].resurrecting = false;
+		//Checks if the OTHERS players are dead
+		if(this.players.length > 1){
+			for(var i = 0; i < this.players.length; i++){
+				for(var j = 0; j < this.players.length; j++){
+					if(!this.players[i].dead && i != j){
+						if(Math.abs(Phaser.Point.distance(this.players[i].position, this.players[j].position)) < 30 && this.players[j].dead){
+							this.players[i].resurrectText.setText("Press Resurrect Key");
+							if(this.players[i].keys.Resurrect.isDown){	
+								this.players[i].resurrecting = true;
+								this.resurrectTimer.add(3500, this.resurrectPlayer, this, this.players[j],this.players[i]);	
+								this.resurrectTimer.start();	
+								this.players[i].resurrectText.setText(Math.floor(this.resurrectTimer.duration/1000) + 1);		
+							} else {
+								this.resurrectTimer.stop();
+								this.players[i].resurrecting = false;
+							}						
+						} else {
+							this.players[i].resurrectText.setText(" ");
+						}
+					}				
+				}
 			}
-		} else {
-			this.players[0].resurrectText.setText(" ");
-		}		
-
-		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[0].dead && !this.players[1].dead){
-			this.players[1].resurrectText.setText("Press - to resurrect");
-			if(this.actionKeys.player2Resurrect.isDown){
-				this.players[1].resurrecting = true;						
-				this.resurrectTimer.add(3500, this.resurrectPlayer, this, this.players[0],this.players[1]);	
-				this.resurrectTimer.start();	
-				this.players[1].resurrectText.setText(Math.floor(this.resurrectTimer.duration/1000));		
-			} else {
-				this.resurrectTimer.stop();
-				this.players[1].resurrecting = false;
-			}				
-		} else {
-			this.players[1].resurrectText.setText(" ");
 		}	
 
 		//Finds a path from enemy to player and updates its position			
@@ -527,68 +542,11 @@ Brainstein.Game = {
 		}		
 	},	
 	
-	updateText: function(){
-		if(!this.players[0].dead){
-			switch(this.players[0].weapon){
-				case "pistol":
-					this.reloadTextPlayer1.setText("Pistola:" + this.players[0].pistol.actualMagazine + "/Inf");
-					this.reloadTextPlayer1.position.x = this.players[0].position.x;
-					this.reloadTextPlayer1.position.y = this.players[0].position.y - 70;
-					break;
-
-				case "shotgun":
-					this.reloadTextPlayer1.setText("Escopeta:" + this.players[0].shotgun.actualMagazine + "/" + this.players[0].shotgunActualAmmo);
-					this.reloadTextPlayer1.position.x = this.players[0].position.x;
-					this.reloadTextPlayer1.position.y = this.players[0].position.y - 70;
-					break;
-
-				case "ak":
-					this.reloadTextPlayer1.setText("AK:" + this.players[0].ak.actualMagazine + "/" + this.players[0].akActualAmmo);
-					this.reloadTextPlayer1.position.x = this.players[0].position.x;
-					this.reloadTextPlayer1.position.y = this.players[0].position.y - 70;
-					break;			
-			}	
-
-			if(this.players[0].reloading == true){
-				this.reloadTextPlayer1.setText("RECARGANDO");				
-			} 	
-		}else{
-			this.reloadTextPlayer1.setText("");			
-		}
-
-		if(!this.players[1].dead){
-			switch(this.players[1].weapon){
-				case "pistol":
-					this.reloadTextPlayer2.setText("Pistola:" + this.players[1].pistol.actualMagazine + "/Inf");
-					this.reloadTextPlayer2.position.x = this.players[1].position.x;
-					this.reloadTextPlayer2.position.y = this.players[1].position.y - 70;
-					break;
-
-				case "shotgun":
-					this.reloadTextPlayer2.setText("Escopeta:" + this.players[1].shotgun.actualMagazine + "/" + this.players[1].shotgunActualAmmo);
-					this.reloadTextPlayer2.position.x = this.players[1].position.x;
-					this.reloadTextPlayer2.position.y = this.players[1].position.y - 70;
-					break;
-
-				case "ak":
-					this.reloadTextPlayer2.setText("AK:" + this.players[1].ak.actualMagazine + "/" + this.players[1].akActualAmmo);
-					this.reloadTextPlayer2.position.x = this.players[1].position.x;
-					this.reloadTextPlayer2.position.y = this.players[1].position.y - 70;
-					break;
-			}		
-			
-			if(this.players[1].reloading == true){
-				this.reloadTextPlayer2.setText("RECARGANDO");
-			} 
-		}else{
-			this.reloadTextPlayer2.setText("");		
-		}	
-
+	updateText: function(){		
 		//Texto ronda actual
 		this.actualRoundNumberText.setText(this.actualRound+1);
 		
-		for(i = 0; i < this.playersCount; i++){
-
+		for(i = 0; i < this.players.length; i++){
 			//Textos de los drops
 			this.players[i].dropCatchedText.x = this.players[i].x;
 			this.players[i].dropCatchedText.y = this.players[i].y - 100;			
@@ -608,6 +566,35 @@ Brainstein.Game = {
 				this.players[i].resurrectText.position.x = this.players[i].position.x;
 				this.players[i].resurrectText.position.y = this.players[i].position.y + 50;	
 			}	
+
+			//Weapon & Ammo Text
+			if(!this.players[i].dead){
+				switch(this.players[i].weapon){
+					case "pistol":
+						this.players[i].reloadTextPlayer.setText("Pistola:" + this.players[i].pistol.actualMagazine + "/Inf");
+						this.players[i].reloadTextPlayer.position.x = this.players[i].position.x;
+						this.players[i].reloadTextPlayer.position.y = this.players[i].position.y - 70;
+						break;
+	
+					case "shotgun":
+						this.players[i].reloadTextPlayer.setText("Escopeta:" + this.players[i].shotgun.actualMagazine + "/" + this.players[0].shotgunActualAmmo);
+						this.players[i].reloadTextPlayer.position.x = this.players[i].position.x;
+						this.players[i].reloadTextPlayer.position.y = this.players[i].position.y - 70;
+						break;
+	
+					case "ak":
+						this.players[i].reloadTextPlayer.setText("AK:" + this.players[i].ak.actualMagazine + "/" + this.players[0].akActualAmmo);
+						this.players[i].reloadTextPlayer.position.x = this.players[i].position.x;
+						this.players[i].reloadTextPlayer.position.y = this.players[i].position.y - 70;
+						break;			
+				}	
+	
+				if(this.players[i].reloading == true){
+					this.players[i].reloadTextPlayer.setText("RECARGANDO");				
+				} 	
+			}else{
+				this.players[i].reloadTextPlayer.setText("");			
+			}
 		}		
 
 		if(this.resting == true){
@@ -619,104 +606,55 @@ Brainstein.Game = {
 	},
 
 	handleKeyboardInput: function(){
+		for(var i = 0; i < this.players.length; i++){
+			//Movement
+			if(this.players[i].keys.Left.isDown){	
+				this.players[i].body.velocity.x -= this.players[i].speed;
+			}
+			else if(this.players[i].keys.Right.isDown){	
+				this.players[i].body.velocity.x += this.players[i].speed;
+			}
+			if(this.players[i].keys.Up.isDown){	
+				this.players[i].body.velocity.y -= this.players[i].speed;
+			}		
+			else if(this.players[i].keys.Down.isDown){
+				this.players[i].body.velocity.y += this.players[i].speed;
+			}
 
-		//----------------------PLAYER 1-----------------------
-		//Movement
-		if(this.actionKeys.player1Left.isDown){	
-			this.players[0].body.velocity.x -= this.players[0].speed;
-		}
-		else if(this.actionKeys.player1Right.isDown){	
-			this.players[0].body.velocity.x += this.players[0].speed;
-		}
-		if(this.actionKeys.player1Up.isDown){	
-			this.players[0].body.velocity.y -= this.players[0].speed;
-		}		
-		else if(this.actionKeys.player1Down.isDown){
-			this.players[0].body.velocity.y += this.players[0].speed;
-		}
+			//Reload
+			if(this.players[i].keys.Reload.isDown){
+				this.players[i].reloading = true;
+				this.players[i].reloadTimer.resume();
+			}
 
-		//Reload
-		if(this.actionKeys.player1Reload.isDown){
-			this.players[0].reloading = true;
-			this.players[0].reloadTimer.resume();
-		}
+			//Weapons inventory
+			if(this.players[i].keys.Pistol.isDown && !this.players[i].dead){
+				this.players[i].weapon = 'pistol';
+				this.players[i].loadTexture(this.players[i].sprites[0]);
+			} else if(this.players[i].keys.AK.isDown && !this.players[i].dead){
+				this.players[i].weapon = 'ak';
+				this.players[i].loadTexture(this.players[i].sprites[1]);
+			} else if(this.players[i].keys.Shotgun.isDown && !this.players[i].dead){
+				this.players[i].weapon = 'shotgun';	
+				this.players[i].loadTexture(this.players[i].sprites[2]);	
+			}
 
-		//Weapons inventory
-		if(this.actionKeys.player1Pistol.isDown && !this.players[0].dead){
-			this.players[0].weapon = 'pistol';
-			this.players[0].loadTexture('erwin');
-		} else if(this.actionKeys.player1AK.isDown && !this.players[0].dead){
-			this.players[0].weapon = 'ak';
-			this.players[0].loadTexture('erwinAk');
-		} else if(this.actionKeys.player1Shotgun.isDown && !this.players[0].dead){
-			this.players[0].weapon = 'shotgun';	
-			this.players[0].loadTexture('erwinShotgun');	
-		}
+			//Grab brain
+			if(this.players[i].keys.GrabBrain.isDown){
+				if(!this.players[i].grabBrainKeyJustPressed){
+					this.players[i].holdingBrain = !this.players[i].holdingBrain;
+					this.players[i].grabBrainKeyJustPressed = true;		
+					if(this.players[i].holdingBrain){					
+						this.grabBrain(this.players[i]);					
+					} else {					
+						this.releaseBrain(this.players[i]);
+					}
+				}	
+			}
 
-		//Grab brain
-		if(this.actionKeys.player1GrabBrain.isDown){
-			if(!this.players[0].grabBrainKeyJustPressed){
-				this.players[0].holdingBrain = !this.players[0].holdingBrain;
-				this.players[0].grabBrainKeyJustPressed = true;		
-				if(this.players[0].holdingBrain){					
-					this.grabBrain(this.players[0]);					
-				} else {					
-					this.releaseBrain(this.players[0]);
-				}
-			}	
-		}
-
-		if(this.actionKeys.player1GrabBrain.isUp){
-			this.players[0].grabBrainKeyJustPressed = false;			
-		}
-		//----------------------PLAYER 2-----------------------
-		//Movement
-		if(this.actionKeys.player2Left.isDown){	
-			this.players[1].body.velocity.x -= this.players[1].speed;
-		}
-		else if(this.actionKeys.player2Right.isDown){	
-			this.players[1].body.velocity.x += this.players[1].speed;
-		}
-		if(this.actionKeys.player2Up.isDown){	
-			this.players[1].body.velocity.y -= this.players[1].speed;
-		}		
-		else if(this.actionKeys.player2Down.isDown){
-			this.players[1].body.velocity.y += this.players[1].speed;
-		}
-
-		//Reload
-		if(this.actionKeys.player2Reload.isDown){
-			this.players[1].reloading = true;
-			this.players[1].reloadTimer.resume();
-		}
-
-		//Weapons inventory
-		if(this.actionKeys.player2Pistol.isDown && !this.players[1].dead){
-			this.players[1].weapon = 'pistol';
-			this.players[1].loadTexture('darwin');
-		} else if(this.actionKeys.player2AK.isDown && !this.players[1].dead){
-			this.players[1].weapon = 'ak';
-			this.players[1].loadTexture('darwinAk');
-		} else if(this.actionKeys.player2Shotgun.isDown && !this.players[1].dead){
-			this.players[1].weapon = 'shotgun';		
-			this.players[1].loadTexture('darwinShotgun');
-		}
-
-		//Grab brain
-		if(this.actionKeys.player2GrabBrain.isDown){
-			if(!this.players[1].grabBrainKeyJustPressed){
-				this.players[1].holdingBrain = !this.players[1].holdingBrain;
-				this.players[1].grabBrainKeyJustPressed = true;		
-				if(this.players[1].holdingBrain){					
-					this.grabBrain(this.players[1]);
-				} else {					
-					this.releaseBrain(this.players[1]);
-				}
-			}	
-		}
-
-		if(this.actionKeys.player1GrabBrain.isUp){
-			this.players[1].grabBrainKeyJustPressed = false;					
+			if(this.players[i].keys.GrabBrain.isUp){
+				this.players[i].grabBrainKeyJustPressed = false;			
+			}
 		}	
 	},
 	//#endregion
@@ -770,7 +708,7 @@ Brainstein.Game = {
 		this.game.physics.arcade.collide(this.players,this.drops,this.playerDropColision,null,this);	
 		this.game.physics.arcade.collide(this.players, this.collisionLayer);			
 
-		for(i = 0; i < this.playersCount;i++){
+		for(i = 0; i < this.players.length;i++){
 			this.game.physics.arcade.overlap(this.players[i].shot, this.enemies, this.bulletZombieColision,null,this);
 			this.game.physics.arcade.collide(this.players[i].shot, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
 		}		
@@ -1024,7 +962,7 @@ Brainstein.Game = {
 		if(this.brain != null){
 			//Checks what is closer, a player or the brain
 			var minDistance = Number.POSITIVE_INFINITY, spawnPointIndex;
-			for(var i = 0; i < this.playersCount; i++){
+			for(var i = 0; i < this.players.length; i++){
 				if(Phaser.Point.distance(enemy.position, this.brain.position) < Phaser.Point.distance(enemy.position, this.players[i].position)){
 					enemy.target = "brain";
 				} else {	
@@ -1034,7 +972,7 @@ Brainstein.Game = {
 			
 			//Checks if all players are dead		
 			var allDead = true;	
-			for(var i = 0; i < this.playersCount; i++){
+			for(var i = 0; i < this.players.length; i++){
 				if(!this.players[i].dead){
 					allDead = false;
 				}
@@ -1047,7 +985,7 @@ Brainstein.Game = {
 		if(enemy.target == "player"){	
 			//Checks which player is closer
 			minDistance = Number.POSITIVE_INFINITY;	
-			for(var i = 0; i < this.playersCount; i++){
+			for(var i = 0; i < this.players.length; i++){
 				if(!this.players[i].dead){
 					var distance = Phaser.Point.distance(enemy.position, this.players[i].position);	
 					if(distance < minDistance){
@@ -1056,7 +994,7 @@ Brainstein.Game = {
 				}
 			}
 
-			for(var j = 0; j < this.playersCount; j++){
+			for(var j = 0; j < this.players.length; j++){
 				if(!this.players[j].dead){
 					var distance = Phaser.Point.distance(enemy.position, this.players[j].position);	
 					if(distance == minDistance){
@@ -1272,7 +1210,7 @@ Brainstein.Game = {
 	},
 
 	teleportBrain: function(){
-		for(var i = 0; i < this.playersCount; i++){
+		for(var i = 0; i < this.players.length; i++){
 			this.players[i].holdingBrain = false;
 			this.players[i].speed = this.players[i].originalSpeed;
 		}
@@ -1313,7 +1251,7 @@ Brainstein.Game = {
 
 		//Checks if all players are dead
 		var gameOver = true;
-		for(var i = 0; i < this.playersCount; i++){
+		for(var i = 0; i < this.players.length; i++){
 			if(!this.players[i].dead){
 				gameOver = false;
 			}
