@@ -157,9 +157,9 @@ Brainstein.Game = {
 		switch(this.levelSelected){
 			case 0:					
 				//Level spawnPoints
-				this.createSpawnPoint(19 * this.tileDimensions.x, 11 * this.tileDimensions.y);
-				this.createSpawnPoint(27 * this.tileDimensions.x, 23 * this.tileDimensions.y);
-				this.createSpawnPoint(26 * this.tileDimensions.x, 45 * this.tileDimensions.y);
+				this.createSpawnPoint(11 * this.tileDimensions.x, 19 * this.tileDimensions.y);
+				this.createSpawnPoint(23 * this.tileDimensions.x, 28 * this.tileDimensions.y);
+				this.createSpawnPoint(45 * this.tileDimensions.x, 26 * this.tileDimensions.y);
 		
 			break;
 			case 1:						
@@ -295,14 +295,14 @@ Brainstein.Game = {
 		var spawnPointIndex = this.game.rnd.integerInRange(0, this.spawnPointsCount -1); //Chooses the spawpoint it will appear in.
 	
 		//Choose random spawnpoint tile position
-		x = this.spawnPoints[spawnPointIndex].tile.row + this.tileDimensions.y / 2; 
-		y = this.spawnPoints[spawnPointIndex].tile.column + this.tileDimensions.x / 2;
+		x = this.spawnPoints[spawnPointIndex].tile.row * this.tileDimensions.y / 2; 
+		y = this.spawnPoints[spawnPointIndex].tile.column * this.tileDimensions.x / 2;
 		
 		//Choose random tile around spawnpoint
 		x += this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
 		y += this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
 
-		var tile = this.getCoordFromPosition({x:x, y:y});
+		var tile = this.getCoordFromPosition({x, y});
 		while(this.gridIndices[tile.column][tile.row] != -1){
 			x = this.spawnPoints[spawnPointIndex].position.x + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.x;
 			y = this.spawnPoints[spawnPointIndex].position.y + this.game.rnd.integerInRange(-this.spawnPoints[spawnPointIndex].spawnArea, this.spawnPoints[spawnPointIndex].spawnArea) * this.tileDimensions.y;
@@ -382,7 +382,7 @@ Brainstein.Game = {
 		var spawnPoint = this.game.add.sprite(x, y);	
 		spawnPoint.width = 1;
 		spawnPoint.height = 1;
-		spawnPoint.tile = this.getCoordFromPosition(x, y);
+		spawnPoint.tile = this.getCoordFromPosition({x, y});
 		spawnPoint.spawnArea = 2; //Cells around the spawnPoint
 
 		this.spawnPoints[this.spawnPointsCount] = spawnPoint;
