@@ -37,7 +37,16 @@ Brainstein.Preload = {
 		this.load.image('floor_tile', 'assets/images/debug-grid-1920x1920.png');		
 	
 		this.load.image('bullet', 'assets/images/bala_ph.png');	
-		this.load.image('bulletParticle', 'assets/images/bala_particula.png');		
+		this.load.image('bulletParticle', 'assets/images/bala_particula.png');	
+		this.load.image('pistolBullet', 'assets/images/bala_pistola.png');
+		this.load.image('akBullet', 'assets/images/bala_ak.png');	
+		this.load.image('shotgunBullet', 'assets/images/bala_escopeta.png');	
+		
+		this.load.image('bloodSplash', 'assets/images/blood_splash.png');
+		this.load.image('bloodPuddle1', 'assets/images/charco_sangre_1.png');
+		this.load.image('bloodPuddle2', 'assets/images/charco_sangre_2.png');
+		this.load.image('bloodPuddle3', 'assets/images/charco_sangre_3.png');
+		
 		this.load.image('brain', 'assets/images/cerebro sprite redim.png');
 		this.load.image('drop','assets/images/drop sprite redim.png');
 		this.load.image('deadPlayer', 'assets/images/tumba sprite redim.png');
