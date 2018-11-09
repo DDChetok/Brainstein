@@ -12,6 +12,12 @@ Brainstein.Game = {
 	create: function(){
 		this.createLevel();
 		this.createCameraPositions();
+
+		//-----------------SOUNDS-----------------
+		this.backgroundMusic = this.game.add.audio('gameBackgroundMusic');
+		this.backgroundMusic.loop = true;
+		this.backgroundMusic.play();
+		this.backgroundMusic.volume = 0.5;
 		
 		//-----------------TEMPORAL SPRITES-----------------
 		this.temporalSprites = this.game.add.group();	
@@ -268,7 +274,7 @@ Brainstein.Game = {
 		//Player keys
 		player.keys = {};
 		player.keys = this.createKeys();
-
+		
 		//Add the player to the array of players
 		this.players[this.players.length] = player;		
 	},
@@ -634,7 +640,8 @@ Brainstein.Game = {
 			}		
 			else if(this.players[i].keys.Down.isDown){
 				this.players[i].body.velocity.y += this.players[i].speed;
-			}
+			}			
+
 
 			//Reload
 			if(this.players[i].keys.Reload.isDown){

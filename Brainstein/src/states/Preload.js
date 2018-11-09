@@ -60,6 +60,7 @@ Brainstein.Preload = {
 		this.load.audio('mainMenuMusic', 'assets/music/main menu music2.mp3');
 		this.load.audio('pressEnterSound', 'assets/music/press enter sound.mp3');
 		this.load.audio('switchOptionSound', 'assets/music/switch option sound.mp3');
+		this.load.audio('gameBackgroundMusic', 'assets/music/Mayhem_Looping.mp3');
 	},
 
 	create: function(){

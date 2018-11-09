@@ -5,16 +5,16 @@ Brainstein.MainMenu = {
 	
 	create: function(){
 		this.game.mainMenuMusic = this.game.add.audio('mainMenuMusic');
-		this.game.mainMenuMusic.lopp = true;
+		this.game.mainMenuMusic.loop = true;
 		this.game.keyboardSound = this.game.add.audio('keyboardSound');
 		this.game.pressEnterSound = this.game.add.audio('pressEnterSound');
-		this.game.pressEnterSound.lopp = true;
+		this.game.pressEnterSound.loop = true;
 		this.game.switchOptionSound = this.game.add.audio('switchOptionSound');
 		this.game.sound.setDecodedCallback([this.game.keyboardSound,this.game.mainMenuMusic,this.game.pressEnterSound,this.game.switchOptionSound], this.start, this);
 	},
 
 	start: function(){
-		this.game.keyboardSound.play();
+		//this.game.keyboardSound.play();
 		this.game.mainMenuMusic.play();
 		this.h = this.game.add.text(this.game.width / 2 - 100, this.game.height /2 + 20, "  ", style);
 		this.content = [
