@@ -561,13 +561,10 @@ Brainstein.Game = {
 
 	//Checks if the camera position should change
 	updateCamera(){
-		var xOffset, yOffset;
-
 		//Camera goes right
 		if(this.currentCameraPosition + 1 < this.cameraPositions.length){
-			if(this.cameraPositions[this.currentCameraPosition + 1].x != 0){ 				
-				xOffset = Math.abs(this.cameraPositions[this.currentCameraPosition].x + this.game.width - this.cameraPositions[this.currentCameraPosition + 1].x);
-				if(this.players[0].position.x >= this.cameraPositions[this.currentCameraPosition + 1].x + xOffset){					
+			if(this.cameraPositions[this.currentCameraPosition + 1].x != 0){ 		
+				if(this.players[0].position.x >= this.camera.position.x + this.game.width){					
 					this.currentCameraPosition++;
 					this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 				}
@@ -575,9 +572,8 @@ Brainstein.Game = {
 		}
 
 		//Camera goes left
-		if(this.currentCameraPosition > 0){
-			xOffset = Math.abs(this.cameraPositions[this.currentCameraPosition - 1].x + this.game.width - this.cameraPositions[this.currentCameraPosition].x);
-			if(this.players[0].position.x < this.cameraPositions[this.currentCameraPosition].x - xOffset){		
+		if(this.currentCameraPosition > 0){		
+			if(this.players[0].position.x < this.camera.position.x){		
 				this.currentCameraPosition--;
 				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 			}
@@ -585,7 +581,7 @@ Brainstein.Game = {
 
 		//Camera goes up
 		if(this.currentCameraPosition >= this.cameraXPositionsCount){						
-			if(this.players[0].position.y < this.cameraPositions[this.currentCameraPosition].y){		
+			if(this.players[0].position.y < this.camera.position.y){		
 				this.currentCameraPosition -= this.cameraXPositionsCount;	
 				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];		
 	
@@ -593,10 +589,8 @@ Brainstein.Game = {
 		}
 
 		//Camera goes down
-		if(this.currentCameraPosition + this.cameraXPositionsCount < this.cameraPositions.length){
-			yOffset = Math.abs(this.cameraPositions[this.currentCameraPosition].y + this.game.height - this.cameraPositions[this.currentCameraPosition + this.cameraXPositionsCount].y);	
-
-			if(this.players[0].position.y >= this.cameraPositions[this.currentCameraPosition + this.cameraXPositionsCount].y + yOffset){				
+		if(this.currentCameraPosition + this.cameraXPositionsCount < this.cameraPositions.length){			
+			if(this.players[0].position.y >= this.camera.position.y + this.game.height){				
 				this.currentCameraPosition += this.cameraXPositionsCount;	
 				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 			}
