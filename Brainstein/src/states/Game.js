@@ -11,6 +11,7 @@ Brainstein.Game = {
 
 	create: function(){
 		this.createLevel();
+		this.createCameraPositions();
 		
 		//-----------------TEMPORAL SPRITES-----------------
 		this.temporalSprites = this.game.add.group();	
@@ -180,37 +181,7 @@ Brainstein.Game = {
 
 		this.camera.flash('#000000');
 
-		this.game.physics.startSystem(Phaser.Physics.ARCADE);
-
-		//Select camera positions
-		this.cameraPositions = [];	
-		this.currentCameraPosition = 0;
-	
-		this.cameraXPositionsCount = Math.ceil((this.levelDimensions.columns * this.tileDimensions.x) / this.game.width);		
-		this.cameraYPositionsCount = Math.ceil((this.levelDimensions.rows * this.tileDimensions.y) / this.game.height);
-
-		var cameraPositionsX = [];		
-		var cameraPositionsY = [];		
-
-		var x1 = this.game.camera.position.x, y1 = this.game.camera.position.y, x2 = this.levelDimensions.columns * this.tileDimensions.x, y2 = this.levelDimensions.rows * this.tileDimensions.y;
-		for(var i = 0 ; i < this.cameraXPositionsCount; i++){					
-			cameraPositionsX[i] = x1 + (i / this.cameraXPositionsCount) * (x2 - x1);
-		}
-
-		for(var i = 0 ; i < this.cameraYPositionsCount; i++){			
-			cameraPositionsY[i] = y1 + (i / this.cameraYPositionsCount) * (y2 - y1);
-		}
-			
-		for(var y = 0, i = 0 ; y < this.cameraYPositionsCount; y++){					
-			for(var x = 0 ; x < this.cameraXPositionsCount; x++, i++){			
-				this.cameraPositions[i] = {
-					x: cameraPositionsX[x],
-					y: cameraPositionsY[y]
-				}				
-			}
-		}	
-		  
-		
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);  	
 	},
 
 	createPlayer: function(x, y, sprite){
@@ -405,6 +376,36 @@ Brainstein.Game = {
 
 		this.spawnPoints[this.spawnPointsCount] = spawnPoint;
 		this.spawnPointsCount++;
+	},
+
+	//Caculates camera positions depending on the size of the screen and the size of the level
+	createCameraPositions(){		
+		this.cameraPositions = [];	
+		this.currentCameraPosition = 0;
+	
+		this.cameraXPositionsCount = Math.ceil((this.levelDimensions.columns * this.tileDimensions.x) / this.game.width);		
+		this.cameraYPositionsCount = Math.ceil((this.levelDimensions.rows * this.tileDimensions.y) / this.game.height);
+
+		var cameraPositionsX = [];		
+		var cameraPositionsY = [];		
+
+		var x1 = this.game.camera.position.x, y1 = this.game.camera.position.y, x2 = this.levelDimensions.columns * this.tileDimensions.x, y2 = this.levelDimensions.rows * this.tileDimensions.y;
+		for(var i = 0 ; i < this.cameraXPositionsCount; i++){					
+			cameraPositionsX[i] = x1 + (i / this.cameraXPositionsCount) * (x2 - x1);
+		}
+
+		for(var i = 0 ; i < this.cameraYPositionsCount; i++){			
+			cameraPositionsY[i] = y1 + (i / this.cameraYPositionsCount) * (y2 - y1);
+		}
+			
+		for(var y = 0, i = 0 ; y < this.cameraYPositionsCount; y++){					
+			for(var x = 0 ; x < this.cameraXPositionsCount; x++, i++){			
+				this.cameraPositions[i] = {
+					x: cameraPositionsX[x],
+					y: cameraPositionsY[y]
+				}				
+			}
+		}		
 	},
 	//#endregion
 
