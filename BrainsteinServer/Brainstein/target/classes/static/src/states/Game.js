@@ -438,6 +438,33 @@ Brainstein.Game = {
 		for(var i = 0; i < this.enemies.length; i++){
 			this.moveEnemy(this.enemies[i]);			
 		}			
+		
+	var n ={
+		playerID: 1,
+		pistolAmmo: 3.14,
+		name: "lintalho"
+	};
+	//n = n.toString();
+	n = JSON.stringify(n);
+	var url = "/players";
+
+	$.ajax(url, 
+	{
+		method: "POST",
+		data: n,
+		processData: false,
+		
+		success: function() { console.log("YYEEES");},
+		
+		headers:{
+			"Content-Type": "application/json"
+		},
+	});
+
+		$.get(url,function(data){
+		
+			console.log(data);
+		})
 	},
 
 	updatePlayer(player){

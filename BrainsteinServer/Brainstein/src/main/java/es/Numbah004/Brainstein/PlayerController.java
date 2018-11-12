@@ -9,25 +9,33 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class PlayerController {	
 	public List<Player> players = new ArrayList<>();
+	public Player p = new Player();
 	
-	@GetMapping(value = "/players")
+	/*@GetMapping(value = "/players")
 	public List<Player> Players(){
 		return players;
-	}
+	}*/
 	
-	@PostMapping(value = "/players")
+	/*@PostMapping(value = "/players")
 	public ResponseEntity<Integer> AddPlayer(@RequestBody Player newPlayer){
 		players.add(newPlayer);
 		newPlayer.playerID = players.size() - 1;
 		return new ResponseEntity<Integer>(newPlayer.playerID, HttpStatus.CREATED);
-	}	
-	
-	@GetMapping(value = "/playerpositionx/{playerID}")
-	public ResponseEntity<Integer> GetPlayerPistolAmmo(@PathVariable int playerID) {
-		return new ResponseEntity<Integer>(players.get(playerID).pistolAmmo, HttpStatus.CREATED);
+	}*/
+	@GetMapping(value = "/players")
+	public Player get(){
+		//Integer numero =  Integer.parseInt(p.name);
+		return p;
 	}
 	
-	public void SetPlayerPistolAmmo(@PathVariable int playerID, @RequestBody int newPistolAmmo){
-		players.get(playerID).pistolAmmo = newPistolAmmo;
+	@PostMapping(value = "/players")
+	public ResponseEntity<Boolean> SetTest(@RequestBody Player player)
+	{
+		p.playerID = player.playerID;
+		p.pistolAmmo = player.pistolAmmo;
+		p.name = player.name;
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED);
 	}
+	
+	
 }
