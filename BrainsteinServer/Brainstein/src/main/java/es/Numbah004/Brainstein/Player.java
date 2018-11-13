@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class Player {
 	public int playerID;
-	public float pistolAmmo;
-	public String name;
+	
+	public int posX;
+	public int posY;	
 }
