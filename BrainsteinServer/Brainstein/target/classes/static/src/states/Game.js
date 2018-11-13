@@ -14,7 +14,7 @@ Brainstein.Game = {
 		this.createCameraPositions();
 
 		this.playing = false;
-		this.targetPlayer;
+		this.targetPlayer = Brainstein.userID;
 		
 		//-----------------TEMPORAL SPRITES-----------------
 		this.temporalSprites = this.game.add.group();	
@@ -28,13 +28,12 @@ Brainstein.Game = {
 		this.brain.height = 64;
 		this.game.physics.arcade.enable(this.brain);	
 
-		this.grabBrainDistance = 60;
+		this.grabBrainDistance = 60;		
 
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player
 		this.players = [];
-		this.createPlayer(300, 150, 'erwin');	
-		//this.createPlayer(150, 450, 'darwin');			
+		this.createPlayer();					
 
 		this.resurrectTimer = this.game.time.create(false);	
 		//-----------------WEAPON VARIABLES-----------------
@@ -52,7 +51,57 @@ Brainstein.Game = {
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
 		this.enemies = [];
-		this.enemyCount = 0;		
+		this.enemyCount = 0;	
+		
+		//-----------------ROUND LOOP VARIABLES-----------------
+		this.timeBetweenRounds = 3; //Tiempo entre rondas(numero)
+		
+		this.restTimer = this.game.time.create(false); //Timer entre rondas(objeto timer)
+		this.restTimer.add(1000, this.startRound, this);
+		this.restTimer.start(); //EMPIEZA LA RONDA 1
+		
+		this.zombiesPerRound = 10;
+		this.resting = true;
+		this.actualRound = 0;		
+		//-----------------ARROW VARIABLES-----------------
+		this.arrow = this.game.add.sprite(this.game.width / 2, this.game.height / 2, "arrow");
+
+		this.arrow.width = 150;
+		this.arrow.height = 35;
+		this.arrow.anchor.setTo(0, 0.5);
+		this.arrow.position.x = this.players[this.targetPlayer].position.x;
+		this.arrow.position.y = this.players[this.targetPlayer].position.y;
+
+		//----------------DROPS-------------------
+		this.dropTime = 2;
+
+		this.drops = [];
+		
+		this.maxDrops = 6;
+
+		this.dropTimer = this.game.time.create(false);
+		this.dropTimer.add(1000,this.createDrop, this);
+		this.dropTimer.start();
+		this.dropTimer.pause();		
+
+		//-----------------PATHFINDING VARIABLES-----------------
+		this.easyStar = new EasyStar.js();
+		this.initPathfinding();		
+
+		//Optimization
+		this.enemyHordeLenght = 5;
+		this.lastEnemyUpdated = -1;
+		this.hordeTimer = this.game.time.create(false);
+		this.hordeTimer.add(250,this.createHorde, this);
+		this.hordeTimer.start();
+		this.hordeTimer.pause();
+
+		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
+		//-----------------SOUNDS-----------------
+		this.backgroundMusic = this.game.add.audio('gameBackgroundMusic');
+		this.backgroundMusic.loop = true;
+		this.backgroundMusic.play();
+		this.backgroundMusic.volume = 0.5;
 
 		//-----------------CAMERA VARIABLES-----------------		
 		this.game.camera.target = null;
@@ -141,9 +190,16 @@ Brainstein.Game = {
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);  	
 	},
 
-	createPlayer: function(x, y, sprite){
+	createPlayer: function(){
 		//Sprite variables
-		var player = this.game.add.sprite(x, y, sprite);
+		if(Brainstein.userID == 0){
+			var player = this.game.add.sprite(150, 200, "erwin");
+		} else	{
+			var player = this.game.add.sprite(250, 300, "darwin");
+		}
+
+		player.ID = Brainstein.userID;
+
 		player.width = 64;
 		player.height = 64;
 		player.anchor.setTo(0.25, 0.5);
@@ -227,32 +283,27 @@ Brainstein.Game = {
 		player.keys = this.createKeys();
 
 		//Get player ID		
-		$.get("/getID",function(data){
-			player.ID = data;		
-			Brainstein.Game.targetPlayer = player.ID;
 
-			//Posting player in the server
-			var playerInfo = {
-				playerID: player.ID,
-				posX: player.position.x,
-				posY: player.position.y
+		//Posting the player in the server
+		var playerInfo = {
+			playerID: Brainstein.userID,
+			posX: player.position.x,
+			posY: player.position.y
+		}
+
+		playerInfo = JSON.stringify(playerInfo);
+
+		$.ajax("/testing", 
+			{
+				method: "POST",
+				data: playerInfo,
+				processData: false,					
+				
+				headers:{
+					"Content-Type": "application/json"
+				},
 			}
-
-			playerInfo = JSON.stringify(playerInfo);
-
-			$.ajax("/testing", 
-				{
-					method: "POST",
-					data: playerInfo,
-					processData: false,					
-					
-					headers:{
-						"Content-Type": "application/json"
-					},
-				}
-			);
-
-		});	
+		);
 
 		
 		//Add the player to the array of players
@@ -393,106 +444,33 @@ Brainstein.Game = {
 			}
 		}		
 	},
-
-	startGame(){
-		//-----------------ROUND LOOP VARIABLES-----------------
-		this.timeBetweenRounds = 3; //Tiempo entre rondas(numero)
-		
-		this.restTimer = this.game.time.create(false); //Timer entre rondas(objeto timer)
-		this.restTimer.add(1000, this.startRound, this);
-		this.restTimer.start(); //EMPIEZA LA RONDA 1
-		
-		this.zombiesPerRound = 10;
-		this.resting = true;
-		this.actualRound = 0;		
-
-		//----------------DROPS-------------------
-		this.dropTime = 2;
-
-		this.drops = [];
-		
-		this.maxDrops = 6;
-
-		this.dropTimer = this.game.time.create(false);
-		this.dropTimer.add(1000,this.createDrop, this);
-		this.dropTimer.start();
-		this.dropTimer.pause();		
-
-		//-----------------PATHFINDING VARIABLES-----------------
-		this.easyStar = new EasyStar.js();
-		this.initPathfinding();		
-
-		//Optimization
-		this.enemyHordeLenght = 5;
-		this.lastEnemyUpdated = -1;
-		this.hordeTimer = this.game.time.create(false);
-		this.hordeTimer.add(250,this.createHorde, this);
-		this.hordeTimer.start();
-		this.hordeTimer.pause();
-
-		this.game.time.events.repeat(Phaser.Timer.SECOND * 0.25, Number.POSITIVE_INFINITY, this.allowPathfinding, this);
-
-		//-----------------ARROW VARIABLES-----------------
-		this.arrow = this.game.add.sprite(this.game.width / 2, this.game.height / 2, "arrow");
-
-		this.arrow.width = 150;
-		this.arrow.height = 35;
-		this.arrow.anchor.setTo(0, 0.5);
-		this.arrow.position.x = this.players[this.targetPlayer].position.x;
-		this.arrow.position.y = this.players[this.targetPlayer].position.y;
-
-		//-----------------SOUNDS-----------------
-		this.backgroundMusic = this.game.add.audio('gameBackgroundMusic');
-		this.backgroundMusic.loop = true;
-		this.backgroundMusic.play();
-		this.backgroundMusic.volume = 0.5;
-	},
 	//#endregion
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	//Calls all the different update functions
-	update: function(){	
-		if(!this.playing){
-			$.get("/getPlayersNumber", function(numberOfPlayers){						
-				if(numberOfPlayers < 2){
-					console.log("Not enough players. Number of players: " + numberOfPlayers);				
-				} else{
-					Brainstein.Game.playing = true;
-					Brainstein.Game.startGame();
-				}	
-			})		
-			
-			
-		}			
-
-		if(this.playing){
-			$.get("/testing", function(data){
-				console.log(data);
-			})
-			if(this.players.length > 1){	
-				this.checkIfDeadPlayerNearby();		
-			}	
-			
-			for(var i = 0; i < this.players.length; i++){			
-				this.updatePlayer(this.players[i]);
-			}
-
-			this.handleKeyboardInput();	
-			this.updateText();	
-			this.updateTemporalSprites();	
-			this.handleRound();				
-			this.collisionsAndOverlaps();
-			this.updateCamera();
-			this.updateArrow();	
-
-			//Finds a path from enemy to player and updates its position			
-			for(var i = 0; i < this.enemies.length; i++){
-				this.moveEnemy(this.enemies[i]);			
-			}		
-			
-			this.serverStuff();
+	update: function(){				
+		if(this.players.length > 1){	
+			this.checkIfDeadPlayerNearby();		
+		}	
+		
+		for(var i = 0; i < this.players.length; i++){			
+			this.updatePlayer(this.players[i]);
 		}
 
+		this.handleKeyboardInput();	
+		this.updateText();	
+		this.updateTemporalSprites();	
+		this.handleRound();				
+		this.collisionsAndOverlaps();
+		this.updateCamera();
+		this.updateArrow();	
+
+		//Finds a path from enemy to player and updates its position			
+		for(var i = 0; i < this.enemies.length; i++){
+			this.moveEnemy(this.enemies[i]);			
+		}		
+		
+		this.serverStuff();
 	},
 
 	updatePlayer(player){

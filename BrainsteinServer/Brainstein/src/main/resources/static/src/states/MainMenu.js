@@ -15,7 +15,7 @@ Brainstein.MainMenu = {
 
 	start: function(){
 		//this.game.keyboardSound.play();
-		this.game.mainMenuMusic.play();
+		//this.game.mainMenuMusic.play();
 		this.h = this.game.add.text(this.game.width / 2 - 100, this.game.height /2 + 20, "  ", style);
 		this.content = [
 						"...entiendes lo que te digo?", 
@@ -98,7 +98,7 @@ Brainstein.MainMenu = {
 
 	update: function(){
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
-			this.game.state.start('LevelSelection');
+			this.game.state.start('MatchMaking');
 			this.game.switchOptionSound.play();
 		}
 	}
