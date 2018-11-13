@@ -14,6 +14,7 @@ Brainstein.Game = {
 		this.createCameraPositions();
 
 		this.playing = false;
+		this.targetPlayer;
 		
 		//-----------------TEMPORAL SPRITES-----------------
 		this.temporalSprites = this.game.add.group();	
@@ -228,6 +229,7 @@ Brainstein.Game = {
 		//Get player ID		
 		$.get("/getID",function(data){
 			player.ID = data;		
+			Brainstein.Game.targetPlayer = player.ID;
 
 			//Posting player in the server
 			var playerInfo = {
@@ -436,8 +438,8 @@ Brainstein.Game = {
 		this.arrow.width = 150;
 		this.arrow.height = 35;
 		this.arrow.anchor.setTo(0, 0.5);
-		this.arrow.position.x = this.players[0].position.x;
-		this.arrow.position.y = this.players[0].position.y;
+		this.arrow.position.x = this.players[this.targetPlayer].position.x;
+		this.arrow.position.y = this.players[this.targetPlayer].position.y;
 
 		//-----------------SOUNDS-----------------
 		this.backgroundMusic = this.game.add.audio('gameBackgroundMusic');
@@ -582,13 +584,13 @@ Brainstein.Game = {
 						break;
 	
 					case "shotgun":
-						this.players[i].reloadTextPlayer.setText("Escopeta:" + this.players[i].shotgun.actualMagazine + "/" + this.players[0].shotgunActualAmmo);
+						this.players[i].reloadTextPlayer.setText("Escopeta:" + this.players[i].shotgun.actualMagazine + "/" + this.players[i].shotgunActualAmmo);
 						this.players[i].reloadTextPlayer.position.x = this.players[i].position.x;
 						this.players[i].reloadTextPlayer.position.y = this.players[i].position.y - 70;
 						break;
 	
 					case "ak":
-						this.players[i].reloadTextPlayer.setText("AK:" + this.players[i].ak.actualMagazine + "/" + this.players[0].akActualAmmo);
+						this.players[i].reloadTextPlayer.setText("AK:" + this.players[i].ak.actualMagazine + "/" + this.players[i].akActualAmmo);
 						this.players[i].reloadTextPlayer.position.x = this.players[i].position.x;
 						this.players[i].reloadTextPlayer.position.y = this.players[i].position.y - 70;
 						break;			
@@ -624,7 +626,7 @@ Brainstein.Game = {
 		//Camera goes right
 		if(this.currentCameraPosition + 1 < this.cameraPositions.length){
 			if(this.cameraPositions[this.currentCameraPosition + 1].x != 0){ 		
-				if(this.players[0].position.x >= this.camera.position.x + this.game.width){					
+				if(this.players[this.targetPlayer].position.x >= this.camera.position.x + this.game.width){					
 					this.currentCameraPosition++;
 					this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 				}
@@ -633,7 +635,7 @@ Brainstein.Game = {
 
 		//Camera goes left
 		if(this.currentCameraPosition > 0){		
-			if(this.players[0].position.x < this.camera.position.x){		
+			if(this.players[this.targetPlayer].position.x < this.camera.position.x){		
 				this.currentCameraPosition--;
 				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 			}
@@ -641,7 +643,7 @@ Brainstein.Game = {
 
 		//Camera goes up
 		if(this.currentCameraPosition >= this.cameraXPositionsCount){						
-			if(this.players[0].position.y < this.camera.position.y){		
+			if(this.players[this.targetPlayer].position.y < this.camera.position.y){		
 				this.currentCameraPosition -= this.cameraXPositionsCount;	
 				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];		
 	
@@ -650,7 +652,7 @@ Brainstein.Game = {
 
 		//Camera goes down
 		if(this.currentCameraPosition + this.cameraXPositionsCount < this.cameraPositions.length){			
-			if(this.players[0].position.y >= this.camera.position.y + this.game.height){				
+			if(this.players[this.targetPlayer].position.y >= this.camera.position.y + this.game.height){				
 				this.currentCameraPosition += this.cameraXPositionsCount;	
 				this.game.camera.position = this.cameraPositions[this.currentCameraPosition];
 			}
@@ -660,11 +662,11 @@ Brainstein.Game = {
 
 	//Updates arrow rotation & alpha
 	updateArrow(){
-		if(Phaser.Point.distance(this.players[0].position, this.brain.position) < 500){		   
+		if(Phaser.Point.distance(this.players[this.targetPlayer].position, this.brain.position) < 500){		   
 			this.arrow.alpha = 0;			
 		} else {
 			this.arrow.alpha = 0.6;
-			this.arrow.position = this.players[0].position;
+			this.arrow.position = this.players[this.targetPlayer].position;
 			this.arrow.rotation = this.game.physics.arcade.angleBetween(this.arrow, this.brain);	
 		}	
 	},
@@ -1293,11 +1295,11 @@ Brainstein.Game = {
 				this.drops[i].width = 60;
 				this.drops[i].height = 60;
 				
-				this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
+				this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[this.targetPlayer].shotgun.magazineCapacity * 2);
 					while(this.drops[i].shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
 						this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.players[0].shotgun.magazineCapacity * 2);
 					}
-				this.drops[i].akAmmo = this.game.rnd.integerInRange(0,this.players[0].ak.magazineCapacity * 2);
+				this.drops[i].akAmmo = this.game.rnd.integerInRange(0,this.players[this.targetPlayer].ak.magazineCapacity * 2);
 				this.drops[i].health = this.game.rnd.integerInRange(5, 15)	
 				this.game.physics.arcade.enable(this.drops[i]);
 			}
