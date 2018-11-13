@@ -1,6 +1,6 @@
 var Brainstein = Brainstein || {};
 Brainstein.MainMenu = function(){};
-
+var num = 0;
 Brainstein.MainMenu = {
 	
 	create: function(){
@@ -11,6 +11,18 @@ Brainstein.MainMenu = {
 		this.game.pressEnterSound.lopp = true;
 		this.game.switchOptionSound = this.game.add.audio('switchOptionSound');
 		this.game.sound.setDecodedCallback([this.game.keyboardSound,this.game.mainMenuMusic,this.game.pressEnterSound,this.game.switchOptionSound], this.start, this);
+		//Show background
+		this.background = this.game.add.sprite(0, 0, 'mainMenuFlat');
+		this.background.width = (this.game.width);
+		this.background.height = (this.game.height);
+		//Show menu sprites
+		this.menuErwin = this.game.add.sprite(0, 0, 'menuErwin');
+		this.menuErwin.width = (this.game.width / 3);
+		this.menuErwin.height = (this.game.height);
+
+		this.menuDarwin = this.game.add.sprite(this.game.width *2/3, 0, 'menuDarwin');	
+		this.menuDarwin.width = (this.game.width / 3);
+		this.menuDarwin.height = (this.game.height);
 	},
 
 	start: function(){
@@ -36,10 +48,6 @@ Brainstein.MainMenu = {
 
 		this.content2 = ["PRESS ENTER"];
 
-		//Show background					
-		this.background = this.game.add.sprite(0, 0, 'mainMenuSplashEnter');		
-		this.background.width = (this.game.width);
-		this.background.height = (this.game.height);
 		var style = {font: "15px Chakra Petch", fill: '#04f31d', align:"center"};
 
 		this.text = this.game.add.text(this.game.width/2 - 110, this.game.height/2 - 40, '', style);
@@ -95,8 +103,14 @@ Brainstein.MainMenu = {
 		
 	
 	},
-
 	update: function(){
+
+		this.menuErwin.y = this.menuErwin.y + Math.sin(num);
+		this.menuErwin.x = this.menuErwin.x + Math.cos(num);
+		this.menuDarwin.y = this.menuDarwin.y + Math.cos(num);
+		this.menuDarwin.x = this.menuDarwin.x + Math.sin(num);
+		num += 0.8;
+
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
 			this.game.state.start('LevelSelection');
 			this.game.switchOptionSound.play();
