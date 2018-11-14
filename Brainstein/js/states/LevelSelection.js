@@ -1,13 +1,29 @@
 var Brainstein = Brainstein || {};
 Brainstein.LevelSelection = function(){};
-
+var num = 0;
+var aux = 0;
 Brainstein.LevelSelection = {
 	create: function(){
 		//Show background					
 		this.background = this.game.add.sprite(0, 0, 'mainMenuSplash');		
 		this.background.width = (this.game.width);
         this.background.height = (this.game.height);
+        /*
+        this.manoErwin = this.game.add.sprite(this.game.width/2, this.game.height * 2/3, 'mano');
+        this.manoErwin.anchor.setTo(1,0);
+        this.manoErwin.x = this.game.width /2;        
+        this.manoDarwin = this.game.add.sprite(this.game.width/2, this.game.height * 2/3, 'mano');
+        this.manoDarwin.scale.x *= -1;
+        this.manoDarwin.anchor.setTo(1,0);
+        */
+       this.menuErwin = this.game.add.sprite(-5,-30, 'menuErwin');
+       this.menuErwin.width = (this.game.width / 3);
+       this.menuErwin.height = (this.game.height + this.game.height *0.2 );
 
+       this.menuDarwin = this.game.add.sprite(this.game.width *2/3,-30, 'menuDarwin');	
+       this.menuDarwin.width = (this.game.width / 3);
+       this.menuDarwin.height = (this.game.height + this.game.height *0.2);
+        
         this.levels = ["Laboratorio", "Zombiehenge", "Ratlabyrinth"];
         
         this.levelSelected = 0;
@@ -20,6 +36,16 @@ Brainstein.LevelSelection = {
 	},
 
 	update: function(){
+        
+		//this.manoErwin.x = this.manoErwin.x + Math.sin(aux);
+        //this.manoDarwin.x = this.manoDarwin.x - Math.sin(aux);
+        //aux =+ 3;
+       this.menuErwin.y = this.menuErwin.y + Math.sin(num);
+		this.menuErwin.x = this.menuErwin.x + Math.cos(num);
+		this.menuDarwin.y = this.menuDarwin.y + Math.cos(num);
+		this.menuDarwin.x = this.menuDarwin.x + Math.sin(num);
+        num += 0.8;
+        
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
             this.game.switchOptionSound.play();
 			this.game.state.start('Game');

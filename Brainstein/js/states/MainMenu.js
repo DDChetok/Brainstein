@@ -1,9 +1,10 @@
 var Brainstein = Brainstein || {};
 Brainstein.MainMenu = function(){};
-var num = 0;
 Brainstein.MainMenu = {
 	
 	create: function(){
+
+
 		this.game.mainMenuMusic = this.game.add.audio('mainMenuMusic');
 		this.game.mainMenuMusic.lopp = true;
 		this.game.keyboardSound = this.game.add.audio('keyboardSound');
@@ -16,13 +17,17 @@ Brainstein.MainMenu = {
 		this.background.width = (this.game.width);
 		this.background.height = (this.game.height);
 		//Show menu sprites
-		this.menuErwin = this.game.add.sprite(0, 0, 'menuErwin');
+		this.menuErwin = this.game.add.sprite(0, -30, 'menuErwin');
 		this.menuErwin.width = (this.game.width / 3);
-		this.menuErwin.height = (this.game.height);
+		this.menuErwin.height = (this.game.height + this.game.height *0.2 );
 
-		this.menuDarwin = this.game.add.sprite(this.game.width *2/3, 0, 'menuDarwin');	
+		this.menuDarwin = this.game.add.sprite(this.game.width *2/3, -30, 'menuDarwin');	
 		this.menuDarwin.width = (this.game.width / 3);
-		this.menuDarwin.height = (this.game.height);
+		this.menuDarwin.height = (this.game.height + this.game.height *0.2);
+		this.dt = 0;
+		this.speed = 0.02;
+
+			
 	},
 
 	start: function(){
@@ -105,11 +110,11 @@ Brainstein.MainMenu = {
 	},
 	update: function(){
 
-		this.menuErwin.y = this.menuErwin.y + Math.sin(num);
-		this.menuErwin.x = this.menuErwin.x + Math.cos(num);
-		this.menuDarwin.y = this.menuDarwin.y + Math.cos(num);
-		this.menuDarwin.x = this.menuDarwin.x + Math.sin(num);
-		num += 0.8;
+		this.menuErwin.position.y = this.menuErwin.y + Math.sin(this.dt) * 0.2;
+		//this.menuErwin.position.x = this.menuErwin.x + Math.cos(num);
+		this.menuDarwin.position.y = this.menuDarwin.y + Math.cos(this.dt) * 0.2;
+		//this.menuDarwin.position.x = this.menuDarwin.x + Math.sin(num);
+		this.dt += this.speed;
 
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
 			this.game.state.start('LevelSelection');

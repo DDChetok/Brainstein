@@ -22,8 +22,9 @@ Brainstein.Preload = {
 		this.load.image('mainMenuSplash','assets/images/menu_ppal.png');
 		this.load.image('mainMenuSplashEnter','assets/images/menu_ppal.png');
 		this.load.image('mainMenuFlat','assets/images/menu ppal 2.png');
-		this.load.image('menuDarwin','assets/images/menu_darwin.png');
-		this.load.image('menuErwin','assets/images/menu_erwin.png');
+		this.load.image('menuDarwin','assets/images/menu_darwin_2.png');
+		this.load.image('menuErwin','assets/images/menu_erwin_2.png');
+		this.load.image('mano','assets/images/mano 1.png');
 
 		this.load.image('pauseMenu','assets/images/pause_menu_ph.png');
 
