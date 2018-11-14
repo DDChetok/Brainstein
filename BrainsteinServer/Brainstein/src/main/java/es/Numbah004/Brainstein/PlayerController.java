@@ -45,6 +45,7 @@ public class PlayerController {
 		return players;
 	}	
 	
+	
 	@PostMapping(value = "/matchMaking")
 	public ResponseEntity<Boolean> ConnectUser(@RequestBody Player player)
 	{			
@@ -67,4 +68,10 @@ public class PlayerController {
 	public int GetLevelSelected(){			
 		return currentLevelSelected;
 	}	
+	
+	//--------------------GAME--------------------	
+	@GetMapping(value = "/createPlayers")
+	public int GetOtherPlayersConnected() {
+		return players.size() - 1;
+	}
 }

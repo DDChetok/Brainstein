@@ -125,6 +125,6 @@ Brainstein.LevelSelection = {
                 }
             })
         }
-	}
+    }
 }
 
