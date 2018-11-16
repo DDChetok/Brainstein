@@ -9,4 +9,5 @@ public class Player {
 	
 	public int posX = -1;
 	public int posY = -1;	
+	public float rotation;
 }

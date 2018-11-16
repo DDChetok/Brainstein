@@ -201,11 +201,13 @@ Brainstein.Game = {
 			var player = this.game.add.sprite(250, 300, "darwin");
 		}
 
-		player.ID = Brainstein.userID;
+		player.playerID = Brainstein.userID;
 
 		player.width = 64;
 		player.height = 64;
 		player.anchor.setTo(0.25, 0.5);
+		player.rot = 0;
+		
 
 		//Player hp
 		player.hp = 30;
@@ -315,26 +317,26 @@ Brainstein.Game = {
 	createOtherPlayers(){
 		var playersConnected;	
 
-		$.get("/matchMaking/getPlayers", function(players){			
+		$.get("/getPlayers", function(players){			
 			playersConnected = players;			
 
 			for(var i = 0; i < playersConnected.length; i++){				
 				if(playersConnected[i].playerID != Brainstein.userID){
-					var otherPlayer = {
-						playerID: -1,
-						posX: -1,
-						posY: -1										
-					};
+					var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "erwin");
+					otherPlayer.anchor.setTo(0.25, 0.5);
+
 					otherPlayer.playerID = playersConnected[i].playerID;
 					otherPlayer.posX = playersConnected[i].posX;
 					otherPlayer.posY = playersConnected[i].posY;
+					if(otherPlayer.playerID == 1){
+						otherPlayer.loadTexture("darwin");
+					}
 
 					Brainstein.Game.otherPlayers[Brainstein.Game.otherPlayers.length] = otherPlayer;
 					
-					Brainstein.Game.game.add.sprite(otherPlayer.posX, otherPlayer.posiY, (otherPlayer.playerID == 0) ? "erwin" : "darwin");
+					
 				}
-			}
-			
+			}			
 		})	
 		
 
@@ -491,7 +493,7 @@ Brainstein.Game = {
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	//Calls all the different update functions
 	update: function(){
-		if(this.otherPlayers.length <= 2){
+		if(this.otherPlayers.length < 2){
 			this.createOtherPlayers();
 		}
 
@@ -515,9 +517,7 @@ Brainstein.Game = {
 		}		
 		
 		this.serverStuff();
-		this.sendPlayerInfo();
-		this.recieveOtherPlayersInfo();
-		this.updateOtherPlayers();
+		this.sendPlayerInfo();	
 	},
 
 	updatePlayer(player){
@@ -543,6 +543,7 @@ Brainstein.Game = {
 		//Player movement
 		if(!player.dead){
 			player.rotation = this.game.physics.arcade.angleToPointer(player);	
+			player.rot = player.rotation;
 		}			
 	},
 
@@ -805,7 +806,8 @@ Brainstein.Game = {
 		var player = {
 			playerID: this.player.playerID,
 			posX: this.player.position.x,
-			posY: this.player.position.y
+			posY: this.player.position.y,
+			rotation: this.player.rot
 		};
 		player = JSON.stringify(player);
 
@@ -813,6 +815,7 @@ Brainstein.Game = {
 		{
 			method: "POST",
 			data:  player,
+			success: Brainstein.Game.recieveOtherPlayersInfo(),
 			processData: false,					
 			
 			headers:{
@@ -823,21 +826,23 @@ Brainstein.Game = {
 	},
 
 	recieveOtherPlayersInfo(){
-		for(var i = 0; i < this.otherPlayers.length; i++){
-			var updatedInfo = [];
-			var player = this.otherPlayers[i];
-			$.get("/updatePlayers", JSON.stringify({playerID: player.playerID}), function(updatedPlayer){
-				player.posX = updatedPlayer.posX;
-				player.posY = updatedPlayer.posY;
-			})
-		}
+		var playersUpdated = [];
+		$.get("/getPlayers", function(players){
+			playersUpdated = players;
+			Brainstein.Game.updateOtherPlayers(playersUpdated);
+		})	
 	},
 
-	updateOtherPlayers(){
+	updateOtherPlayers(playersUpdated){
 		for(var i = 0; i < this.otherPlayers.length; i++){
-			this.otherPlayers[i].position = {
-				x: this.otherPlayers[i].posX,
-				y: this.otherPlayers[i].posY
+			if(playersUpdated[i].playerID != Brainstein.userID){
+				for(var j = 0; j < playersUpdated.length; j++){
+					if(this.otherPlayers[i].playerID == playersUpdated[j].playerID){
+						this.otherPlayers[i].position.x = playersUpdated[j].posX;
+						this.otherPlayers[i].position.y = playersUpdated[j].posY;
+						this.otherPlayers[i].rotation = playersUpdated[j].rotation;
+					}
+				}			
 			}
 		}
 	},

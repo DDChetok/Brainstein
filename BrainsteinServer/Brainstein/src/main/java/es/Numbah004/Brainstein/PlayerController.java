@@ -40,7 +40,7 @@ public class PlayerController {
 		return players.size();
 	}
 	
-	@GetMapping(value = "/matchMaking/getPlayers")
+	@GetMapping(value = "/getPlayers")
 	public List<Player> GetPlayers(){			
 		return players;
 	}	
@@ -62,8 +62,8 @@ public class PlayerController {
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 				
 	}
-	
-	
+
+
 	@GetMapping(value = "/levelSelection")
 	public int GetLevelSelected(){			
 		return currentLevelSelected;
@@ -88,12 +88,8 @@ public class PlayerController {
 	public ResponseEntity<Boolean> UpdatePlayer(@RequestBody Player player) {		
 		players.get(player.playerID).posX = player.posX;
 		players.get(player.playerID).posY = player.posY;  
+		players.get(player.playerID).rotation = player.rotation;  
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
-	}
-	
-	@GetMapping(value = "/updatePlayer/{playerID}")
-	public Player GetOtherPlayersConnected(@RequestBody int playerID) {
-		return players.get(playerID);
-	}
+	}	
 }
