@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Player {
 	public int playerID;
 	
-	public int posX = 0;
-	public int posY = 0;	
+	public int posX = -1;
+	public int posY = -1;	
 }

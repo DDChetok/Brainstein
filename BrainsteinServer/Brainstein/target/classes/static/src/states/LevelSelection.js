@@ -125,10 +125,6 @@ Brainstein.LevelSelection = {
                 }
             })
         }
-
-        $.get("matchMaking/getPlayers", function(data){
-            console.log(data);
-        })
-	}
+    }
 }
 

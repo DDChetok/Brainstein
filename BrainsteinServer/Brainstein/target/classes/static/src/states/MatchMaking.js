@@ -28,7 +28,7 @@ Brainstein.MatchMaking = {
             }
         })  
         
-        if(this.shouldChangeState){
+        if(this.shouldChangeState && Brainstein.userID != undefined){
             this.game.state.start("LevelSelection");
         }
         

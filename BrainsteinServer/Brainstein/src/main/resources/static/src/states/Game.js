@@ -36,7 +36,7 @@ Brainstein.Game = {
 		
 		this.otherPlayers = [];
 
-		this.createOtherPlayers();
+		//this.createOtherPlayers();
 
 		this.resurrectTimer = this.game.time.create(false);	
 		//-----------------WEAPON VARIABLES-----------------
@@ -296,7 +296,7 @@ Brainstein.Game = {
 
 		playerInfo = JSON.stringify(playerInfo);
 
-		$.ajax("/testing", 
+		$.ajax("/initializePlayer", 
 			{
 				method: "POST",
 				data: playerInfo,
@@ -320,14 +320,18 @@ Brainstein.Game = {
 
 			for(var i = 0; i < playersConnected.length; i++){				
 				if(playersConnected[i].playerID != Brainstein.userID){
-					var otherPlayer;
-					otherPlayer.ID = playersConnected[i].playerID;
-					otherPlayer.position.x = playersConnected[i].posX;
-					otherPlayer.position.y = playersConnected[i].posY;
+					var otherPlayer = {
+						playerID: -1,
+						posX: -1,
+						posY: -1										
+					};
+					otherPlayer.playerID = playersConnected[i].playerID;
+					otherPlayer.posX = playersConnected[i].posX;
+					otherPlayer.posY = playersConnected[i].posY;
 
 					Brainstein.Game.otherPlayers[Brainstein.Game.otherPlayers.length] = otherPlayer;
 					
-					Brainstein.Game.game.add.sprite(otherPlayer.position.x, otherPlayer.position.y, (otherPlayer[i].playerID == 0) ? "erwin" : "darwin");
+					Brainstein.Game.game.add.sprite(otherPlayer.posX, otherPlayer.posiY, (otherPlayer.playerID == 0) ? "erwin" : "darwin");
 				}
 			}
 			
@@ -486,7 +490,11 @@ Brainstein.Game = {
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	//Calls all the different update functions
-	update: function(){				
+	update: function(){
+		if(this.otherPlayers.length <= 2){
+			this.createOtherPlayers();
+		}
+
 		/*if(this.players.length > 1){	
 			this.checkIfDeadPlayerNearby();		
 		}	*/
@@ -507,6 +515,9 @@ Brainstein.Game = {
 		}		
 		
 		this.serverStuff();
+		this.sendPlayerInfo();
+		this.recieveOtherPlayersInfo();
+		this.updateOtherPlayers();
 	},
 
 	updatePlayer(player){
@@ -787,6 +798,50 @@ Brainstein.Game = {
 		})*/
 	},
 
+	//#endregion
+
+	//#region [rgba (155, 0, 255, 0.1)] SERVER METHODS
+	sendPlayerInfo(){
+		var player = {
+			playerID: this.player.playerID,
+			posX: this.player.position.x,
+			posY: this.player.position.y
+		};
+		player = JSON.stringify(player);
+
+		$.ajax("/updatePlayer", 
+		{
+			method: "POST",
+			data:  player,
+			processData: false,					
+			
+			headers:{
+				"Content-Type": "application/json"
+			},
+		}
+	);
+	},
+
+	recieveOtherPlayersInfo(){
+		for(var i = 0; i < this.otherPlayers.length; i++){
+			var updatedInfo = [];
+			var player = this.otherPlayers[i];
+			$.get("/updatePlayers", JSON.stringify({playerID: player.playerID}), function(updatedPlayer){
+				player.posX = updatedPlayer.posX;
+				player.posY = updatedPlayer.posY;
+			})
+		}
+	},
+
+	updateOtherPlayers(){
+		for(var i = 0; i < this.otherPlayers.length; i++){
+			this.otherPlayers[i].position = {
+				x: this.otherPlayers[i].posX,
+				y: this.otherPlayers[i].posY
+			}
+		}
+	},
+	
 	//#endregion
 
 	//#region [ rgba (200, 0, 200, 0.1)] ROUND LOOP METHODS
