@@ -32,11 +32,9 @@ Brainstein.Game = {
 
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player		
-		this.player = this.createPlayer();	
+		this.player = this.createPlayer();		
 		
 		this.otherPlayers = [];
-
-		//this.createOtherPlayers();
 
 		this.resurrectTimer = this.game.time.create(false);	
 		//-----------------WEAPON VARIABLES-----------------
@@ -328,8 +326,24 @@ Brainstein.Game = {
 					otherPlayer.playerID = playersConnected[i].playerID;
 					otherPlayer.posX = playersConnected[i].posX;
 					otherPlayer.posY = playersConnected[i].posY;
+					otherPlayer.hp = 30;
+					otherPlayer.actualHp = otherPlayer.hp;
+				
+					otherPlayer.redHealthBar = Brainstein.Game.game.add.image(otherPlayer.x - 58, otherPlayer.y - 60, 'redHealthBar');
+					otherPlayer.redHealthBar.width = 115;
+					otherPlayer.redHealthBar.height = 10;
+					otherPlayer.healthBar = Brainstein.Game.game.add.image(otherPlayer.x - 58, otherPlayer.y - 60, 'healthBar');					
+					otherPlayer.healthBar.width = 115;
+					otherPlayer.healthBar.height = 10;
+
 					if(otherPlayer.playerID == 1){
 						otherPlayer.loadTexture("darwin");
+					}
+
+					if(Brainstein.userID == 0){
+						otherPlayer.sprites = ["erwin", "erwinAk", "erwinShotgun"];
+					} else	{
+						otherPlayer.sprites = ["darwin", "darwinAk", "darwinShotgun"];
 					}
 
 					Brainstein.Game.otherPlayers[Brainstein.Game.otherPlayers.length] = otherPlayer;
@@ -342,9 +356,7 @@ Brainstein.Game = {
 
 
 		/*otherPlayer.sprite;
-		otherPlayer.maxHealth;
-		otherPlayer.actualHealth;
-
+		
 		//Player states
 		otherPlayer.reloading = false;
 		otherPlayer.holdingBrain = false;		
@@ -492,8 +504,8 @@ Brainstein.Game = {
 
 	//#region [ rgba (25, 50, 150, 0.1)] UPDATE METHODS
 	//Calls all the different update functions
-	update: function(){
-		if(this.otherPlayers.length < 2){
+	update: function(){	
+		if(this.otherPlayers.length == 0){
 			this.createOtherPlayers();
 		}
 
@@ -501,7 +513,7 @@ Brainstein.Game = {
 			this.checkIfDeadPlayerNearby();		
 		}	*/
 		
-		
+	
 		this.updatePlayer(this.player);
 		this.handleKeyboardInput();	
 		this.updateText();	
@@ -516,8 +528,9 @@ Brainstein.Game = {
 			this.moveEnemy(this.enemies[i]);			
 		}		
 		
-		this.serverStuff();
 		this.sendPlayerInfo();	
+		this.recieveOtherPlayersInfo();
+		
 	},
 
 	updatePlayer(player){
@@ -576,6 +589,7 @@ Brainstein.Game = {
 	
 	//Updates all the texts
 	updateText: function(){
+		//JUGADOR LOCAL
 		//Texto ronda actual
 		this.actualRoundNumberText.setText(this.actualRound+1);		
 	
@@ -642,6 +656,16 @@ Brainstein.Game = {
 			this.restTimerText.setText(this.timeBetweenRounds);
 		} else {
 			this.restTimerText.setText("");
+		}
+
+		//OTROS JUGADORES
+		for(var i = 0; i < this.otherPlayers.length; i++){
+			//Health Bars
+			this.otherPlayers[i].healthBar.x = this.otherPlayers[i].x - 58;
+			this.otherPlayers[i].healthBar.y = this.otherPlayers[i].y - 60;		
+			
+			this.otherPlayers[i].redHealthBar.x = this.otherPlayers[i].x - 58;
+			this.otherPlayers[i].redHealthBar.y = this.otherPlayers[i].y - 60;
 		}
 
 	},
@@ -784,30 +808,20 @@ Brainstein.Game = {
 		}
 	},*/
 
-	serverStuff(){
-		/*var n ={
-			playerID: 1,
-			pistolAmmo: 3.14,
-			name: "lintalho"
-		};
-	
-		n = JSON.stringify(n);
-		var url = "/testing";	
-	
-		$.get("/testing",function(data){		
-			console.log(data);
-		})*/
-	},
-
 	//#endregion
 
 	//#region [rgba (155, 0, 255, 0.1)] SERVER METHODS
 	sendPlayerInfo(){
 		var player = {
 			playerID: this.player.playerID,
+			
 			posX: this.player.position.x,
 			posY: this.player.position.y,
-			rotation: this.player.rot
+			rotation: this.player.rot,
+
+			hp: this.player.actualHp,
+
+			weapon: this.player.weapon
 		};
 		player = JSON.stringify(player);
 
@@ -815,7 +829,7 @@ Brainstein.Game = {
 		{
 			method: "POST",
 			data:  player,
-			success: Brainstein.Game.recieveOtherPlayersInfo(),
+			//success: Brainstein.Game.recieveOtherPlayersInfo(),
 			processData: false,					
 			
 			headers:{
@@ -834,15 +848,32 @@ Brainstein.Game = {
 	},
 
 	updateOtherPlayers(playersUpdated){
-		for(var i = 0; i < this.otherPlayers.length; i++){
-			if(playersUpdated[i].playerID != Brainstein.userID){
-				for(var j = 0; j < playersUpdated.length; j++){
-					if(this.otherPlayers[i].playerID == playersUpdated[j].playerID){
-						this.otherPlayers[i].position.x = playersUpdated[j].posX;
-						this.otherPlayers[i].position.y = playersUpdated[j].posY;
-						this.otherPlayers[i].rotation = playersUpdated[j].rotation;
+		for(var i = 0; i < this.otherPlayers.length; i++){	
+			for(var j = 0; j < playersUpdated.length; j++){
+				if(this.otherPlayers[i].playerID == playersUpdated[j].playerID){
+					//Position & Rotation
+					this.otherPlayers[i].position.x = playersUpdated[j].posX;
+					this.otherPlayers[i].position.y = playersUpdated[j].posY;
+					this.otherPlayers[i].rotation = playersUpdated[j].rotation;
+					//HP
+					this.otherPlayers[i].actualHp = playersUpdated[j].hp;
+					this.healthBarPercent(this.otherPlayers[i], this.otherPlayers[i].actualHp);
+					//Shooting
+					this.otherPlayers[i].weapon = playersUpdated[j].weapon;
+					switch(this.otherPlayers[i].weapon){
+						case ("pistol"):
+							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[0]);
+							break;
+						case ("ak"):
+							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[1]);
+							break;
+						case ("shotgun"):
+							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[2]);
+							break;
 					}
-				}			
+					
+				}
+							
 			}
 		}
 	},
@@ -913,7 +944,7 @@ Brainstein.Game = {
 		if(player.beingPushed == false){
 			player.beingPushed = true;			
 			player.actualHp -= zombie.damage;
-			this.healthBarPercent(player, player.actualHp / 30)
+			this.healthBarPercent(player, player.actualHp)
 				if(player.actualHp <= 0){
 					this.killPlayer(player);		
 				}
@@ -983,8 +1014,8 @@ Brainstein.Game = {
 		player.actualAmmo = sprite.magazine;
 	},
 
-	healthBarPercent: function(player, percent){			
-		player.healthBar.width = 115 * percent;
+	healthBarPercent: function(player, hp){
+		player.healthBar.width = 115 * (hp / player.hp);
 	},
 
 	particleBurst(position){

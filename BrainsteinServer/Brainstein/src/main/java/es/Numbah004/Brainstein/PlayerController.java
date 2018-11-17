@@ -88,7 +88,11 @@ public class PlayerController {
 	public ResponseEntity<Boolean> UpdatePlayer(@RequestBody Player player) {		
 		players.get(player.playerID).posX = player.posX;
 		players.get(player.playerID).posY = player.posY;  
-		players.get(player.playerID).rotation = player.rotation;  
+		players.get(player.playerID).rotation = player.rotation; 
+		
+		players.get(player.playerID).hp = player.hp;
+		
+		players.get(player.playerID).weapon = player.weapon;
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}	
