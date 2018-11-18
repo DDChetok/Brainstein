@@ -27,6 +27,7 @@ Brainstein.Preload = {
 		this.load.image('mano','assets/images/mano 1.png');
 
 		this.load.image('pauseMenu','assets/images/pause_menu_ph.png');
+		this.load.spritesheet('fuego','assets/images/fire_spritesheet.png',128,128,64);
 
 		this.load.image('menuLvl1','assets/images/menu_lvl_1.png');
 		this.load.image('menuLvl2','assets/images/menu_lvl_2.png');

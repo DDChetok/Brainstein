@@ -23,6 +23,16 @@ Brainstein.LevelSelection = {
        this.menuDarwin = this.game.add.sprite(this.game.width *2/3,-30, 'menuDarwin');	
        this.menuDarwin.width = (this.game.width / 3);
        this.menuDarwin.height = (this.game.height + this.game.height *0.2);
+        //fire animation
+       this.fuego = this.game.add.sprite(this.game.width * 0.05,this.game.height *0.45, 'fuego');
+       this.fuego.alpha = 0.4;
+       this.fuego.animations.add('arde');
+       this.fuego.animations.play('arde', 50, true);
+
+       this.fuego2 = this.game.add.sprite(this.game.width * 0.85 ,this.game.height /2, 'fuego');
+       this.fuego2.alpha = 0.4;
+       this.fuego2.animations.add('arde2');
+       this.fuego2.animations.play('arde2', 50, true);
         
         this.levels = ["Laboratorio", "Zombiehenge", "Ratlabyrinth"];
         
