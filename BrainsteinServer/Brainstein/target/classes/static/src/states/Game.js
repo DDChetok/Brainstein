@@ -47,7 +47,9 @@ Brainstein.Game = {
 		this.bullets.setAll('anchor.x', 0);
 		this.bullets.setAll('anchor.y', 0.5);
     	this.bullets.setAll('checkWorldBounds', true);
-		this.bullets.setAll('outOfBoundsKill', true);		
+		this.bullets.setAll('outOfBoundsKill', true);	
+		
+		this.otherPlayerShots = [];
 
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
@@ -530,6 +532,8 @@ Brainstein.Game = {
 		
 		this.sendPlayerInfo();	
 		this.recieveOtherPlayersInfo();
+
+		this.receiveOtherPlayersShots();
 		
 	},
 
@@ -877,6 +881,34 @@ Brainstein.Game = {
 			}
 		}
 	},
+
+	receiveOtherPlayersShots(){
+		if(this.player.playerID == 0){
+			$.get("/getPlayer2Shots", function(player2Shots){
+				if(player2Shots.length != 0){
+					this.otherPlayerShots = player2Shots;
+					Brainstein.Game.updateOtherPlayerShots();
+				}
+			})	
+		}else{
+			$.get("/getPlayer1Shots", function(player1Shots){
+				if(player1Shots.length != 0){
+					this.otherPlayerShots = player1Shots;
+					Brainstein.Game.updateOtherPlayerShots();
+				}
+			})
+		}
+	},
+
+	updateOtherPlayerShots(){
+		for(i = 0; i < this.otherPlayerShots.length; i++){
+			if(this.otherPlayerShots[i].weapon = "pistol"){
+				this.otherPlayerShots[i].weapon.loadTexture('pistolBullet');
+				this.game.physics.arcade.moveToPointer(this.otherPlayerShots[i], weapon.speed);
+			}
+			
+		}
+	},
 	
 	//#endregion
 
@@ -1052,7 +1084,31 @@ Brainstein.Game = {
 				player.shot[player.actualShot].loadTexture('akBullet');
 				player.shot[player.actualShot].reset(x, y);
 			}
-	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], weapon.speed);
+			   this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], weapon.speed);
+			   
+			//Subir el disparo al servidor
+			   var shotInfo = {
+				posX: player.shot[player.actualShot].position.x,
+				posY: player.shot[player.actualShot].position.y,
+				rotation: player.shot[player.actualShot].rotation,
+
+				playerShotingID : player.playerID,
+				speed: weapon.speed
+
+			}
+			   shotInfo = JSON.stringify(shotInfo);
+
+				$.ajax("/postShots", 
+					{
+						method: "POST",
+						data: shotInfo,
+						processData: false,					
+						
+						headers:{
+							"Content-Type": "application/json"
+						},
+					}
+				);
 
 			player.actualShot++;
 
