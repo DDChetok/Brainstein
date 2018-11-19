@@ -13,8 +13,9 @@ Brainstein.Game = {
 		this.createLevel();
 		this.createCameraPositions();
 
-		this.playing = false;
+		this.newEnemiesAvaible = false;
 		this.targetPlayer = Brainstein.userID;
+		this.creatingEnemies = false;
 		
 		//-----------------TEMPORAL SPRITES-----------------
 		this.temporalSprites = this.game.add.group();	
@@ -52,6 +53,7 @@ Brainstein.Game = {
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
 		this.enemies = [];
+		this.serverEnemies = [];
 		this.enemyCount = 0;	
 		
 		//-----------------ROUND LOOP VARIABLES-----------------
@@ -382,7 +384,7 @@ Brainstein.Game = {
 		player.akActualAmmo = 2000;*/
 	},
 
-	//Creates an enemy
+	//Creates an enemy choosing a random coord according to a random spawnpoint
 	createEnemy: function(texture){
 		var zombie, x, y;
 		var spawnPointIndex = this.game.rnd.integerInRange(0, this.spawnPointsCount -1); //Chooses the spawpoint it will appear in.
@@ -421,6 +423,43 @@ Brainstein.Game = {
 		zombie.pos = this.enemyCount;
 		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
+
+		return zombie;
+	},
+
+	createNewEnemies(){
+		for(var i = 0; i < this.serverEnemies.length; i++){
+			this.createEnemyInPosition(this.serverEnemies[i].posX, this.serverEnemies[i].posY);
+		}
+		this.newEnemiesAvaible = false;
+		this.creatingEnemies = false;
+		this.serverEnemies = [];
+	},
+
+	//Creates an enemy in a specified position
+	createEnemyInPosition: function(x, y){
+		var zombie;
+		var tile = this.getCoordFromPosition({x, y});
+		zombie = this.game.add.sprite(x, y, 'zombie'); 	
+		zombie.height = 40;
+		zombie.width = 40;
+		this.game.physics.arcade.enable(zombie);
+		zombie.anchor.setTo(0.5, 0.5);
+		zombie.pathFindingAvaible = true;
+		zombie.walkingSpeed = 70;
+		zombie.body.collideWorldBounds = true;
+		zombie.path = [];
+		zombie.target = "player"	
+		zombie.pathStep = -1;	
+		zombie.hp = 10;	
+		zombie.attackSpeed = 1;
+		zombie.actualHp = zombie.hp;	
+		zombie.damage = 5;
+		zombie.pos = this.enemyCount;		
+		this.enemyCount++;
+		this.enemies[this.enemies.length] = zombie;
+
+		return zombie;
 	},
 
 	//Returns an array with all the hotkeys
@@ -507,6 +546,10 @@ Brainstein.Game = {
 	update: function(){	
 		if(this.otherPlayers.length == 0){
 			this.createOtherPlayers();
+		}
+
+		if(this.newEnemiesAvaible){
+			this.createNewEnemies();
 		}
 
 		/*if(this.players.length > 1){	
@@ -877,6 +920,42 @@ Brainstein.Game = {
 			}
 		}
 	},
+
+	sendNewHorde(newHorde){	
+		var horde = {
+			enemies: newHorde
+		}
+		horde = JSON.stringify(horde);
+		$.ajax("/addEnemies", 
+		{
+			method: "POST",
+			data:  horde,		
+			processData: false,					
+			
+			headers:{
+				"Content-Type": "application/json"
+			},
+		})
+		
+	},
+
+	recieveNewEnemies(){
+		var enemiesUpdated = [];
+		if(this.serverEnemies.length != this.zombiesPerRound){
+			$.get("/getEnemies", function(enemies){						
+				if(enemies.length == Brainstein.Game.zombiesPerRound){ //Si ya están metidos todos lo enemigos								
+					for(var i = 0; i < enemies.length; i++){
+						Brainstein.Game.serverEnemies[Brainstein.Game.serverEnemies.length] = enemies[i];
+					}
+					console.log(Brainstein.Game.serverEnemies);	
+					
+					Brainstein.Game.newEnemiesAvaible = true;
+				}else{
+					Brainstein.Game.recieveNewEnemies();		
+				}					
+			})	
+		}
+	},
 	
 	//#endregion
 
@@ -889,17 +968,39 @@ Brainstein.Game = {
 		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
 			this.restTimer.pause();	
 			this.restTimer.add(1000, this.startRound, this);		
-			this.resting = false; 			
+			this.resting = false; 					
 	
-			this.createHorde();
-			if(this.enemies.length < this.zombiesPerRound){
-				this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght)-1 , this.createHorde, this);			
+			if(Brainstein.userID == 0){	
+				var count = {
+					playerID: this.zombiesPerRound			
+				};
+				count = JSON.stringify(count);
+		
+				$.ajax("/postEnemyCount", 
+				{
+					method: "POST",
+					data:  count,
+					//success: Brainstein.Game.recieveOtherPlayersInfo(),
+					processData: false,					
+					
+					headers:{
+						"Content-Type": "application/json"
+					},
+				});
+				
+				this.createHorde();
+				if(this.enemies.length < this.zombiesPerRound){
+					this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght)-1 , this.createHorde, this);			
+				}
+			} else {		
+				this.creatingEnemies = true;		
+				this.recieveNewEnemies();				
 			}
 		}
 	},
 
 	handleRound: function(){
-		if(this.enemyCount == 0 && this.resting == false){ //Si no quedan enemigos -> Empieza el tiempo de descanso
+		if(this.enemyCount == 0 && this.resting == false && !this.creatingEnemies){ //Si no quedan enemigos -> Empieza el tiempo de descanso
 			this.resting = true; 
 			this.timeBetweenRounds = 25;
 			this.zombiesPerRound += 5;
@@ -914,9 +1015,19 @@ Brainstein.Game = {
 	},
 
 	createHorde: function(){
+		var newHorde = [];
 		for(var j = 0; j < this.enemyHordeLenght ; j++){
-				this.createEnemy('zombie');				
-		}			
+				var zombie = this.createEnemy('zombie');				
+				var zombieForServer = {
+					enemyID: this.enemies.length - 1,
+					posX: zombie.position.x,
+					posY:zombie.position.y,
+					rotation: zombie.rotation
+				}
+				newHorde[newHorde.length] = zombieForServer;
+		}	
+		
+		this.sendNewHorde(newHorde);
 	
 	},
 	//#endregion

@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class PlayerController {	
 	public List<Player> players = new ArrayList<>();		
+	public List<Enemy> enemies = new ArrayList<>();
+	
+	public int enemyCount;
 	
 	//Level Selection
 	public int currentLevelSelected = 0;
@@ -69,7 +72,7 @@ public class PlayerController {
 		return currentLevelSelected;
 	}	
 	
-	//--------------------GAME--------------------	
+	//--------------------PLAYERS--------------------	
 	@GetMapping(value = "/createPlayers")
 	public int GetOtherPlayersConnected() {
 		return players.size() - 1;
@@ -93,6 +96,29 @@ public class PlayerController {
 		players.get(player.playerID).hp = player.hp;
 		
 		players.get(player.playerID).weapon = player.weapon;
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
+	}	
+	
+	//--------------------ENEMIES--------------------	
+	@PostMapping(value = "/addEnemies")
+	public ResponseEntity<Boolean> AddEnemies(@RequestBody Horde horde) {		
+		for(int i = 0; i < horde.enemies.size(); i++) {
+			enemies.add(horde.enemies.get(i));
+		}
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
+	}
+	
+	@GetMapping(value = "/getEnemies")
+	public List<Enemy> GetEnemies() {		
+		return enemies; 		
+	}
+	
+	@PostMapping(value = "/postEnemyCount")
+	//No se recuerda una mayor guarrila
+	public ResponseEntity<Boolean> PostEnemyCount(@RequestBody Player count) {		
+		enemyCount = count.playerID;
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}	
