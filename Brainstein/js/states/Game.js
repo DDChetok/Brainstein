@@ -35,7 +35,13 @@ Brainstein.Game = {
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
 		this.enemies = [];
-		this.enemyCount = 0;		
+		this.enemyCount = 0;
+		
+		////-----------------SOUNDS VARIABLES-----------------
+		//Guns
+		this.pistolshot = this.game.add.audio('pistolshot');
+		this.muertezombie = this.game.add.audio('muertezombie');
+		this.akshot = this.game.add.audio('akshot');
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -785,6 +791,7 @@ Brainstein.Game = {
 
 		if(zombie.actualHp <= 0){
 			zombie.kill();
+			this.muertezombie.play();
 			this.enemyCount--;
 			this.lastEnemyUpdated = -1;
 			if(this.enemyCount > 0){
@@ -851,11 +858,13 @@ Brainstein.Game = {
 				x = player.position.x + (30 * Math.cos(player.rotation));
 				y = player.position.y + (30 * Math.sin(player.rotation));
 				player.shot[player.actualShot].reset(x, y);
+				this.pistolshot.play();
 			}else if(weapon.name == "ak"){
 				var x, y;
 				x = player.position.x + (50 * Math.cos(player.rotation));
 				y = player.position.y + (50 * Math.sin(player.rotation));
 				player.shot[player.actualShot].reset(x, y);
+				this.pistolshot.play();
 			}
 	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], weapon.speed);
 
