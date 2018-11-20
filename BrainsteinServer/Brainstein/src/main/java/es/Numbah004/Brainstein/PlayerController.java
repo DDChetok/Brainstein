@@ -122,4 +122,16 @@ public class PlayerController {
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}	
+	
+	@PostMapping(value = "/updateEnemies")	
+	public ResponseEntity<Boolean> PostEnemyCount(@RequestBody Horde h) {		
+		for(int i = 0; i < h.enemies.size(); i++) {		
+			//enemies.get(i).path = h.enemies.get(i).path;
+			enemies.get(i).posX = h.enemies.get(i).posX;
+			enemies.get(i).posY = h.enemies.get(i).posY;
+			enemies.get(i).rotation = h.enemies.get(i).rotation;			
+		}
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
+	}
 }

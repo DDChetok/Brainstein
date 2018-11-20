@@ -566,10 +566,15 @@ Brainstein.Game = {
 		this.updateCamera();
 		this.updateArrow();	
 
-		//Finds a path from enemy to player and updates its position			
-		for(var i = 0; i < this.enemies.length; i++){
-			this.moveEnemy(this.enemies[i]);			
-		}		
+		if(Brainstein.userID == 0){
+			//Finds a path from enemy to player and updates its position			
+			for(var i = 0; i < this.enemies.length; i++){
+				this.moveEnemy(this.enemies[i]);			
+			}	
+			this.sendEnemiesInfo();	
+		} else {
+			this.recieveEnemiesInfo();
+		}
 		
 		this.sendPlayerInfo();	
 		this.recieveOtherPlayersInfo();
@@ -627,7 +632,8 @@ Brainstein.Game = {
 					enemy.body.velocity.y = 0;
 				}
 			}			
-		}		
+		}				
+		
 	},	
 	
 	//Updates all the texts
@@ -946,14 +952,68 @@ Brainstein.Game = {
 				if(enemies.length == Brainstein.Game.zombiesPerRound){ //Si ya están metidos todos lo enemigos								
 					for(var i = 0; i < enemies.length; i++){
 						Brainstein.Game.serverEnemies[Brainstein.Game.serverEnemies.length] = enemies[i];
-					}
-					console.log(Brainstein.Game.serverEnemies);	
-					
+					}					
 					Brainstein.Game.newEnemiesAvaible = true;
 				}else{
 					Brainstein.Game.recieveNewEnemies();		
 				}					
 			})	
+		}
+	},
+
+	sendEnemiesInfo(){
+		var enemiesToSend = [];
+		for(var i = 0; i < this.enemies.length; i++){
+			enemiesToSend[enemiesToSend.length] = {
+				enemyID: this.enemies[i].pos,
+				posX: this.enemies[i].position.x,
+				posY: this.enemies[i].position.y,
+				rotation: this.enemies[i].rotation,
+				//path: this.enemies[i].path
+			}
+		}
+
+		var enemiesInfo = {
+			enemies: enemiesToSend
+		}
+
+		enemiesInfo = JSON.stringify(enemiesInfo);
+
+		$.ajax("/updateEnemies", 
+		{
+			method: "POST",
+			data:  enemiesInfo,			
+			processData: false,					
+			
+			headers:{
+				"Content-Type": "application/json"
+			},
+		})
+
+
+	}, 
+
+	recieveEnemiesInfo(){
+		var enemiesUpdated = [];
+		$.get("/getEnemies", function(enemies){
+			enemiesUpdated = enemies;
+			if(enemies.length != 0){
+				Brainstein.Game.updateServerEnemies(enemies);
+			}
+		})
+	},
+
+	updateServerEnemies(enemiesUpdated){
+		if(this.enemies.length == enemiesUpdated.length){
+			for(var i = 0; i < enemiesUpdated.length; i++){
+				this.enemies[i].position.x = enemiesUpdated[i].posX;
+				this.enemies[i].position.y = enemiesUpdated[i].posY;
+				this.enemies[i].rotation = enemiesUpdated[i].rotation;
+
+				/*this.enemies[i].path = enemiesUpdated[i].path;
+				this.enemies[i].pathStep = 1;
+				this.updateEnemy(this.enemies[i]);*/
+			}
 		}
 	},
 	

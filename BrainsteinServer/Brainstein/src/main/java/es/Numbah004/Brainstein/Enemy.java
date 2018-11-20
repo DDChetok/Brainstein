@@ -1,5 +1,7 @@
 package es.Numbah004.Brainstein;
 
+import java.util.List;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -12,6 +14,8 @@ public class Enemy {
 	public int posX = -1;
 	public int posY = -1;	
 	public float rotation;
+	
+	public List<Position> path;
 	
 		
 }
