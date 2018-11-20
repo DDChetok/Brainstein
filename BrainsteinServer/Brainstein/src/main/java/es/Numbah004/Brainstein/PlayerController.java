@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class PlayerController {	
 	public List<Player> players = new ArrayList<>();	
-	public List<Shot> player1Shots = new ArrayList<>();
-	public List<Shot> player2Shots = new ArrayList<>();
+	//public List<Shot> player1Shots = new ArrayList<>();
+	//public List<Shot> player2Shots = new ArrayList<>();
+	Shot player2Shots = new Shot();
+	Shot player1Shots = new Shot();
 	
 	//Level Selection
 	public int currentLevelSelected = 0;
@@ -104,23 +106,23 @@ public class PlayerController {
 	public ResponseEntity<Boolean> postShots(@RequestBody Shot s)
 	{	
 		if(s.playerShotingID == 0 ) { //Si dispara el jugador 1, metemos sui tiro en su lista
-			player1Shots.add(s);
+			player1Shots = s;
 		}else {
-			player2Shots.add(s);
+			player2Shots = s;
 		}			
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 				
 	}
 	
 	@GetMapping(value = "/getPlayer1Shots")
-	public List<Shot> getPlayer1Shots(){
-		List<Shot> shots = player1Shots;
-		//player1Shots.clear();
+	public Shot getPlayer1Shots(){
+		Shot shots = player1Shots;
+		player1Shots = new Shot();
 		return shots;
 	}
 	@GetMapping(value = "/getPlayer2Shots")
-	public List<Shot> getPlayer2Shots(){
-		List<Shot> shots = player2Shots;
-		//player2Shots.clear();
+	public Shot getPlayer2Shots(){
+		Shot shots = player2Shots;
+		player2Shots = new Shot();
 		return shots;
 	}
 	

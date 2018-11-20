@@ -9,8 +9,9 @@ public class Shot {
 	public int posX = -1;
 	public int posY = -1;	
 	public float rotation;
+	public float speed;
 	
 	public int playerShotingID;
 	
-	public String weapon;
+	public String weaponName;
 }
