@@ -16,6 +16,8 @@ public class PlayerController {
 	Shot player2Shots = new Shot();
 	Shot player1Shots = new Shot();
 	
+	Brain brainInfo = new Brain();
+	
 	//Level Selection
 	public int currentLevelSelected = 0;
 	
@@ -165,5 +167,20 @@ public class PlayerController {
 		return shots;
 	}
 	
+	//------------------BRAIN--------------------------------
+	@PostMapping(value = "/postBrain")
+	public ResponseEntity<Boolean> postBrain(@RequestBody Brain b)
+	{	
+		brainInfo.posX = b.posX;
+		brainInfo.posY = b.posY;
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 				
+	}
+	
+	@GetMapping(value = "/getBrain")
+	public Brain getBrainInfo(){
+		//Brain br = brainInfo;
+		//brainInfo = new Brain();
+		return brainInfo;
+	}
 
 }

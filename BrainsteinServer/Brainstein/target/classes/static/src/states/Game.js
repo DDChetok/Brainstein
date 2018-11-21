@@ -27,7 +27,26 @@ Brainstein.Game = {
 		this.brain.anchor.setTo(0.5, 0.5);
 		this.brain.width = 64;
 		this.brain.height = 64;
-		this.game.physics.arcade.enable(this.brain);	
+		this.game.physics.arcade.enable(this.brain);
+		
+		
+			var b = {
+				posX : this.brain.position.x,
+				posY : this.brain.position.y,
+			};
+	
+			b = JSON.stringify(b);
+			$.ajax("/postBrain", 
+			{
+				method: "POST",
+				data:  b,
+				processData: false,					
+				
+				headers:{
+					"Content-Type": "application/json"
+				},
+			}
+			);
 
 		this.grabBrainDistance = 60;		
 
@@ -591,6 +610,9 @@ Brainstein.Game = {
 		this.recieveOtherPlayersInfo();
 
 		this.receiveOtherPlayersShots();
+
+		this.receiveBrainInfo();
+		
 		
 	},
 
@@ -612,6 +634,25 @@ Brainstein.Game = {
 
 			this.brain.position.x = x;
 			this.brain.position.y = y;
+
+				var b = {
+					posX : this.brain.position.x,
+					posY : this.brain.position.y,
+				};
+		
+				b = JSON.stringify(b);
+				$.ajax("/postBrain", 
+				{
+					method: "POST",
+					data:  b,
+					processData: false,					
+					
+					headers:{
+						"Content-Type": "application/json"
+					},
+				}
+				);
+			
 		}
 
 		//Player movement
@@ -1105,7 +1146,18 @@ Brainstein.Game = {
 	
 
 	},
+
+	receiveBrainInfo(){
+		$.get("/getBrain", function(brainInfo){
+			Brainstein.Game.updateBrainInfo(brainInfo);
+		});
+
+	},
 	
+	updateBrainInfo(brainInfo){
+		this.brain.position.x = brainInfo.posX;
+		this.brain.position.y = brainInfo.posY;
+	},
 	//#endregion
 
 	//#region [ rgba (200, 0, 200, 0.1)] ROUND LOOP METHODS
@@ -1750,6 +1802,26 @@ Brainstein.Game = {
 	teleportBrain: function(){
 		var pos = this.getPositionFromCoord(this.getRandomTile());
 		this.brain.position = pos;
+		
+			var b = {
+				posX : this.brain.position.x,
+				posY : this.brain.position.y,
+			};
+	
+			b = JSON.stringify(b);
+			$.ajax("/postBrain", 
+			{
+				method: "POST",
+				data:  b,
+				processData: false,					
+				
+				headers:{
+					"Content-Type": "application/json"
+				},
+			}
+			);
+	
+	
 	},
 
 	getRandomTile: function(){
@@ -1785,6 +1857,7 @@ Brainstein.Game = {
 		player.dead = true;
 		player.body.enable = false;
 		player.loadTexture('deadPlayer');	
+		player.holdingBrain = false;
 
 		//Checks if all players are dead
 		var gameOver = true;		
