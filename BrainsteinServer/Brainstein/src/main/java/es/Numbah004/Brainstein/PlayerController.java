@@ -13,6 +13,9 @@ public class PlayerController {
 	
 	public int enemyCount;
 	
+	Shot player2Shots = new Shot();
+	Shot player1Shots = new Shot();
+	
 	//Level Selection
 	public int currentLevelSelected = 0;
 	
@@ -99,6 +102,7 @@ public class PlayerController {
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}	
+
 	
 	//--------------------ENEMIES--------------------	
 	@PostMapping(value = "/addEnemies")
@@ -134,4 +138,32 @@ public class PlayerController {
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}
+
+
+	//--------------------SHOOTING--------------------	
+	@PostMapping(value = "/postShots")
+	public ResponseEntity<Boolean> postShots(@RequestBody Shot s)
+	{	
+		if(s.playerShotingID == 0 ) { //Si dispara el jugador 1, metemos sui tiro en su lista
+			player1Shots = s;
+		}else {
+			player2Shots = s;
+		}			
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 				
+	}
+	
+	@GetMapping(value = "/getPlayer1Shots")
+	public Shot getPlayer1Shots(){
+		Shot shots = player1Shots;
+		player1Shots = new Shot();
+		return shots;
+	}
+	@GetMapping(value = "/getPlayer2Shots")
+	public Shot getPlayer2Shots(){
+		Shot shots = player2Shots;
+		player2Shots = new Shot();
+		return shots;
+	}
+	
+
 }

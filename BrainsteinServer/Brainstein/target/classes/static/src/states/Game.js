@@ -48,8 +48,19 @@ Brainstein.Game = {
 		this.bullets.setAll('anchor.x', 0);
 		this.bullets.setAll('anchor.y', 0.5);
     	this.bullets.setAll('checkWorldBounds', true);
-		this.bullets.setAll('outOfBoundsKill', true);		
+		this.bullets.setAll('outOfBoundsKill', true);	
 
+		this.enemyBullets = this.game.add.group(); 
+		this.enemyBullets.enableBody = true;
+   		this.enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
+		this.enemyBullets.createMultiple(50, 'bullet');
+		this.enemyBullets.setAll('anchor.x', 0);
+		this.enemyBullets.setAll('anchor.y', 0.5);
+    	this.enemyBullets.setAll('checkWorldBounds', true);
+		this.enemyBullets.setAll('outOfBoundsKill', true);
+
+		this.enemyShots = [];
+		this.actualEnemyShot = 0;
 		////-----------------ENEMIES VARIABLES-----------------
 		//Enemies
 		this.enemies = [];
@@ -578,6 +589,8 @@ Brainstein.Game = {
 		
 		this.sendPlayerInfo();	
 		this.recieveOtherPlayersInfo();
+
+		this.receiveOtherPlayersShots();
 		
 	},
 
@@ -1016,6 +1029,82 @@ Brainstein.Game = {
 			}
 		}
 	},
+
+	receiveOtherPlayersShots(){
+		var otherPlayerShots;
+		if(this.player.playerID == 0){
+			$.get("/getPlayer2Shots", function(player2Shots){
+				if(player2Shots.posX != -1){
+					otherPlayerShots = player2Shots;
+					Brainstein.Game.updateOtherPlayerShots(otherPlayerShots);
+				}
+			})	
+		}else{
+			$.get("/getPlayer1Shots", function(player1Shots){
+				if(player1Shots.length != 0){
+					otherPlayerShots = player1Shots;
+					Brainstein.Game.updateOtherPlayerShots(otherPlayerShots);
+				}
+			})
+		}
+	},
+
+	updateOtherPlayerShots(otherPlayerShots){
+		if(otherPlayerShots.weaponName != "shotgun"){
+			var s = this.enemyBullets.getFirstDead();
+			s.x = otherPlayerShots.posX;
+			s.y = otherPlayerShots.posY;
+			s.rotation = otherPlayerShots.rotation;
+			s.speed = otherPlayerShots.speed;
+			s.weaponName = otherPlayerShots.weaponName;
+
+			if(s.weaponName == "pistol"){
+				s.loadTexture('pistolBullet');
+			}else{
+				s.loadTexture('akBullet');
+				s.rotation -= Math.PI / 2;
+			}
+			s.reset(s.x, s.y);
+			s.body.velocity.setToPolar(s.rotation,s.speed);
+			
+			this.enemyShots[this.actualEnemyShot] = s;
+			this.actualEnemyShot++;
+		}else{
+			var j = -1;
+			
+			for(i = 0;i < this.player.shotgun.numberOfBullets;i++){
+			
+				var s = this.enemyBullets.getFirstDead();
+
+				s.x = otherPlayerShots.posX;
+				s.y = otherPlayerShots.posY;
+				s.rotation = otherPlayerShots.rotation;
+				s.speed = otherPlayerShots.speed;
+				s.weaponName = otherPlayerShots.weaponName;
+
+				s.loadTexture('shotgunBullet');
+				s.reset(s.x, s.y);
+				
+				if(i == 0){
+					var angle = s.rotation;
+				}else{
+					var angle = s.rotation + (j * this.player.shotgun.angle);
+				}				
+				s.body.velocity.setToPolar(angle,s.speed);
+				
+				j = j*-1;
+
+				this.enemyShots[this.actualEnemyShot] = s;
+				this.actualEnemyShot++;
+			}
+		}
+
+		if(this.actualEnemyShot > this.player.ak.maxAmmo){
+			this.actualEnemyShot = 0;
+		}
+	
+
+	},
 	
 	//#endregion
 
@@ -1101,6 +1190,9 @@ Brainstein.Game = {
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);				
 		this.game.physics.arcade.overlap(this.player.shot, this.enemies, this.bulletZombieColision,null,this);
 		this.game.physics.arcade.collide(this.player.shot, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
+
+		this.game.physics.arcade.overlap(this.enemyShots, this.enemies, this.bulletZombieColision,null,this);
+		this.game.physics.arcade.collide(this.enemyShots, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
 		
 	},
 
@@ -1223,7 +1315,32 @@ Brainstein.Game = {
 				player.shot[player.actualShot].loadTexture('akBullet');
 				player.shot[player.actualShot].reset(x, y);
 			}
-	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], weapon.speed);
+			   this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], weapon.speed);
+			   
+			//Subir el disparo al servidor
+			   var shotInfo = {
+				posX: player.shot[player.actualShot].position.x,
+				posY: player.shot[player.actualShot].position.y,
+				rotation: player.shot[player.actualShot].rotation,
+
+				weaponName : weapon.name,
+				playerShotingID : player.playerID,
+				speed: weapon.speed
+
+			}
+			   shotInfo = JSON.stringify(shotInfo);
+
+				$.ajax("/postShots", 
+					{
+						method: "POST",
+						data: shotInfo,
+						processData: false,					
+						
+						headers:{
+							"Content-Type": "application/json"
+						},
+					}
+				);
 
 			player.actualShot++;
 
@@ -1273,6 +1390,29 @@ Brainstein.Game = {
 				
 				j = j*-1;
 			}
+
+			var shotInfo = {
+				posX: player.shot[0].position.x,
+				posY: player.shot[0].position.y,
+				rotation: player.shot[0].rotation,
+
+				weaponName : weapon.name,
+				playerShotingID : player.playerID,
+				speed: weapon.speed
+			}
+			   shotInfo = JSON.stringify(shotInfo);
+
+				$.ajax("/postShots", 
+					{
+						method: "POST",
+						data: shotInfo,
+						processData: false,					
+						
+						headers:{
+							"Content-Type": "application/json"
+						},
+					}
+				);
 
 			weapon.fireRate = 600;
 			
