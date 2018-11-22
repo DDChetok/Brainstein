@@ -112,11 +112,12 @@ Brainstein.Game = {
 		
 		this.maxDrops = 6;
 
+	
 		this.dropTimer = this.game.time.create(false);
 		this.dropTimer.add(1000,this.createDrop, this);
 		this.dropTimer.start();
-		this.dropTimer.pause();		
-
+			//this.dropTimer.pause();	
+		
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
 		this.initPathfinding();		
@@ -612,6 +613,7 @@ Brainstein.Game = {
 		this.receiveOtherPlayersShots();
 
 		this.receiveBrainInfo();
+
 		
 		
 	},
@@ -1101,9 +1103,11 @@ Brainstein.Game = {
 
 			if(s.weaponName == "pistol"){
 				s.loadTexture('pistolBullet');
+				s.damage = this.player.pistol.damage;
 			}else{
 				s.loadTexture('akBullet');
 				s.rotation -= Math.PI / 2;
+				s.damage = this.player.ak.damage;
 			}
 			s.reset(s.x, s.y);
 			s.body.velocity.setToPolar(s.rotation,s.speed);
@@ -1122,7 +1126,7 @@ Brainstein.Game = {
 				s.rotation = otherPlayerShots.rotation;
 				s.speed = otherPlayerShots.speed;
 				s.weaponName = otherPlayerShots.weaponName;
-
+				s.damage = this.player.shotgun.damage;
 				s.loadTexture('shotgunBullet');
 				s.reset(s.x, s.y);
 				
@@ -1157,6 +1161,59 @@ Brainstein.Game = {
 	updateBrainInfo(brainInfo){
 		this.brain.position.x = brainInfo.posX;
 		this.brain.position.y = brainInfo.posY;
+	},
+	
+	sendDropsInfo(myDrop){
+		var d = {
+			posX: myDrop.posX,
+			posY: myDrop.posY,
+			shotgunAmmo: myDrop.shotgunAmmo,
+			akaAmo:	myDrop.akaAmo,
+			health:	myDrop.health
+		};
+
+		d = JSON.stringify(d);
+		$.ajax("/postDrop", 
+		{
+			method: "POST",
+			data: d,		
+			processData: false,					
+			
+			headers:{
+				"Content-Type": "application/json"
+			},
+		})
+	},
+
+	receiveDropsInfo(){
+		$.get("/getDrop", function(drops){
+			Brainstein.Game.updateDropsInfo(drops);
+		});
+	},
+
+	updateDropsInfo(drops){
+		var count = 0;
+		for(j = 0; j < this.maxDrops; j++){
+			if(drops[j].posX == this.drops[j].posX){
+				count++;
+			}
+		}
+		if(count == this.maxDrops){
+			return;
+		}
+		for(i = 0;i < this.maxDrops;i++){
+			this.drops[i].posX = drops.posX;
+			this.drops[i].posY = drops.posY;
+			this.drops[i] = this.game.add.sprite(this.drops[i].posX, this.drops[i].posY, 'drop');
+			this.drops[i].anchor.setTo(0.5);
+			this.drops[i].width = 60;
+			this.drops[i].height = 60;
+			this.drops[i].shotgunAmmo = drops.shotgunAmmo;
+		
+			this.drops[i].akAmmo = drops.akAmmo;
+			this.drops[i].health = drops.health;
+			this.game.physics.arcade.enable(this.drops[i]);
+		}
 	},
 	//#endregion
 
@@ -1208,7 +1265,9 @@ Brainstein.Game = {
 			this.restTimer.resume();
 			this.actualRound++;
 			
+			if(Brainstein.userID == 0){
 				this.dropTimer.resume();
+			}
 			
 			this.teleportBrain();
 		}
@@ -1738,7 +1797,7 @@ Brainstein.Game = {
 	//#endregion
 
 	//#region [rgba(200, 0, 0, 0.1)] DROP METHODS
-	createDrop: function(){		
+	createDrop: function(){	
 		for(i = 0; i < this.maxDrops;i++){
 			if(this.drops[i] != null){
 				this.drops[i].kill();
@@ -1753,25 +1812,38 @@ Brainstein.Game = {
 		}else{
 	
 			for(i = 0; i < this.maxDrops;i++){
-				var dropPos = this.getPositionFromCoord(this.getRandomTile());
-				this.drops[i] = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
-				this.drops[i].anchor.setTo(0.5);
-				this.drops[i].width = 60;
-				this.drops[i].height = 60;
-				
-				this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
-					while(this.drops[i].shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
-						this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
-					}
-				this.drops[i].akAmmo = this.game.rnd.integerInRange(0,this.player.ak.magazineCapacity * 2);
-				this.drops[i].health = this.game.rnd.integerInRange(5, 15)	
-				this.game.physics.arcade.enable(this.drops[i]);
-			}
+				var dropPos = {
+					x : 200,
+					y: 200
+				};//this.getPositionFromCoord(this.getRandomTile());
+				var myDrop;
+				myDrop = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
+				myDrop.anchor.setTo(0.5);
+				myDrop.width = 60;
+				myDrop.height = 60;
 
+				myDrop.posX = dropPos.x;
+				myDrop.posY = dropPos.y;
+				myDrop.shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
+					while(myDrop.shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
+						myDrop.shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
+					}
+					myDrop.akAmmo = this.game.rnd.integerInRange(0,this.player.ak.magazineCapacity * 2);
+					myDrop.health = this.game.rnd.integerInRange(5, 15);
+				
+				this.sendDropsInfo(myDrop);
+
+				this.drops[i] = myDrop;
+			}
+			
+			this.game.physics.arcade.enable(this.drops);
 			this.dropTimer.pause();
 			this.dropTimer.add(1000, this.createDrop, this);
 
+			this.receiveDropsInfo();
+
 		}
+
 	},
 
 	deleteDropText: function(player){

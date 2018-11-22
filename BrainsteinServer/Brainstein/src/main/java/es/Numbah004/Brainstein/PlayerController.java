@@ -18,6 +18,8 @@ public class PlayerController {
 	
 	Brain brainInfo = new Brain();
 	
+	public List<Drop> drops = new ArrayList<>();
+	
 	//Level Selection
 	public int currentLevelSelected = 0;
 	
@@ -181,6 +183,20 @@ public class PlayerController {
 		//Brain br = brainInfo;
 		//brainInfo = new Brain();
 		return brainInfo;
+	}
+
+	//------------------DROPS-------------------------------
+	@PostMapping(value = "/postDrop")
+	public ResponseEntity<Boolean> postDrop(@RequestBody Drop d)
+	{	
+		drops.add(d);
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 				
+	}
+	
+	@GetMapping(value = "/getDrop")
+	public List<Drop> getDrops(){
+		List<Drop> d = drops;
+		return d;
 	}
 
 }
