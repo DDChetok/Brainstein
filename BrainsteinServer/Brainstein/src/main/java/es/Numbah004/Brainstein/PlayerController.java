@@ -19,6 +19,7 @@ public class PlayerController {
 	Brain brainInfo = new Brain();
 	
 	public List<Drop> drops = new ArrayList<>();
+	public Integer lastDropKilled = new Integer(-1);
 	
 	//Level Selection
 	public int currentLevelSelected = 0;
@@ -197,6 +198,18 @@ public class PlayerController {
 	public List<Drop> getDrops(){
 		List<Drop> d = drops;
 		return d;
+	}
+	
+	@PostMapping(value="/killDrop")
+	public ResponseEntity<Boolean> postDropID(@RequestBody Integer id)
+	{	
+		lastDropKilled = id;
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 				
+	}
+	
+	@GetMapping(value = "/getLastDropKilled")
+	public Integer getDropID(){
+		return lastDropKilled;
 	}
 
 }

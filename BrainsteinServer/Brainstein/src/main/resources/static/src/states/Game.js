@@ -107,12 +107,17 @@ Brainstein.Game = {
 
 		//----------------DROPS-------------------
 		this.dropTime = 2;
-
-		this.drops = [];
-		
 		this.maxDrops = 6;
+		this.actualDrops = this.maxDrops;
+		
+		this.drops = [];
+		for(i = 0; i < this.maxDrops;i++){
+			this.drops[i] = this.game.add.sprite(0,0, 'drop');
+			this.drops[i].alpha = 0;
+			this.game.physics.arcade.enable(this.drops[i]);
+		}
+		this.lastDropKilled = -1;
 
-	
 		this.dropTimer = this.game.time.create(false);
 		this.dropTimer.add(1000,this.createDrop, this);
 		this.dropTimer.start();
@@ -155,7 +160,9 @@ Brainstein.Game = {
 
 		//-----------------PARTICLE VARIABLES-----------------
 		this.emitter = this.game.add.emitter(0, 0, 100);
-		this.emitter.makeParticles("bulletParticle");		
+		this.emitter.makeParticles("bulletParticle");	
+		
+
 	},	
 
 	createLevel: function(){
@@ -586,8 +593,6 @@ Brainstein.Game = {
 		/*if(this.players.length > 1){	
 			this.checkIfDeadPlayerNearby();		
 		}	*/
-		
-	
 		this.updatePlayer(this.player);
 		this.handleKeyboardInput();	
 		this.updateText();	
@@ -613,9 +618,8 @@ Brainstein.Game = {
 		this.receiveOtherPlayersShots();
 
 		this.receiveBrainInfo();
-
 		
-		
+		this.receiveLastDropKilled();
 	},
 
 	updatePlayer(player){
@@ -1165,11 +1169,12 @@ Brainstein.Game = {
 	
 	sendDropsInfo(myDrop){
 		var d = {
-			posX: myDrop.posX,
-			posY: myDrop.posY,
+			posX: myDrop.position.x,
+			posY: myDrop.position.y,
 			shotgunAmmo: myDrop.shotgunAmmo,
-			akaAmo:	myDrop.akaAmo,
-			health:	myDrop.health
+			akAmmo:	myDrop.akAmmo,
+			health:	myDrop.health,
+			dropID: myDrop.dropID
 		};
 
 		d = JSON.stringify(d);
@@ -1193,28 +1198,50 @@ Brainstein.Game = {
 
 	updateDropsInfo(drops){
 		var count = 0;
-		for(j = 0; j < this.maxDrops; j++){
-			if(drops[j].posX == this.drops[j].posX){
+		var newDrops = false;
+		for(j = 0; j < this.actualDrops; j++){ //Miro si ha cambiado algun drop del servidor respecto a los que tengo 
+			if(drops[j].posX == this.drops[j].position.x){
 				count++;
 			}
 		}
-		if(count == this.maxDrops){
-			return;
+		if(count == this.actualDrops){ //Si todos siguen igual, sigo mirando a ver si cambian
+			this.receiveDropsInfo();
+			newDrops = false;
+		}else{
+			newDrops = true;
 		}
-		for(i = 0;i < this.maxDrops;i++){
-			this.drops[i].posX = drops.posX;
-			this.drops[i].posY = drops.posY;
-			this.drops[i] = this.game.add.sprite(this.drops[i].posX, this.drops[i].posY, 'drop');
-			this.drops[i].anchor.setTo(0.5);
-			this.drops[i].width = 60;
-			this.drops[i].height = 60;
-			this.drops[i].shotgunAmmo = drops.shotgunAmmo;
-		
-			this.drops[i].akAmmo = drops.akAmmo;
-			this.drops[i].health = drops.health;
-			this.game.physics.arcade.enable(this.drops[i]);
+
+		if(newDrops == true)
+		{
+			for(i = 0;i < this.maxDrops;i++){
+				this.drops[i].position.x = drops[i].posX;
+				this.drops[i].position.y = drops[i].posY;
+				//this.drops[i] = this.game.add.sprite(this.drops[i].posX, this.drops[i].posY, 'drop');
+				this.drops[i].shotgunAmmo = drops[i].shotgunAmmo;
+				this.drops[i].akAmmo = drops[i].akAmmo;
+				this.drops[i].health = drops[i].health;
+
+				this.drops[i].dropID = drops[i].dropID;
+
+				this.drops[i].alpha = 1;
+
+				this.game.physics.arcade.enable(this.drops[i]);
+			}
 		}
 	},
+
+	receiveLastDropKilled(){
+		$.get("/getLastDropKilled", function(id){
+			Brainstein.Game.killDrop(id);
+		});
+	},
+
+	killDrop(id){
+		if(id != -1){
+			this.drops[id].kill();
+		}
+	},
+
 	//#endregion
 
 	//#region [ rgba (200, 0, 200, 0.1)] ROUND LOOP METHODS
@@ -1297,14 +1324,17 @@ Brainstein.Game = {
 	collisionsAndOverlaps: function(){
 		this.game.physics.arcade.overlap(this.enemies, this.brain, this.gameOver, null, this);
 		this.game.physics.arcade.collide(this.player, this.enemies, this.playerZombieColision,null,this);
-		this.game.physics.arcade.collide(this.player,this.drops,this.playerDropColision,null,this);	
+		this.game.physics.arcade.overlap(this.player,this.drops,this.playerDropColision,null,this);	
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);				
 		this.game.physics.arcade.overlap(this.player.shot, this.enemies, this.bulletZombieColision,null,this);
 		this.game.physics.arcade.collide(this.player.shot, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
 
 		this.game.physics.arcade.overlap(this.enemyShots, this.enemies, this.bulletZombieColision,null,this);
 		this.game.physics.arcade.collide(this.enemyShots, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
-		
+	},
+
+	temporalColision(){
+		console.log('te chocaste');
 	},
 
 	resetPlayerHitbox: function(player){
@@ -1365,6 +1395,19 @@ Brainstein.Game = {
 	},
 
 	playerDropColision: function(player,drop){
+		var dropID = drop.dropID;
+		dropID = JSON.stringify(dropID);
+		$.ajax("/killDrop",  //Cuando un jugador rompe un drop sube el ID del drop para borrarlo del servidor y del otro cliente
+		{
+			method: "POST",
+			data: dropID,		
+			processData: false,					
+			
+			headers:{
+				"Content-Type": "application/json"
+			},
+		});
+		
 		drop.kill();
 		player.shotgunActualAmmo += drop.shotgunAmmo;
 		player.akActualAmmo += drop.akAmmo;
@@ -1798,50 +1841,53 @@ Brainstein.Game = {
 
 	//#region [rgba(200, 0, 0, 0.1)] DROP METHODS
 	createDrop: function(){	
-		for(i = 0; i < this.maxDrops;i++){
-			if(this.drops[i] != null){
-				this.drops[i].kill();
+		if(this.actualRound != 0){ //Para que no peten los drops porq se crean desde el principio, luego solo se les actualiza la posicion
+			for(i = 0; i < this.maxDrops;i++){
+				if(this.drops[i] != null){
+					this.drops[i].kill();
+				}
 			}
 		}
 
 		if(this.dropTime > 0){
-
 			this.dropTime--;
 			this.dropTimer.add(1000, this.createDrop, this);
-
 		}else{
-	
-			for(i = 0; i < this.maxDrops;i++){
-				var dropPos = {
-					x : 200,
-					y: 200
-				};//this.getPositionFromCoord(this.getRandomTile());
-				var myDrop;
-				myDrop = this.game.add.sprite(dropPos.x, dropPos.y, 'drop');
-				myDrop.anchor.setTo(0.5);
-				myDrop.width = 60;
-				myDrop.height = 60;
+			if(Brainstein.userID == 0){
+				for(i = 0; i < this.maxDrops;i++){
+					var dropPos = //this.getPositionFromCoord(this.getRandomTile());
+					{
+						x : 100 + (i*50),
+						y: 100 + (i*50)
+					};
 
-				myDrop.posX = dropPos.x;
-				myDrop.posY = dropPos.y;
-				myDrop.shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
-					while(myDrop.shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
-						myDrop.shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
-					}
-					myDrop.akAmmo = this.game.rnd.integerInRange(0,this.player.ak.magazineCapacity * 2);
-					myDrop.health = this.game.rnd.integerInRange(5, 15);
-				
-				this.sendDropsInfo(myDrop);
+					this.drops[i].alive = true;
+					this.drops[i].position.x = dropPos.x;
+					this.drops[i].position.y = dropPos.y;
+					this.drops[i].alpha = 1;
+					this.drops[i].anchor.setTo(0.5);
+					this.drops[i].width = 60;
+					this.drops[i].height = 60;
 
-				this.drops[i] = myDrop;
+					this.drops[i].dropID = i; //Posicion del drop en el array de drops
+
+					this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
+						while(this.drops[i].shotgunAmmo % 3 != 0){ //A la escopeta siempre le damos balas multiplos de 3
+							this.drops[i].shotgunAmmo = this.game.rnd.integerInRange(0,this.player.shotgun.magazineCapacity * 2);
+						}
+					this.drops[i].akAmmo = this.game.rnd.integerInRange(0,this.player.ak.magazineCapacity * 2);
+					this.drops[i].health = this.game.rnd.integerInRange(5, 15);
+
+					this.sendDropsInfo(this.drops[i]);
+					//this.drops[i] = myDrop;
+				}
+			}else{
+				this.receiveDropsInfo();
 			}
-			
-			this.game.physics.arcade.enable(this.drops);
+			//this.game.physics.arcade.enable(this.drops);
 			this.dropTimer.pause();
 			this.dropTimer.add(1000, this.createDrop, this);
-
-			this.receiveDropsInfo();
-
+			
 		}
 
 	},
