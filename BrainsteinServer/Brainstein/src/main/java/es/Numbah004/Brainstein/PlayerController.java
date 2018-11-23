@@ -138,6 +138,16 @@ public class PlayerController {
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}
+	
+	@PostMapping(value = "/killEnemy")	
+	public ResponseEntity<Boolean> KillEnemy(@RequestBody Enemy e) {		
+		
+		enemies.remove(e.enemyID);		
+		while(enemies.remove(null));		
+	
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
+	}
 
 
 	//--------------------SHOOTING--------------------	
