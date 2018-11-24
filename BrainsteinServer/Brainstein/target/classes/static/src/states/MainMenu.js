@@ -1,6 +1,5 @@
 var Brainstein = Brainstein || {};
 Brainstein.MainMenu = function(){};
-
 Brainstein.MainMenu = {
 	
 	create: function(){
@@ -11,6 +10,20 @@ Brainstein.MainMenu = {
 		this.game.pressEnterSound.loop = true;
 		this.game.switchOptionSound = this.game.add.audio('switchOptionSound');
 		this.game.sound.setDecodedCallback([this.game.keyboardSound,this.game.mainMenuMusic,this.game.pressEnterSound,this.game.switchOptionSound], this.start, this);
+		//Show background
+		this.background = this.game.add.sprite(0, 0, 'mainMenuFlat');
+		this.background.width = (this.game.width);
+		this.background.height = (this.game.height);
+		//Show menu sprites
+		this.menuErwin = this.game.add.sprite(0, -30, 'menuErwin');
+		this.menuErwin.width = (this.game.width / 3);
+		this.menuErwin.height = (this.game.height + this.game.height *0.2 );
+
+		this.menuDarwin = this.game.add.sprite(this.game.width *2/3, -30, 'menuDarwin');	
+		this.menuDarwin.width = (this.game.width / 3);
+		this.menuDarwin.height = (this.game.height + this.game.height *0.2);
+		this.dt = 0;
+		this.speed = 0.02;
 	},
 
 	start: function(){
@@ -37,9 +50,9 @@ Brainstein.MainMenu = {
 		this.content2 = ["PRESS ENTER"];
 
 		//Show background					
-		this.background = this.game.add.sprite(0, 0, 'mainMenuSplashEnter');		
-		this.background.width = (this.game.width);
-		this.background.height = (this.game.height);
+		//this.background = this.game.add.sprite(0, 0, 'mainMenuSplashEnter');		
+		//this.background.width = (this.game.width);
+		//this.background.height = (this.game.height);
 		var style = {font: "15px Chakra Petch", fill: '#04f31d', align:"center"};
 
 		this.text = this.game.add.text(this.game.width/2 - 110, this.game.height/2 - 40, '', style);
@@ -97,6 +110,13 @@ Brainstein.MainMenu = {
 	},
 
 	update: function(){
+
+		this.menuErwin.position.y = this.menuErwin.y + Math.sin(this.dt) * 0.2;
+		//this.menuErwin.position.x = this.menuErwin.x + Math.cos(num);
+		this.menuDarwin.position.y = this.menuDarwin.y + Math.cos(this.dt) * 0.2;
+		//this.menuDarwin.position.x = this.menuDarwin.x + Math.sin(num);
+		this.dt += this.speed;
+		
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
 			this.game.state.start('MatchMaking');
 			this.game.switchOptionSound.play();
