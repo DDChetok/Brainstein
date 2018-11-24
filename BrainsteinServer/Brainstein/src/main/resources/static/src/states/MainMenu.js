@@ -120,6 +120,7 @@ Brainstein.MainMenu = {
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
 			this.game.state.start('MatchMaking');
 			this.game.switchOptionSound.play();
+			this.game.keyboardSound.stop();
 		}
 	}
 

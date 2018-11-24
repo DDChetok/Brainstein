@@ -112,7 +112,7 @@ Brainstein.Game = {
 		
 		this.drops = [];
 		for(i = 0; i < this.maxDrops;i++){
-			this.drops[i] = this.game.add.sprite(0,0, 'drop');
+			this.drops[i] = this.game.add.sprite(-50,-50, 'drop');
 			this.drops[i].alpha = 0;
 			this.game.physics.arcade.enable(this.drops[i]);
 		}
@@ -1245,7 +1245,9 @@ Brainstein.Game = {
 
 	killDrop(id){
 		if(id != -1){
-			this.drops[id].kill();
+			if(this.drops[id].alive){
+				this.drops[id].kill();
+			} 
 		}
 	},
 

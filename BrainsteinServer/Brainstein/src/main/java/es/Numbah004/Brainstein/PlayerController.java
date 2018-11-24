@@ -209,7 +209,9 @@ public class PlayerController {
 	
 	@GetMapping(value = "/getLastDropKilled")
 	public Integer getDropID(){
-		return lastDropKilled;
+		Integer i = lastDropKilled;
+		//lastDropKilled = -1;
+		return i;
 	}
 
 }
