@@ -124,7 +124,7 @@ Brainstein.Game = {
 
 		//-----------------CAMERA VARIABLES-----------------		
 		this.game.camera.target = null;
-		this.game.time.desiredFps = 60;		
+		this.game.time.desiredFps = 30;		
 
 		//-----------------TEXTS VARIABLES-----------------	
 		this.actualRoundText = this.game.add.text(this.game.width / 2, 20, "Ronda actual:", { font: "20px Chakra Petch", fill: "#0a2239", align: "center" });
@@ -756,8 +756,8 @@ Brainstein.Game = {
 
 	updateOtherEnemiesWithCurrentInfo(){
 		for(var i = 0; i < this.enemies.length; i++){	
-			//this.enemies[i].position.x += this.enemies[i].velX;
-			//this.enemies[i].position.y += this.enemies[i].velY;
+			this.enemies[i].position.x += this.enemies[i].velX;
+			this.enemies[i].position.y += this.enemies[i].velY;
 		}
 	},
 	
@@ -1110,7 +1110,7 @@ Brainstein.Game = {
 			})	
 		}else{
 			$.get("/getPlayer1Shots", function(player1Shots){
-				if(player1Shots.length != 0){
+				if(player1Shots.posX != -1){
 					otherPlayerShots = player1Shots;
 					Brainstein.Game.updateOtherPlayerShots(otherPlayerShots);
 				}
