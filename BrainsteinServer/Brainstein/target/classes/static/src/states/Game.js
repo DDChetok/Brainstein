@@ -161,8 +161,11 @@ Brainstein.Game = {
 		//-----------------PARTICLE VARIABLES-----------------
 		this.emitter = this.game.add.emitter(0, 0, 100);
 		this.emitter.makeParticles("bulletParticle");	
-		
-
+		////-----------------SOUNDS VARIABLES-----------------
+        //Guns
+        this.pistolshot = this.game.add.audio('pistolshot');
+        this.muertezombie = this.game.add.audio('muertezombie');
+        this.akshot = this.game.add.audio('akshot');
 	},	
 
 	createLevel: function(){
@@ -1108,10 +1111,12 @@ Brainstein.Game = {
 			if(s.weaponName == "pistol"){
 				s.loadTexture('pistolBullet');
 				s.damage = this.player.pistol.damage;
+				this.pistolshot.play();
 			}else{
 				s.loadTexture('akBullet');
 				s.rotation -= Math.PI / 2;
 				s.damage = this.player.ak.damage;
+				this.akshot.play();
 			}
 			s.reset(s.x, s.y);
 			s.body.velocity.setToPolar(s.rotation,s.speed);
@@ -1369,6 +1374,9 @@ Brainstein.Game = {
 
 		if(zombie.actualHp <= 0){
 			zombie.kill();
+
+			this.muertezombie.play();
+
 			this.enemyCount--;
 
 			var bloodPuddleSprite = this.game.rnd.integerInRange(0, this.bloodPuddleSprites.length);
@@ -1459,6 +1467,8 @@ Brainstein.Game = {
 				player.shot[player.actualShot].rotation = this.game.physics.arcade.angleBetween(player, player.shot[player.actualShot]);	
 				player.shot[player.actualShot].loadTexture('pistolBullet');
 				player.shot[player.actualShot].reset(x, y);
+
+				this.pistolshot.play();
 			}else if(weapon.name == "ak"){
 				var x, y;
 				x = player.position.x + (50 * Math.cos(player.rotation));
@@ -1468,6 +1478,8 @@ Brainstein.Game = {
 				player.shot[player.actualShot].rotation = this.game.physics.arcade.angleBetween(player, player.shot[player.actualShot]) + Math.PI / 2;	
 				player.shot[player.actualShot].loadTexture('akBullet');
 				player.shot[player.actualShot].reset(x, y);
+
+				this.akshot.play();
 			}
 			   this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], weapon.speed);
 			   
