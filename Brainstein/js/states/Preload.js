@@ -52,8 +52,13 @@ Brainstein.Preload = {
 		this.load.audio('pressEnterSound', 'assets/music/press enter sound.mp3');
 		this.load.audio('switchOptionSound', 'assets/music/switch option sound.mp3');
 		this.load.audio('pistolshot', 'assets/music/pistol shot.wav');
-		this.load.audio('akshot', 'assets/music/ak shot.wav');
+		this.load.audio('akshot', 'assets/music/ak shot 2.wav');
+		this.load.audio('sgunshot', 'assets/music/sgun shot.wav');
+		this.load.audio('dropsound', 'assets/music/drop.wav');
+		this.load.audio('ouch', 'assets/music/ouch.wav');
+		this.load.audio('resurrectharp', 'assets/music/resurrect harp.wav');
 		this.load.audio('muertezombie', 'assets/music/muertezombie.wav');
+		this.load.audio('deathbell', 'assets/music/death bell.wav');
 	},
 
 	create: function(){

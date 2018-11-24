@@ -40,8 +40,15 @@ Brainstein.Game = {
 		////-----------------SOUNDS VARIABLES-----------------
 		//Guns
 		this.pistolshot = this.game.add.audio('pistolshot');
-		this.muertezombie = this.game.add.audio('muertezombie');
 		this.akshot = this.game.add.audio('akshot');
+		this.sgunshot = this.game.add.audio('sgunshot');
+		//Characters
+		this.muertezombie = this.game.add.audio('muertezombie');
+		this.ouch = this.game.add.audio('ouch');
+		//Others
+		this.dropsound = this.game.add.audio('dropsound');
+		this.resurrectharp = this.game.add.audio('resurrectharp');
+		this.deathbell = this.game.add.audio('deathbell');
 
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -415,7 +422,7 @@ Brainstein.Game = {
 		//Checks if the OTHER player is dead
 		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[1].dead && !this.players[0].dead){
 			this.players[0].resurrectText.setText("Press F to resurrect");
-			if(this.actionKeys.player1Resurrect.isDown){	
+			if(this.actionKeys.player1Resurrect.isDown){
 				this.players[0].resurrecting = true;
 				this.resurrectTimer.add(3500, this.resurrectPlayer, this, this.players[1],this.players[0]);	
 				this.resurrectTimer.start();	
@@ -431,6 +438,7 @@ Brainstein.Game = {
 		if(Phaser.Point.distance(this.players[0].position, this.players[1].position) < 30 && this.players[0].dead && !this.players[1].dead){
 			this.players[1].resurrectText.setText("Press - to resurrect");
 			if(this.actionKeys.player2Resurrect.isDown){
+				
 				this.players[1].resurrecting = true;						
 				this.resurrectTimer.add(3500, this.resurrectPlayer, this, this.players[0],this.players[1]);	
 				this.resurrectTimer.start();	
@@ -775,6 +783,7 @@ Brainstein.Game = {
 		if(player.beingPushed == false){
 			player.beingPushed = true;			
 			player.actualHp -= zombie.damage;
+			this.ouch.play();
 			this.healthBarPercent(player, player.actualHp / 30)
 				if(player.actualHp <= 0){
 					this.killPlayer(player);		
@@ -812,6 +821,7 @@ Brainstein.Game = {
 
 	playerDropColision: function(player,drop){
 		drop.kill();
+		this.dropsound.play();
 		player.shotgunActualAmmo += drop.shotgunAmmo;
 		player.akActualAmmo += drop.akAmmo;
 		player.resources += drop.resources;
@@ -901,7 +911,7 @@ Brainstein.Game = {
 				x = player.position.x + (50 * Math.cos(player.rotation));
 				y = player.position.y + (50 * Math.sin(player.rotation));
 				player.shot[i].reset(x, y);
-				this.pistolshot.play();
+				this.sgunshot.play();
 
 				
 				if(i == 0){
@@ -1299,6 +1309,7 @@ Brainstein.Game = {
 
 	//#region [rgba(90, 0, 90, 0.1)] DEATH & RESURRECTION METHODS
 	killPlayer: function(player){
+		this.deathbell.play();
 		player.dead = true;
 		player.body.enable = false;
 		player.loadTexture('deadPlayer');	
@@ -1318,6 +1329,7 @@ Brainstein.Game = {
 		playerDead.dead = false;
 		playerDead.body.enable = true;
 		playerDead.actualHp = playerDead.hp / 4;
+		
 		if(playerDead == this.players[0]){
 			playerDead.loadTexture('erwin');
 		}else{
