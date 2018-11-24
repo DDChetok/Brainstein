@@ -1963,12 +1963,8 @@ Brainstein.Game = {
 		}else{
 			if(Brainstein.userID == 0){
 				for(i = 0; i < this.maxDrops;i++){
-					var dropPos = //this.getPositionFromCoord(this.getRandomTile());
-					{
-						x : 100 + (i*50),
-						y: 100 + (i*50)
-					};
-
+					var dropPos = this.getPositionFromCoord(this.getRandomTile());
+					
 					this.drops[i].alive = true;
 					this.drops[i].position.x = dropPos.x;
 					this.drops[i].position.y = dropPos.y;
