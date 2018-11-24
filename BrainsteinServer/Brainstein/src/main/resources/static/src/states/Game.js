@@ -211,13 +211,13 @@ Brainstein.Game = {
 		
 		//Create map layers
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
-		this.collisionLayer = this.map.createLayer('collisionLayer');
 		this.backgroundLayer2 = this.map.createLayer('backgroundLayer2');
+		this.collisionLayer = this.map.createLayer('collisionLayer');
 
 		//Mejora el movimiento de la cámara
 		this.backgroundLayer.renderSettings.enableScrollDelta = true;
-		this.collisionLayer.renderSettings.enableScrollDelta = true;
 		this.backgroundLayer2.renderSettings.enableScrollDelta = true;
+		this.collisionLayer.renderSettings.enableScrollDelta = true;
 
 		//Collision on blockedLayer
 		this.map.setCollisionBetween(1, 5000, true, 'collisionLayer');
