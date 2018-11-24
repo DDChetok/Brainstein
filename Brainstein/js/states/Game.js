@@ -864,7 +864,7 @@ Brainstein.Game = {
 				x = player.position.x + (50 * Math.cos(player.rotation));
 				y = player.position.y + (50 * Math.sin(player.rotation));
 				player.shot[player.actualShot].reset(x, y);
-				this.pistolshot.play();
+				this.akshot.play();
 			}
 	       	this.game.physics.arcade.moveToPointer(player.shot[player.actualShot], weapon.speed);
 
@@ -901,6 +901,8 @@ Brainstein.Game = {
 				x = player.position.x + (50 * Math.cos(player.rotation));
 				y = player.position.y + (50 * Math.sin(player.rotation));
 				player.shot[i].reset(x, y);
+				this.pistolshot.play();
+
 				
 				if(i == 0){
 					var angle = this.game.physics.arcade.angleToPointer(player.shot[i]);
