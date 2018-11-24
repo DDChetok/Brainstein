@@ -17,6 +17,11 @@ Brainstein.Game = {
 		this.targetPlayer = Brainstein.userID;
 		this.creatingEnemies = false;
 		
+		this.framesWithoutPlayerInfo = 0;
+		this.recievedPlayerInfoThisFrame = false;
+
+		this.framesWithoutEnemiesInfo = 0;
+		this.recievedEnemyInfoThisFrame = false;	
 		//-----------------TEMPORAL SPRITES-----------------
 		this.temporalSprites = this.game.add.group();	
 		this.alphaStep = 0.001;
@@ -144,7 +149,7 @@ Brainstein.Game = {
 
 		//-----------------CAMERA VARIABLES-----------------		
 		this.game.camera.target = null;
-		this.game.time.desiredFps = 60;		
+		this.game.time.desiredFps = 30;		
 
 		//-----------------TEXTS VARIABLES-----------------	
 		this.actualRoundText = this.game.add.text(this.game.width / 2, 20, "Ronda actual:", { font: "20px Chakra Petch", fill: "#0a2239", align: "center" });
@@ -379,6 +384,12 @@ Brainstein.Game = {
 					otherPlayer.healthBar.width = 115;
 					otherPlayer.healthBar.height = 10;
 
+					otherPlayer.velX = 0;
+					otherPlayer.velY = 0;
+
+					otherPlayer.previousPosX = 0;
+					otherPlayer.previousPosY = 0;
+
 					if(otherPlayer.playerID == 1){
 						otherPlayer.loadTexture("darwin");
 					}
@@ -462,6 +473,10 @@ Brainstein.Game = {
 		zombie.actualHp = zombie.hp;	
 		zombie.damage = 5;
 		zombie.pos = this.enemyCount;
+
+		zombie.velX = 0;
+		zombie.velY = 0;
+		
 		this.enemies[this.enemyCount] = zombie;		
 		this.enemyCount++;
 
@@ -497,6 +512,10 @@ Brainstein.Game = {
 		zombie.actualHp = zombie.hp;	
 		zombie.damage = 5;
 		zombie.pos = this.enemyCount;		
+
+		zombie.velX = 0;
+		zombie.velY = 0;
+
 		this.enemyCount++;
 		this.enemies[this.enemies.length] = zombie;
 
@@ -618,11 +637,25 @@ Brainstein.Game = {
 		this.sendPlayerInfo();	
 		this.recieveOtherPlayersInfo();
 
+		if(!this.recievedPlayerInfoThisFrame){
+			this.updateOtherPlayersWithCurrentInfo();	
+		}
+
+		if(!this.recievedEnemyInfoThisFrame && Brainstein.userID != 0){
+			this.updateOtherEnemiesWithCurrentInfo();
+		}
+
 		this.receiveOtherPlayersShots();
 
 		this.receiveBrainInfo();
 		
 		this.receiveLastDropKilled();
+		this.framesWithoutPlayerInfo += 1;
+		this.framesWithoutEnemiesInfo += 1;
+		this.recievedPlayerInfoThisFrame = false;
+		this.recievedEnemyInfoThisFrame = false;	
+
+		if(this.otherPlayers.length > 0)console.log(Brainstein.Game.otherPlayers[0].position);
 	},
 
 	updatePlayer(player){
@@ -671,6 +704,53 @@ Brainstein.Game = {
 		}			
 	},
 
+	updateOtherPlayersWithCurrentInfo(){
+		for(var i = 0; i < this.otherPlayers.length; i++){	
+			this.otherPlayers[i].position.x += this.otherPlayers[i].velX;
+			this.otherPlayers[i].position.y += this.otherPlayers[i].velY;
+		}
+	},
+
+	updateOtherPlayers(playersUpdated){		
+		for(var i = 0; i < this.otherPlayers.length; i++){	
+			for(var j = 0; j < playersUpdated.length; j++){
+				if(this.otherPlayers[i].playerID == playersUpdated[j].playerID){					
+					this.otherPlayers[i].previousPosX = this.otherPlayers[i].position.x;
+					this.otherPlayers[i].previousPosY = this.otherPlayers[i].position.y;				
+
+					//Position & Rotation
+					this.otherPlayers[i].position.x = playersUpdated[j].posX;
+					this.otherPlayers[i].position.y = playersUpdated[j].posY;
+					this.otherPlayers[i].rotation = playersUpdated[j].rotation;
+
+					if(this.framesWithoutPlayerInfo == 0) this.framesWithoutPlayerInfo = 1;
+
+					this.otherPlayers[i].velX = (this.otherPlayers[i].position.x - this.otherPlayers[i].previousPosX) / this.framesWithoutPlayerInfo;
+					this.otherPlayers[i].velY = (this.otherPlayers[i].position.y - this.otherPlayers[i].previousPosY) / this.framesWithoutPlayerInfo;					
+
+					//HP
+					this.otherPlayers[i].actualHp = playersUpdated[j].hp;
+					this.healthBarPercent(this.otherPlayers[i], this.otherPlayers[i].actualHp);
+
+					//Shooting
+					this.otherPlayers[i].weapon = playersUpdated[j].weapon;
+					switch(this.otherPlayers[i].weapon){
+						case ("pistol"):
+							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[0]);
+							break;
+						case ("ak"):
+							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[1]);
+							break;
+						case ("shotgun"):
+							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[2]);
+							break;
+					}					
+				}							
+			}
+		}	
+		this.framesWithoutPlayerInfo = 0;	
+	},
+
 	//Updates an enemy position
 	updateEnemy: function(enemy){
 		var nextPosition, velocity;		
@@ -698,6 +778,38 @@ Brainstein.Game = {
 		}				
 		
 	},	
+
+	updateServerEnemies(enemiesUpdated){
+		if(this.enemies.length == enemiesUpdated.length){
+			for(var i = 0; i < enemiesUpdated.length; i++){
+				this.enemies[i].previousPosX = this.enemies[i].position.x;
+				this.enemies[i].previousPosY = this.enemies[i].position.y;
+
+				this.enemies[i].position.x = enemiesUpdated[i].posX;
+				this.enemies[i].position.y = enemiesUpdated[i].posY;
+
+				this.enemies[i].rotation = enemiesUpdated[i].rotation;
+
+				if(this.framesWithoutEnemiesInfo == 0) this.framesWithoutPlayerInfo == 0;
+
+				this.enemies[i].velX = (this.enemies[i].previousPosX - this.enemies[i].position.x) / this.framesWithoutEnemiesInfo;
+				this.enemies[i].velY = (this.enemies[i].previousPosY - this.enemies[i].position.y) / this.framesWithoutEnemiesInfo;				
+
+				/*this.enemies[i].path = enemiesUpdated[i].path;
+				this.enemies[i].pathStep = 1;
+				this.updateEnemy(this.enemies[i]);*/
+			}
+
+			this.framesWithoutEnemiesInfo = 0;
+		}
+	},
+
+	updateOtherEnemiesWithCurrentInfo(){
+		for(var i = 0; i < this.enemies.length; i++){	
+			this.enemies[i].position.x += this.enemies[i].velX;
+			this.enemies[i].position.y += this.enemies[i].velY;
+		}
+	},
 	
 	//Updates all the texts
 	updateText: function(){
@@ -954,40 +1066,10 @@ Brainstein.Game = {
 	recieveOtherPlayersInfo(){
 		var playersUpdated = [];
 		$.get("/getPlayers", function(players){
-			playersUpdated = players;
-			Brainstein.Game.updateOtherPlayers(playersUpdated);
+			Brainstein.Game.recievedPlayerInfoThisFrame = true;
+			playersUpdated = players;			
+			Brainstein.Game.updateOtherPlayers(playersUpdated);		
 		})	
-	},
-
-	updateOtherPlayers(playersUpdated){
-		for(var i = 0; i < this.otherPlayers.length; i++){	
-			for(var j = 0; j < playersUpdated.length; j++){
-				if(this.otherPlayers[i].playerID == playersUpdated[j].playerID){
-					//Position & Rotation
-					this.otherPlayers[i].position.x = playersUpdated[j].posX;
-					this.otherPlayers[i].position.y = playersUpdated[j].posY;
-					this.otherPlayers[i].rotation = playersUpdated[j].rotation;
-					//HP
-					this.otherPlayers[i].actualHp = playersUpdated[j].hp;
-					this.healthBarPercent(this.otherPlayers[i], this.otherPlayers[i].actualHp);
-					//Shooting
-					this.otherPlayers[i].weapon = playersUpdated[j].weapon;
-					switch(this.otherPlayers[i].weapon){
-						case ("pistol"):
-							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[0]);
-							break;
-						case ("ak"):
-							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[1]);
-							break;
-						case ("shotgun"):
-							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[2]);
-							break;
-					}
-					
-				}
-							
-			}
-		}
 	},
 
 	sendNewHorde(newHorde){	
@@ -1058,26 +1140,13 @@ Brainstein.Game = {
 
 	recieveEnemiesInfo(){
 		var enemiesUpdated = [];
-		$.get("/getEnemies", function(enemies){
+		$.get("/getEnemies", function(enemies){		
 			enemiesUpdated = enemies;
 			if(enemies.length != 0){
+				Brainstein.Game.recievedEnemyInfoThisFrame = true;
 				Brainstein.Game.updateServerEnemies(enemies);
 			}
 		})
-	},
-
-	updateServerEnemies(enemiesUpdated){
-		if(this.enemies.length == enemiesUpdated.length){
-			for(var i = 0; i < enemiesUpdated.length; i++){
-				this.enemies[i].position.x = enemiesUpdated[i].posX;
-				this.enemies[i].position.y = enemiesUpdated[i].posY;
-				this.enemies[i].rotation = enemiesUpdated[i].rotation;
-
-				/*this.enemies[i].path = enemiesUpdated[i].path;
-				this.enemies[i].pathStep = 1;
-				this.updateEnemy(this.enemies[i]);*/
-			}
-		}
 	},
 
 	receiveOtherPlayersShots(){
@@ -1119,6 +1188,8 @@ Brainstein.Game = {
 				//s.rotation -= Math.PI / 2;
 				s.damage = this.player.ak.damage;
 				this.akshot.play();
+				s.rotation -= Math.PI / 2;
+				s.damage = this.player.ak.damage;
 			}
 			s.reset(s.x, s.y);
 			s.body.velocity.setToPolar(s.lookAt,s.speed);
@@ -1172,6 +1243,25 @@ Brainstein.Game = {
 	updateBrainInfo(brainInfo){
 		this.brain.position.x = brainInfo.posX;
 		this.brain.position.y = brainInfo.posY;
+	},
+	
+	killEnemyInServer(ID){
+		var enemy = {
+			enemyID: ID
+		}
+
+		enemy = JSON.stringify(enemy);
+
+		$.ajax("/killEnemy", 
+		{
+			method: "POST",
+			data:  enemy,		
+			processData: false,					
+			
+			headers:{
+				"Content-Type": "application/json"
+			},
+		})
 	},
 	
 	sendDropsInfo(myDrop){
@@ -1339,6 +1429,7 @@ Brainstein.Game = {
 		this.game.physics.arcade.collide(this.player.shot, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
 
 		this.game.physics.arcade.overlap(this.enemyShots, this.enemies, this.bulletZombieColision,null,this);
+		//console.log("this.enemyShots = " + this.enemyShots);
 		this.game.physics.arcade.collide(this.enemyShots, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
 	},
 
@@ -1382,6 +1473,7 @@ Brainstein.Game = {
 			this.muertezombie.play();
 
 			this.enemyCount--;
+			if(Brainstein.userID == 1)this.killEnemyInServer(zombie.pos);
 
 			var bloodPuddleSprite = this.game.rnd.integerInRange(0, this.bloodPuddleSprites.length);
 			var bloodPuddle = this.game.add.sprite(zombie.position.x, zombie.position.y, this.bloodPuddleSprites[bloodPuddleSprite]);
