@@ -1091,7 +1091,7 @@ Brainstein.Game = {
 			})	
 		}else{
 			$.get("/getPlayer1Shots", function(player1Shots){
-				if(player1Shots.length != 0){
+				if(player1Shots.posX != -1){
 					otherPlayerShots = player1Shots;
 					Brainstein.Game.updateOtherPlayerShots(otherPlayerShots);
 				}
@@ -1107,19 +1107,21 @@ Brainstein.Game = {
 			s.rotation = otherPlayerShots.rotation;
 			s.speed = otherPlayerShots.speed;
 			s.weaponName = otherPlayerShots.weaponName;
+			s.lookAt = otherPlayerShots.rotation;
 
 			if(s.weaponName == "pistol"){
 				s.loadTexture('pistolBullet');
 				s.damage = this.player.pistol.damage;
 				this.pistolshot.play();
 			}else{
+				s.lookAt -= Math.PI/2;
 				s.loadTexture('akBullet');
-				s.rotation -= Math.PI / 2;
+				//s.rotation -= Math.PI / 2;
 				s.damage = this.player.ak.damage;
 				this.akshot.play();
 			}
 			s.reset(s.x, s.y);
-			s.body.velocity.setToPolar(s.rotation,s.speed);
+			s.body.velocity.setToPolar(s.lookAt,s.speed);
 			
 			this.enemyShots[this.actualEnemyShot] = s;
 			this.actualEnemyShot++;
@@ -1488,12 +1490,12 @@ Brainstein.Game = {
 				posX: player.shot[player.actualShot].position.x,
 				posY: player.shot[player.actualShot].position.y,
 				rotation: player.shot[player.actualShot].rotation,
-
+				//lookAt : player.shot[player.actualShot].rotation,
 				weaponName : weapon.name,
 				playerShotingID : player.playerID,
 				speed: weapon.speed
 
-			}
+			};
 			   shotInfo = JSON.stringify(shotInfo);
 
 				$.ajax("/postShots", 
