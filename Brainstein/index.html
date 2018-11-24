@@ -4,16 +4,21 @@
 		<meta charset="utf-8">
 		<title>Brainstein</title>
 
-		<script type="text/javascript" src="js/libraries/phaser.js"></script>
-		<script type="text/javascript" src="js//libraries/easystar.js"></script>
-		<script type="text/javascript" src="js/libraries/rStats.js"></script>
+		<!-- External libraries -->
+		<script type="text/javascript" src="scripts/phaser.js"></script>
+		<script type="text/javascript" src="scripts/easystar.js"></script>
+		<script type="text/javascript" src="scripts/rStats.js"></script>
 
-		<script type="text/javascript" src="js/states/Boot.js"></script>
-		<script type="text/javascript" src="js/states/Preload.js"></script>
-		<script type="text/javascript" src="js/states/MainMenu.js"></script>
-		<script type="text/javascript" src="js/states/LevelSelection.js"></script>
-		<script type="text/javascript" src="js/states/Game.js"></script>
-		<script type="text/javascript" src="js/states/GameOver.js"></script>
+		<!-- States -->
+		<script type="text/javascript" src="src/states/Boot.js"></script>
+		<script type="text/javascript" src="src/states/Preload.js"></script>
+		<script type="text/javascript" src="src/states/MainMenu.js"></script>
+		<script type="text/javascript" src="src/states/LevelSelection.js"></script>
+		<script type="text/javascript" src="src/states/Game.js"></script>
+		<script type="text/javascript" src="src/states/GameOver.js"></script>
+
+		<!-- Objects -->
+		<script type="text/javascript" src="src/objects/player.js"></script>
 
 		<link href="https://fonts.googleapis.com/css?family=Chakra Petch" rel="stylesheet">
 		<style>
@@ -33,6 +38,6 @@
 
 	<body>  
 		<!-- include the main game file -->
-		<script src="js/main.js"></script>
+		<script src="src/index.js"></script>
 	</body>
 </html>
