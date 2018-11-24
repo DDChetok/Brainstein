@@ -649,13 +649,18 @@ Brainstein.Game = {
 
 		this.receiveBrainInfo();
 		
+		if(Brainstein.userID != 0){
+			this.receiveNewDrops();
+		}
+		
 		this.receiveLastDropKilled();
+
 		this.framesWithoutPlayerInfo += 1;
 		this.framesWithoutEnemiesInfo += 1;
 		this.recievedPlayerInfoThisFrame = false;
 		this.recievedEnemyInfoThisFrame = false;	
 
-		if(this.otherPlayers.length > 0)console.log(Brainstein.Game.otherPlayers[0].position);
+		//if(this.otherPlayers.length > 0)console.log(Brainstein.Game.otherPlayers[0].position);
 	},
 
 	updatePlayer(player){
@@ -1287,6 +1292,30 @@ Brainstein.Game = {
 		})
 	},
 
+	sendAreNewDrops(areNewDrops){
+		areNewDrops = JSON.stringify(areNewDrops);
+		$.ajax("/postNewDrops", 
+		{
+			method: "POST",
+			data: areNewDrops,		
+			processData: false,					
+			
+			headers:{
+				"Content-Type": "application/json"
+			},
+		})
+	},
+
+	receiveNewDrops(){ //Si tenemos nuevos drops,llamamos al get que nos los coge del servidor
+		$.get("/getNewDrops", function(areNewDrops){
+			if(areNewDrops == true){
+				Brainstein.Game.receiveDropsInfo();
+				var n = false;
+				Brainstein.Game.sendAreNewDrops(n);
+			}	
+		});
+	},
+
 	receiveDropsInfo(){
 		$.get("/getDrop", function(drops){
 			Brainstein.Game.updateDropsInfo(drops);
@@ -1294,23 +1323,8 @@ Brainstein.Game = {
 	},
 
 	updateDropsInfo(drops){
-		var count = 0;
-		var newDrops = false;
-		for(j = 0; j < this.actualDrops; j++){ //Miro si ha cambiado algun drop del servidor respecto a los que tengo 
-			if(drops[j].posX == this.drops[j].position.x){
-				count++;
-			}
-		}
-		if(count == this.actualDrops){ //Si todos siguen igual, sigo mirando a ver si cambian
-			this.receiveDropsInfo();
-			newDrops = false;
-		}else{
-			newDrops = true;
-		}
-
-		if(newDrops == true)
-		{
 			for(i = 0;i < this.maxDrops;i++){
+				this.drops[i].alive = true;
 				this.drops[i].position.x = drops[i].posX;
 				this.drops[i].position.y = drops[i].posY;
 				//this.drops[i] = this.game.add.sprite(this.drops[i].posX, this.drops[i].posY, 'drop');
@@ -1324,7 +1338,6 @@ Brainstein.Game = {
 
 				this.game.physics.arcade.enable(this.drops[i]);
 			}
-		}
 	},
 
 	receiveLastDropKilled(){
@@ -1391,9 +1404,9 @@ Brainstein.Game = {
 			this.restTimer.resume();
 			this.actualRound++;
 			
-			if(Brainstein.userID == 0){
+			
 				this.dropTimer.resume();
-			}
+			
 			
 			this.teleportBrain();
 		}
@@ -1964,7 +1977,9 @@ Brainstein.Game = {
 			if(Brainstein.userID == 0){
 				for(i = 0; i < this.maxDrops;i++){
 					var dropPos = this.getPositionFromCoord(this.getRandomTile());
-					
+						/*{x: 100 + (i*200),
+						y: 100 + (i*200)
+					};*/
 					this.drops[i].alive = true;
 					this.drops[i].position.x = dropPos.x;
 					this.drops[i].position.y = dropPos.y;
@@ -1983,14 +1998,13 @@ Brainstein.Game = {
 					this.drops[i].health = this.game.rnd.integerInRange(5, 15);
 
 					this.sendDropsInfo(this.drops[i]);
-					//this.drops[i] = myDrop;
 				}
-			}else{
-				this.receiveDropsInfo();
+				var n = true;
+				this.sendAreNewDrops(n); //Decimos al servidor que hay drops nuevos apra coger
 			}
 			//this.game.physics.arcade.enable(this.drops);
-			this.dropTimer.pause();
-			this.dropTimer.add(1000, this.createDrop, this);
+			//this.dropTimer.pause();
+			this.dropTimer.add(3000, this.createDrop, this);
 			
 		}
 
