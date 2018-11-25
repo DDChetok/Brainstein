@@ -18,7 +18,7 @@ public class PlayerController {
 	
 	Brain brainInfo = new Brain();
 	
-	public List<Drop> drops = new ArrayList<>();
+	public ArrayList<Drop> drops = new ArrayList<>();
 	public boolean newDrops = false;
 	public Integer lastDropKilled = new Integer(-1);
 	
@@ -192,8 +192,6 @@ public class PlayerController {
 	
 	@GetMapping(value = "/getBrain")
 	public Brain getBrainInfo(){
-		//Brain br = brainInfo;
-		//brainInfo = new Brain();
 		return brainInfo;
 	}
 
@@ -207,7 +205,8 @@ public class PlayerController {
 	
 	@GetMapping(value = "/getDrop")
 	public List<Drop> getDrops(){
-		List<Drop> d = drops;
+		List<Drop> d = new ArrayList<Drop>(drops);
+		drops.clear();
 		return d;
 	}
 	
