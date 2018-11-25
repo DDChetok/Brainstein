@@ -464,6 +464,7 @@ Brainstein.Game = {
 		zombie.actualHp = zombie.hp;	
 		zombie.damage = 5;
 		zombie.pos = this.enemyCount;
+		zombie.enemyID = zombie.pos;
 
 		zombie.velX = 0;
 		zombie.velY = 0;
@@ -784,7 +785,7 @@ Brainstein.Game = {
 		
 	},	
 
-	updateServerEnemies(enemiesUpdated){
+	updateServerEnemies(enemiesUpdated){	
 		if(this.enemies.length == enemiesUpdated.length){
 			for(var i = 0; i < enemiesUpdated.length; i++){
 				this.enemies[i].previousPosX = this.enemies[i].position.x;
@@ -804,9 +805,10 @@ Brainstein.Game = {
 				this.enemies[i].pathStep = 1;
 				this.updateEnemy(this.enemies[i]);*/
 			}
+		}		
 
-			this.framesWithoutEnemiesInfo = 0;
-		}
+		this.framesWithoutEnemiesInfo = 0;
+		
 	},
 
 	updateOtherEnemiesWithCurrentInfo(){
@@ -1192,7 +1194,7 @@ Brainstein.Game = {
 				//s.rotation -= Math.PI / 2;
 				s.damage = this.player.ak.damage;
 				this.akshot.play();
-				s.rotation -= Math.PI / 2;
+				//s.rotation -= Math.PI / 2;
 				s.damage = this.player.ak.damage;
 			}
 			s.reset(s.x, s.y);
@@ -1362,7 +1364,25 @@ Brainstein.Game = {
 		$.get("/getPlayers", function(players){
 			for(var i = 0; i < players.length; i++){
 				if(players[i].playerID == Brainstein.userID){
-					Brainstein.Game.player.dead = players[i].playerID;
+					Brainstein.Game.player.dead = players[i].dead;
+					if(!Brainstein.Game.player.dead){
+
+						Brainstein.Game.player.body.enable = true;
+						Brainstein.Game.player.actualHp = Brainstein.Game.player.hp / 4;
+						Brainstein.Game.healthBarPercent(Brainstein.Game.player, Brainstein.Game.player.actualHp);
+
+						switch(Brainstein.Game.player.weapon){
+							case ("pistol"):
+								Brainstein.Game.player.loadTexture(Brainstein.Game.player.sprites[0]);
+								break;
+							case ("ak"):
+								Brainstein.Game.player.loadTexture(Brainstein.Game.player.sprites[1]);
+								break;
+							case ("shotgun"):
+								Brainstein.Game.player.loadTexture(Brainstein.Game.player.sprites[2]);
+								break;
+						}
+					}
 				}
 			}
 		})
@@ -1498,7 +1518,7 @@ Brainstein.Game = {
 			this.muertezombie.play();
 
 			this.enemyCount--;
-			if(Brainstein.userID == 0)this.killEnemyInServer(zombie.pos);
+			if(Brainstein.userID == 0) this.killEnemyInServer(zombie.enemyID);
 
 			var bloodPuddleSprite = this.game.rnd.integerInRange(0, this.bloodPuddleSprites.length);
 			var bloodPuddle = this.game.add.sprite(zombie.position.x, zombie.position.y, this.bloodPuddleSprites[bloodPuddleSprite]);
@@ -2213,7 +2233,7 @@ Brainstein.Game = {
 			},
 		});
 
-		this.healthBarPercent(playerDead, playerDead.actualHp / 30);
+		this.healthBarPercent(playerDead, playerDead.actualHp);
 
 		playerAlive.resurrecting = false;
 
