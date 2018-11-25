@@ -113,7 +113,6 @@ Brainstein.Game = {
 		//----------------DROPS-------------------
 		this.dropTime = 2;
 		this.maxDrops = 6;
-		this.actualDrops = this.maxDrops;
 		
 		this.drops = [];
 		for(i = 0; i < this.maxDrops;i++){
@@ -1327,7 +1326,8 @@ Brainstein.Game = {
 	},
 
 	updateDropsInfo(drops){
-			for(i = 0;i < this.maxDrops;i++){
+			for(i = 0;i < drops.length;i++){
+				if(this.drops[i] != undefined){
 				this.drops[i].revive();
 				this.drops[i].position.x = drops[i].posX;
 				this.drops[i].position.y = drops[i].posY;
@@ -1341,6 +1341,7 @@ Brainstein.Game = {
 				this.drops[i].alpha = 1;
 
 				this.game.physics.arcade.enable(this.drops[i]);
+				}	
 			}
 	},
 
@@ -2024,7 +2025,6 @@ Brainstein.Game = {
 						},
 					})	
 				}
-				//this.sendAreNewDrops(n); //Decimos al servidor que hay drops nuevos apra coger
 			}	
 			//this.dropTimer.pause();
 			this.dropTimer.add(5000, this.createDrop, this);
@@ -2091,9 +2091,17 @@ Brainstein.Game = {
 		row = this.game.rnd.integerInRange(0, this.levelDimensions.rows - 1);
 		column = this.game.rnd.integerInRange(0, this.levelDimensions.columns - 1);
 
-		while(this.gridIndices[column][row] != -1){
-			row = this.game.rnd.integerInRange(0, this.levelDimensions.rows);
-			column = this.game.rnd.integerInRange(0, this.levelDimensions.columns);
+		while(column >= this.levelDimensions.columns){
+			column = this.game.rnd.integerInRange(0, this.levelDimensions.columns - 1);
+		}
+
+		while(row >= this.levelDimensions.rows){
+			row = this.game.rnd.integerInRange(0, this.levelDimensions.rows - 1);
+		}
+
+		while(column >= this.levelDimensions.columns || row >= this.levelDimensions.rows || this.gridIndices[column][row] != -1){
+			row = this.game.rnd.integerInRange(0, this.levelDimensions.rows - 1);
+			column = this.game.rnd.integerInRange(0, this.levelDimensions.columns - 1);
 		}
 
 		return {row: row, column: column};

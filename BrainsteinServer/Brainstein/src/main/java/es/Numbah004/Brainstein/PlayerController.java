@@ -205,8 +205,8 @@ public class PlayerController {
 	
 	@GetMapping(value = "/getDrop")
 	public List<Drop> getDrops(){
-		List<Drop> d = new ArrayList<Drop>(drops);
-		drops.clear();
+		List<Drop> d = new ArrayList<>(drops);
+		drops = new ArrayList<>();
 		return d;
 	}
 	
@@ -222,18 +222,6 @@ public class PlayerController {
 		Integer i = lastDropKilled;
 		//lastDropKilled = -1;
 		return i;
-	}
-	
-	@PostMapping(value="/postNewDrops")
-	public ResponseEntity<Boolean> postDropID(@RequestBody boolean areNewDrops)
-	{	
-		newDrops = areNewDrops;
-		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 				
-	}
-	
-	@GetMapping(value = "/getNewDrops")
-	public boolean getNewDrops(){
-		return newDrops;
 	}
 
 
