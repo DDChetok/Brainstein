@@ -2024,13 +2024,13 @@ Brainstein.Game = {
 						},
 					})	
 				}
-				//this.sendAreNewDrops(n); //Decimos al servidor que hay drops nuevos apra coger
-			}else{
-				this.receiveDropsInfo();
-			}
+			}	
 			//this.dropTimer.pause();
 			this.dropTimer.add(5000, this.createDrop, this);
 			
+			if(Brainstein.userID != 0){
+				this.receiveDropsInfo();
+			}
 		}
 
 	},
