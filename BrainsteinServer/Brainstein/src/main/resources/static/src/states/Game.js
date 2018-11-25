@@ -371,7 +371,12 @@ Brainstein.Game = {
 
 			for(var i = 0; i < playersConnected.length; i++){				
 				if(playersConnected[i].playerID != Brainstein.userID){
-					var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "erwin");
+					if(playersConnected[i].playerID == 0){
+						var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "erwin");
+					}else{
+						var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "darwin");
+					}
+
 					otherPlayer.anchor.setTo(0.25, 0.5);
 
 					//otherPlayer.playerID = Brainstein.Game.otherPlayers.length + 1;
@@ -402,11 +407,11 @@ Brainstein.Game = {
 					Brainstein.Game.game.physics.arcade.enable(otherPlayer);	
 					otherPlayer.body.collideWorldBounds = true;
 
-					if(otherPlayer.playerID == 1){
+					/*if(otherPlayer.playerID == 1){
 						otherPlayer.loadTexture("darwin");
-					}
+					}*/
 
-					if(Brainstein.userID == 0){
+					if(otherPlayer.playerID == 0){
 						otherPlayer.sprites = ["erwin", "erwinAk", "erwinShotgun"];
 					} else	{
 						otherPlayer.sprites = ["darwin", "darwinAk", "darwinShotgun"];
@@ -647,7 +652,7 @@ Brainstein.Game = {
 		this.recievedPlayerInfoThisFrame = false;
 		this.recievedEnemyInfoThisFrame = false;	
 
-		if(this.enemies.length > 0)console.log(Brainstein.Game.enemies[0].position);
+		//if(this.enemies.length > 0)console.log(Brainstein.Game.enemies[0].position);
 	},
 
 	updatePlayer(player){
@@ -1533,7 +1538,7 @@ Brainstein.Game = {
 		player.resources += drop.resources;
 		player.actualHp += drop.health;
 		if(player.actualHp > 30) player.actualHp = 30;
-		this.healthBarPercent(player, player.actualHp / 30);
+		this.healthBarPercent(player, player.actualHp);
 		player.dropCatchedTimer.resume();
 		player.dropCatchedText.setText(drop.shotgunAmmo + " Balas escopeta\n" + drop.akAmmo + " Balas AK");
 	},

@@ -96,6 +96,21 @@ public class PlayerController {
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}
 	
+	@PostMapping(value = "/killPlayer")
+	public ResponseEntity<Boolean> KillPlayer(@RequestBody Player player) {
+		players.get(player.playerID).dead = true;
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 	
+	}
+	
+	@PostMapping(value = "/resurrectPlayer")
+	public ResponseEntity<Boolean> ResurrectPlayer(@RequestBody Player player) {
+		players.get(player.playerID).dead = false;
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 	
+	}
+	
+	
 	@PostMapping(value = "/updatePlayer")
 	public ResponseEntity<Boolean> UpdatePlayer(@RequestBody Player player) {		
 		players.get(player.playerID).posX = player.posX;
