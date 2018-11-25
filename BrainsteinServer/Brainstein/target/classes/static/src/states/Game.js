@@ -790,7 +790,7 @@ Brainstein.Game = {
 
 				this.enemies[i].rotation = enemiesUpdated[i].rotation;
 
-				if(this.framesWithoutEnemiesInfo == 0) this.framesWithoutPlayerInfo == 0;
+				if(this.framesWithoutEnemiesInfo == 0) this.framesWithoutEnemyInfo = 1;
 
 				this.enemies[i].velX = (this.enemies[i].previousPosX - this.enemies[i].position.x) / this.framesWithoutEnemiesInfo;
 				this.enemies[i].velY = (this.enemies[i].previousPosY - this.enemies[i].position.y) / this.framesWithoutEnemiesInfo;				
