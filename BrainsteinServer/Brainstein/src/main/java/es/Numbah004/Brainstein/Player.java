@@ -16,4 +16,7 @@ public class Player {
 	//HP
 	public float hp;	
 	public String weapon;	
+	public boolean dead = false;
+	
+	
 }
