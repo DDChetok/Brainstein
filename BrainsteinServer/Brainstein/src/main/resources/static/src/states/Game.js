@@ -730,21 +730,26 @@ Brainstein.Game = {
 					this.healthBarPercent(this.otherPlayers[i], this.otherPlayers[i].actualHp);
 
 					this.otherPlayers[i].dead = playersUpdated[j].dead;
-					if(this.otherPlayers[i].dead) this.otherPlayers[i].loadTexture(this.otherPlayers[i].deadSprite); 
+					if(this.otherPlayers[i].dead){
+						this.otherPlayers[i].loadTexture(this.otherPlayers[i].deadSprite); 
+					} 
 
 					//Shooting
 					this.otherPlayers[i].weapon = playersUpdated[j].weapon;
-					switch(this.otherPlayers[i].weapon){
-						case ("pistol"):
-							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[0]);
-							break;
-						case ("ak"):
-							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[1]);
-							break;
-						case ("shotgun"):
-							this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[2]);
-							break;
-					}					
+					if(!this.otherPlayers[i].dead){
+						switch(this.otherPlayers[i].weapon){
+							case ("pistol"):
+								this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[0]);
+								break;
+							case ("ak"):
+								this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[1]);
+								break;
+							case ("shotgun"):
+								this.otherPlayers[i].loadTexture(this.otherPlayers[i].sprites[2]);
+								break;
+						}
+					}
+
 				}							
 			}
 		}	
