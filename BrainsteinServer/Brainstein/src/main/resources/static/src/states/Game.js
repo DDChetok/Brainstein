@@ -150,6 +150,18 @@ Brainstein.Game = {
 		this.backgroundMusic.play();
 		this.backgroundMusic.volume = 0.5;
 
+        //Guns
+        this.pistolshot = this.game.add.audio('pistolshot');
+        this.muertezombie = this.game.add.audio('muertezombie');
+		this.akshot = this.game.add.audio('akshot');
+		this.sgunshot = this.game.add.audio('sgunshot');
+
+		this.ouch = this.game.add.audio('ouch');
+		//Others
+		this.dropsound = this.game.add.audio('dropsound');
+		this.resurrectharp = this.game.add.audio('resurrectharp');
+		this.deathbell = this.game.add.audio('deathbell');
+
 		//-----------------CAMERA VARIABLES-----------------		
 		this.game.camera.target = null;
 		this.game.time.desiredFps = 30;		
@@ -169,11 +181,7 @@ Brainstein.Game = {
 		//-----------------PARTICLE VARIABLES-----------------
 		this.emitter = this.game.add.emitter(0, 0, 100);
 		this.emitter.makeParticles("bulletParticle");	
-		////-----------------SOUNDS VARIABLES-----------------
-        //Guns
-        this.pistolshot = this.game.add.audio('pistolshot');
-        this.muertezombie = this.game.add.audio('muertezombie');
-        this.akshot = this.game.add.audio('akshot');
+	
 	},	
 
 	createLevel: function(){
@@ -653,6 +661,19 @@ Brainstein.Game = {
 		this.recievedPlayerInfoThisFrame = false;
 		this.recievedEnemyInfoThisFrame = false;	
 
+			//Checks if all players are dead
+			var gameOver = true;		
+			if(!this.player.dead){
+				gameOver = false;
+			}
+	
+			for(i = 0;i < this.otherPlayers.length;i++){
+				if(!this.otherPlayers[i].dead){
+					gameOver = false;
+				}
+			}
+	
+			if(gameOver) this.gameOver();
 		//if(this.enemies.length > 0)console.log(Brainstein.Game.enemies[0].position);
 	},
 
@@ -1218,6 +1239,8 @@ Brainstein.Game = {
 				s.loadTexture('shotgunBullet');
 				s.reset(s.x, s.y);
 				
+				this.sgunshot.play();
+
 				if(i == 0){
 					var angle = s.rotation;
 				}else{
@@ -1371,6 +1394,8 @@ Brainstein.Game = {
 						Brainstein.Game.player.actualHp = Brainstein.Game.player.hp / 4;
 						Brainstein.Game.healthBarPercent(Brainstein.Game.player, Brainstein.Game.player.actualHp);
 
+						Brainstein.Game.resurrectharp.play();
+
 						switch(Brainstein.Game.player.weapon){
 							case ("pistol"):
 								Brainstein.Game.player.loadTexture(Brainstein.Game.player.sprites[0]);
@@ -1493,6 +1518,9 @@ Brainstein.Game = {
 		if(player.beingPushed == false){
 			player.beingPushed = true;			
 			player.actualHp -= zombie.damage;
+			
+			this.ouch.play();
+
 			this.healthBarPercent(player, player.actualHp)
 				if(player.actualHp <= 0){
 					this.killPlayer(player);		
@@ -1558,6 +1586,9 @@ Brainstein.Game = {
 		});
 		
 		drop.kill();
+
+		this.dropsound.play();
+
 		player.shotgunActualAmmo += drop.shotgunAmmo;
 		player.akActualAmmo += drop.akAmmo;
 		player.resources += drop.resources;
@@ -1723,6 +1754,8 @@ Brainstein.Game = {
 
 			weapon.fireRate = 600;
 			
+			this.sgunshot.play();
+
 			player.shotgun.actualMagazine -= weapon.numberOfBullets;
 			
     	}
@@ -2160,15 +2193,16 @@ Brainstein.Game = {
 	
 	//#region [rgba(362, 100, 82, 0.1)] GAME OVER METHODS
 	gameOver: function(){	
-		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
-
+		this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
 
 	fadeComplete: function(){
+		this.backgroundMusic.stop();
 		this.state.start('GameOver');
+
 	},
 	//#endregion
 
@@ -2178,6 +2212,8 @@ Brainstein.Game = {
 		player.body.enable = false;
 		player.loadTexture('deadPlayer');	
 		player.holdingBrain = false;
+
+		this.deathbell.play();
 
 		var player = {
 			playerID: player.playerID
@@ -2197,13 +2233,7 @@ Brainstein.Game = {
 		});
 
 
-		//Checks if all players are dead
-		var gameOver = true;		
-		if(!this.player.dead){
-			gameOver = false;
-		}
-
-		if(gameOver) this.gameOver();
+	
 	},
 
 	resurrectPlayer: function(playerDead,playerAlive){
@@ -2236,6 +2266,8 @@ Brainstein.Game = {
 		this.healthBarPercent(playerDead, playerDead.actualHp);
 
 		playerAlive.resurrecting = false;
+		
+		this.resurrectharp.play();
 
 	},
 	//#endregion	

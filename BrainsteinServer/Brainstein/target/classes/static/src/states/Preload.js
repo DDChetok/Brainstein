@@ -21,6 +21,7 @@ Brainstein.Preload = {
 		this.load.image('gameTiles', 'assets/images/tilesheet_complete_2X.png');
 		this.load.image('mainMenuSplash','assets/images/menu_ppal.png');
 		this.load.image('mainMenuSplashEnter','assets/images/menu_ppal.png');
+
 		this.load.image('mainMenuFlat','assets/images/menu ppal 2.png');
 		this.load.image('menuDarwin','assets/images/menu_darwin_2.png');
 		this.load.image('menuErwin','assets/images/menu_erwin_2.png');
@@ -63,13 +64,19 @@ Brainstein.Preload = {
 		//Music
 		this.load.audio('keyboardSound', 'assets/music/keyboard sound2.mp3');
 		this.load.audio('mainMenuMusic', 'assets/music/main menu music2.mp3');
+		this.load.audio('gameBackgroundMusic', 'assets/music/Mayhem_Looping.mp3');
 		this.load.audio('pressEnterSound', 'assets/music/press enter sound.mp3');
 		this.load.audio('switchOptionSound', 'assets/music/switch option sound.mp3');
-		this.load.audio('gameBackgroundMusic', 'assets/music/Mayhem_Looping.mp3');
-		
 		this.load.audio('pistolshot', 'assets/music/pistol shot.wav');
-        this.load.audio('akshot', 'assets/music/ak shot.wav');
-        this.load.audio('muertezombie', 'assets/music/muertezombie.wav');
+		this.load.audio('akshot', 'assets/music/ak shot 2.wav');
+		this.load.audio('sgunshot', 'assets/music/sgun shot.wav');
+		this.load.audio('dropsound', 'assets/music/drop.wav');
+		this.load.audio('ouch', 'assets/music/ouch.wav');
+		this.load.audio('resurrectharp', 'assets/music/resurrect harp.wav');
+		this.load.audio('muertezombie', 'assets/music/muertezombie.wav');
+		this.load.audio('deathbell', 'assets/music/death bell.wav');
+
+		this.load.audio('gameOver', 'assets/music/game over piano.wav');
 	},
 
 	create: function(){
