@@ -96,6 +96,21 @@ public class PlayerController {
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}
 	
+	@PostMapping(value = "/killPlayer")
+	public ResponseEntity<Boolean> KillPlayer(@RequestBody Player player) {
+		players.get(player.playerID).dead = true;	
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
+	}
+	
+	
+	@PostMapping(value = "/resurrectPlayer")
+	public ResponseEntity<Boolean> ResurrectPlayer(@RequestBody Player player) {
+		players.get(player.playerID).dead = false;	
+		
+		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
+	}
+	
 	@PostMapping(value = "/updatePlayer")
 	public ResponseEntity<Boolean> UpdatePlayer(@RequestBody Player player) {		
 		players.get(player.playerID).posX = player.posX;
@@ -104,8 +119,7 @@ public class PlayerController {
 		
 		players.get(player.playerID).hp = player.hp;
 		
-		players.get(player.playerID).weapon = player.weapon;
-		
+		players.get(player.playerID).weapon = player.weapon;		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
 	}	
 
@@ -127,7 +141,7 @@ public class PlayerController {
 	
 	@PostMapping(value = "/postEnemyCount")
 	//No se recuerda una mayor guarrila
-	public ResponseEntity<Boolean> PostEnemyCount(@RequestBody Player count) {		
+	public ResponseEntity<Boolean> PostEnemyCçunt(@RequestBody Player count) {		
 		enemyCount = count.playerID;
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
@@ -139,7 +153,7 @@ public class PlayerController {
 			//enemies.get(i).path = h.enemies.get(i).path;
 			enemies.get(i).posX = h.enemies.get(i).posX;
 			enemies.get(i).posY = h.enemies.get(i).posY;
-			enemies.get(i).rotation = h.enemies.get(i).rotation;			
+			enemies.get(i).rotation = h.enemies.get(i).rotation;				
 		}
 		
 		return new ResponseEntity<Boolean>(true, HttpStatus.ACCEPTED); 		
@@ -235,6 +249,8 @@ public class PlayerController {
 	public boolean getNewDrops(){
 		return newDrops;
 	}
+	
+	
 
 
 }
