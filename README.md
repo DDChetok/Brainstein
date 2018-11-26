@@ -38,7 +38,7 @@ En esta sección se explicará en detalle las mecánicas de *Brainstein*, tanto 
 El objetivo del juego es conseguir sobrevivir la mayor cantidad posible de oleadas. Cada oleada, tanto el número como la dificultad de los enemigos aumentará. Los jugadores deberán evitar que los zombis destruyan el cerebro de Einstein o que la vida de ambos llegue a cero en la misma oleada.
 
 ### 2.2 Armas
-Para poder hacer frente a los zombis, los jugadores podrán contar con un abanico de armas que usarán para matarlos. Todas las armas tendrán una munición máxima y actual. Cuando la munición actual llegue a 0, el jugador ya no podrá utilizarla. Ambos jugadores empezarán con una pistola. Para conseguir munición o armas, durante las oleadas y de manera aleatoria, caerán paquetes de ayuda en cualquier parte de la pantalla. Cuando un jugador recoge una de estas cajas, consigue munición. Es posible que la caja además contenga una nueva arma. Las armas disponibles en el juego son:
+Para poder hacer frente a los zombis, los jugadores podrán contar con un abanico de armas que usarán para matarlos. Todas las armas tendrán una munición máxima y actual. Cuando la munición actual llegue a 0, el jugador ya no podrá utilizarla. Ambos jugadores empezarán con una pistola. Para conseguir munición o armas, durante las oleadas y de manera aleatoria, caerán paquetes de ayuda en cualquier parte de la pantalla. Cuando un jugador recoge una de estas cajas, consigue munición y salud. Las armas disponibles en el juego son:
 - Pistola: arma básica con la que empiezan ambos jugadores. Es el arma que menos daño hace a los enemigos. Además, solo dispara una bala cada vez, no dispara en área y tiene un alcance medio.
 - Rifle de Asalto: puede disparar muchas balas muy rápido, aunque el daño de cada bala no es muy elevado. Tiene un gran alcance. 
 - Escopeta: tiene poco alcance, pero dispara varias balas en un área en forma de cono delante del jugador.
@@ -55,7 +55,7 @@ Para la inteligencia artificial de los zombis se utilizará el algoritmo A*, en 
 Para facilitar la implementación del algoritmo A*, se utilizará la librería [EasyStar](https://www.easystarjs.com/).
 
 ### 2.5 El cerebro de Einstein 
-El preciado cerebro de Einstein es lo que ambos jugadores deben defender con sus vidas. Tiene una cantidad de vida predefinida, y si esta llega a cero los jugadores pierden. Si los jugadores consideran que el cerebro está en una zona peligrosa o poco ventajosa, tienen la opción de moverlo. Para ello, uno de los jugadores tendrá que cogerlo para llevarlo a otro lugar. Mientras lo tenga cogido, se moverá más lento, no podrá disparar ni podrá abrir o cerrar puertas. Siempre tiene la opción de dejarlo en un punto arbitrario del camino para recogerlo más tarde.
+El preciado cerebro de Einstein es lo que ambos jugadores deben defender con sus vidas. Tiene una cantidad de vida de un golpe, por tanto si es golpeado por los zombis, los jugadores pierden. Si los jugadores consideran que el cerebro está en una zona peligrosa o poco ventajosa, tienen la opción de moverlo. Para ello, uno de los jugadores tendrá que cogerlo para llevarlo a otro lugar. Mientras lo tenga cogido, se moverá más lento, no podrá disparar ni podrá abrir o cerrar puertas. Siempre tiene la opción de dejarlo en un punto arbitrario del camino para recogerlo más tarde.
 
 Si ambos jugadores están muertos a la vez, pierden. Sin embargo, puede darse la situación en la que solo uno de los jugadores este muerto. En este caso, el jugador que está vivo puede ir hasta la posición del jugador derrotado para intentar resucitarle. Resucitar lleva tiempo y no se podrá disparar mientras se realiza. Si el proceso se interrumpe se deberá reiniciar desde cero. No hay limite de tiempo para hacerlo, siempre y cuando el otro jugador este vivo. 
 
@@ -94,16 +94,16 @@ Lista y descripción de todos los componentes del *Menú principal*:
 *Cambios en el menú*
 
 ### 4.2 Asignación de personajes
-En esta pantalla será cuando se busque a otro jugador para poder comenzar la partida. Una vez encontrado, los jugadores decidirán quien será Erwin y quien será Darwin. Una vez seleccionado, el juego les llevará automáticamente a la pantalla de *Selección de mapa*.
+El primer jugador en entrar y conectarse al juego será Erwin, por tanto, el segundo controlará a Darwin.
 
 ### 4.3 Selección de mapa
-En esta pantalla los jugadores podrán elegir el mapa en la que querrán jugar, así como opciones especiales que quieran aplicar a su partida (handicap, más probabilidad de objetos, menos, etc...)
+En esta pantalla los jugadores podrán elegir el mapa en la que querrán jugar. Actualmente hay 3 mapas: Laboratorio (mapa grande), Zombiehenge (una isla pequeña) y Rathlabyrinth (mapa laberinto).
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Mapa%201.jpeg)
-*Prototipo mapa 1*
+*Captura Laboratorio*
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Mapa%202.jpeg)
-*Prototipo mapa 2*
+*Captura Zombiehenge*
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Mapa%203.jpeg)
-*Prototipo mapa 3*
+*Captura Ratlabyrinth*
 
 ### 4.4 Partida
 Aquí los jugadores podrán jugar a la vez que pueden consultar de un vistazo información relevante para la partida:
@@ -120,16 +120,17 @@ Al ser derrotados, aparecerá un texto en mitad de la pantalla para informar a l
 *Versión 2 del texto de derrota*
 
 ### 4.5 Opciones
-En todo momento se podrá acceder a la pantalla de opciones, desde la que se podrá:
+Posible ampliación: En todo momento se podrá acceder a la pantalla de opciones, desde la que se podrá:
 - Quitar el sonido y música del juego.
 - Reiniciar una partida.
 - Salir al menú principal.
 
 ## 5. Arte
 *Brainstein* debe tener un carácter desenfadado, con un estilo más bien caricaturésco, recalcando el absurdo de la situación. La música y los sonidos también deberán ir acorde con este tono. Crearemos recursos propios como sprites de zombis o personajes pero también utilizaremos assets de Kenney.
+Además, el juego cuenta con música en menús, efectos de sonido en este, durante el juego y en su final.
 
 ## 6. Matchmaking
-El emparejamiento entre jugadores se hará teniendo en cuenta el mayor récord de rondas que hayan hecho. Si un jugador ha llegado como mucho a 10 rondas, se buscarán jugadores que hayan llegado a sobrevivir entre 8 y 12 rondas. Si un jugador es la primera vez que juega y por lo tanto su máxima puntuación no está registrada, se le asignará como compañero otro nuevo jugador. Si en cualquier caso no se encontrase otro jugador con una puntuación similar al usuario, el emparejamiento se realizaría teniendo en cuenta la distancia física entre ambos, es decir, se asignará como compañero el jugador que esté más cerca del usuario (y con puntuación mas parecida) para evitar en la medida de lo posible problemas de conexión. Además se dispondrá de la opción de partida privada en el menú principal. Un jugador puede crear una partida privada con una contraseña (generada aleatoriamente por el sistema) y otro puede unirse a ella mediante la contraseña. Si un jugador crea una partida, esperará en la pantalla de asignación de personajes hasta que su compañero se una. Dentro de la partida se dispondrá de un chat para que los jugadores puedan comunicarse y plantear estrategias.
+IDEA: El emparejamiento entre jugadores se hará teniendo en cuenta el mayor récord de rondas que hayan hecho. Si un jugador ha llegado como mucho a 10 rondas, se buscarán jugadores que hayan llegado a sobrevivir entre 8 y 12 rondas. Si un jugador es la primera vez que juega y por lo tanto su máxima puntuación no está registrada, se le asignará como compañero otro nuevo jugador. Si en cualquier caso no se encontrase otro jugador con una puntuación similar al usuario, el emparejamiento se realizaría teniendo en cuenta la distancia física entre ambos, es decir, se asignará como compañero el jugador que esté más cerca del usuario (y con puntuación mas parecida) para evitar en la medida de lo posible problemas de conexión. Además se dispondrá de la opción de partida privada en el menú principal. Un jugador puede crear una partida privada con una contraseña (generada aleatoriamente por el sistema) y otro puede unirse a ella mediante la contraseña. Si un jugador crea una partida, esperará en la pantalla de asignación de personajes hasta que su compañero se una. Dentro de la partida se dispondrá de un chat para que los jugadores puedan comunicarse y plantear estrategias.
 
 ## 7. Posibles ampliaciones
 Aunque las mecánicas del juego son bastantes simples, el juego puede ser expandido si se ve que sobra tiempo o recursos. Posibles ampliaciones que se podrían efectuar son, por ejemplo:
@@ -137,6 +138,8 @@ Aunque las mecánicas del juego son bastantes simples, el juego puede ser expand
 - Nuevos tipos de zombis, que ataquen o tengan una distinción característica, como, por ejemplo, que exploten.
 - Nuevos personajes, un nuevo compañero de Erwin y Darwin, como por ejemplo el gato de Erwin.
 - Nuevos escenarios.
+- El menú de opciones mencionado.
+- El matchmaking.
 Como se ha dicho más arriba, estas expansiones solo se plantearían, diseñarían o dessarollarían si se diese el caso de que sobrase tiempo o de que se extiendese la fecha límite habiendo acabado la base del juego.
 
 ## 8. Equipo desarrollador
