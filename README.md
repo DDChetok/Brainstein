@@ -28,6 +28,9 @@ Las características principales de *Brainstein* son:
 *Brainstein* supone una unión de varios géneros. A continuación, se exponen los géneros de los que toma elementos:
 - **Shooter**: género de videojuegos que tienen la característica común de permitir controlar un personaje que dispone de un arma que puede ser disparada a voluntad.
 - **Survival**: género ambientado en un ambiente hostil e intenso donde los jugadores empiezan con equipos mínimos y se les exige que recolecten recursos y sobrevivan el mayor tiempo posible.
+
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/images/charco_sangre_1.png)
+
 ### 1.4 Plataforma objetivo
 Este videojuego está pensado para ser jugado en navegadores web de ordenadores.
 
@@ -37,6 +40,10 @@ Este videojuego está pensado para ser jugado en navegadores web de ordenadores.
 - En algún lugar de la pantalla aparecerá el cerebro de Einstein, que podrá ser movido por los jugadores.
 - Los jugadores perderán si los zombis destruyen el cerebro de Eisntein o si la vida de ambos llega a 0 en la misma oleada.
 - Para defenderse los jugadores podrán usar armas para matar a los zombis.
+
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/Nuevos%20assets/In%20Game.png)
+*Erwin enfrentándose a una oleada de zombies*
+
 
 ### 1.6 Público objetivo
 *Brainstein* está dirigido a un amplio rango de jugadores mientras estos tengan conexión a internet. El tono desenfadado del juego hace que encaje mejor con un abanico de edad más joven.
@@ -52,6 +59,12 @@ Para poder hacer frente a los zombis, los jugadores podrán contar con un abanic
 - Pistola: arma básica con la que empiezan ambos jugadores. Es el arma que menos daño hace a los enemigos. Además, solo dispara una bala cada vez, no dispara en área y tiene un alcance medio.
 - Rifle de Asalto: puede disparar muchas balas muy rápido, aunque el daño de cada bala no es muy elevado. Tiene un gran alcance. 
 - Escopeta: tiene poco alcance, pero dispara varias balas en un área en forma de cono delante del jugador.
+
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/images/erwin%20rifle.png)
+*Erwin con el rifle de asalto*
+
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/images/darwin%20shotgun.png)
+*Darwin con escopeta*
 
 ### 2.3 Construcción:
 Esta mecánica al final ha sido eliminada del juego.
@@ -102,7 +115,7 @@ Lista y descripción de todos los componentes del *Menú principal*:
 - Botón jugar: Al pulsarlo cambian las opciones del menú, apareciendo "partida pública" y "partida privada" .Si pulsamos partida pública nos lleva a la pantalla de *Asiganción de personajes*. Si pulsamos partida privada el menú vuelve a cambiar para mostrar la posibilidad de crear una partida privada o de unirse a una ya creada. El botón para crear una partida privada lleva a la pantalla de "Asignación de personajes" mientras que el botón para unirse hace cambiar de nuevo el menú para mostrar el luegar donde introducir la clave de esa partida. Si la contraseña introducida es correcta, el jugador pasa a la pantalla de "Asignación de personaje" donde le está esperando su compañero. Cada vez que cambia el menú,este incluye un botó de "volver" para regresar al anterior menú. 
 - Botón opciones: al pulsarlo lleva a la pantalla *Opciones*.
 - Botón salir: al pulsarlo lleva de vuelta al Sistema Operativo. 
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/Menu%20principal.jpeg)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/Nuevos%20assets/Menu%20Principal.png)
 *Menú principal del juego*
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/Nuevos%20assets/Match%20Making.png)
 *Cambios en el menú*
