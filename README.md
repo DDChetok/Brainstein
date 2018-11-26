@@ -26,7 +26,7 @@ Este videojuego está pensado para ser jugado en navegadores web de ordenadores.
 - Habrá varias pantallas donde los jugadores podrán jugar.
 - En algún lugar de la pantalla aparecerá el cerebro de Einstein, que podrá ser movido por los jugadores.
 - Los jugadores perderán si los zombis destruyen el cerebro de Eisntein o si la vida de ambos llega a 0 en la misma oleada.
-- Para defenderse los jugadores podrán usar armas para matar a los zombis y podrán construir paredes y estructuras para retrasar e impedir el paso de los zombis, creando así una especie de fuerte.
+- Para defenderse los jugadores podrán usar armas para matar a los zombis.
 
 ### 1.6 Público objetivo
 *Brainstein* está dirigido a un amplio rango de jugadores mientras estos tengan conexión a internet. El tono desenfadado del juego hace que encaje mejor con un abanico de edad más joven.
@@ -40,28 +40,15 @@ El objetivo del juego es conseguir sobrevivir la mayor cantidad posible de olead
 ### 2.2 Armas
 Para poder hacer frente a los zombis, los jugadores podrán contar con un abanico de armas que usarán para matarlos. Todas las armas tendrán una munición máxima y actual. Cuando la munición actual llegue a 0, el jugador ya no podrá utilizarla. Ambos jugadores empezarán con una pistola. Para conseguir munición o armas, durante las oleadas y de manera aleatoria, caerán paquetes de ayuda en cualquier parte de la pantalla. Cuando un jugador recoge una de estas cajas, consigue munición. Es posible que la caja además contenga una nueva arma. Las armas disponibles en el juego son:
 - Pistola: arma básica con la que empiezan ambos jugadores. Es el arma que menos daño hace a los enemigos. Además, solo dispara una bala cada vez, no dispara en área y tiene un alcance medio.
-- AK-47: puede disparar muchas balas muy rápido, aunque el daño de cada bala no es muy elevado. Tiene un gran alcance. 
+- Rifle de Asalto: puede disparar muchas balas muy rápido, aunque el daño de cada bala no es muy elevado. Tiene un gran alcance. 
 - Escopeta: tiene poco alcance, pero dispara varias balas en un área en forma de cono delante del jugador.
-- Granada: explosiona en área al tiempo de ser disparada.
 
 ### 2.3 Construcción:
-Esta mecánica al final ha sido eliminada del juego
+Esta mecánica al final ha sido eliminada del juego.
 
 ### 2.4 Zombis
-Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso cerebro de Einstein. Hay varios tipos de zombi en el juego, cada uno con una vida o habilidades distintas. Cuando la vida de un zombi llega a cero, este zombi muere y otorga al jugador que le ha derrotado una cantidad de dinero definida por el tipo de zombi. Todos los zombis atacan cuerpo a cuerpo salvo una excepción. Los zombis aparecerán en el mapa a través de spawnpoints que habrá situados por el mapa, y aparecerá en uno de ellos de manera aleatoria.
-- Normie: el zombi más común. Tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra su camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura. El camino que escogerá se decidirá mediante un algoritmo de "Pathfinding", el A*, hasta que lleguen a golpear a los jugadores o al cerebro.
-- Tankie: es un zombi con una gran cantidad de vida. Se dirige en línea recta hacia el cerebro de Einstein, destruyendo cualquier estructura que se encuentre en su camino.
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/boceto%20tankie.png)
-*Boceto del tankie*
-- Zombi a propulsión: tiene una vida media, pero cuando se encuentra una estructura bloqueando el camino, en vez de atacarla, la saltará. Se dirigirá en línea recta saltando estructuras hasta el objetivo más cercano, es decir, el cerebro o alguno de los 2 jugadores.
-
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/boceto%20propulsion.png)
-*Boceto del zombi a propulsión*
-
-- Escupidor: tiene una vida media y tiene la habilidad de atacar a distancia. El camino que recorrerá será igual que el de los "normies" ya que no puede saltar ni destruir estructuras. Será implementado por el algoritmo A*. Su recorrido terminará cuando lleguen a una distancia a la cual sus proyectiles alcancen a los jugadores o al cerebro. Si los jugadores salen de su rango de disparo, el escupidor volverá a perseguirlos.
-
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/boceto%20escupidor.png)
-*Boceto del escupidor*
+Los zombis son el enemigo principal del juego, ya que quieren comerse el valioso cerebro de Einstein. Cuando la vida de un zombi llega a cero, este zombi muere, dejando una mancha de sangre en el escenario. Los zombis atacan cuerpo a cuerpo. Los zombis aparecerán en el mapa a través de spawnpoints que habrá situados por el mapa, y aparecerá en uno de ellos de manera aleatoria.
+El zombie tiene una vida media y simplemente se mueve hacia el jugador. Si encuentra su camino obstaculizado, tiene más probabilidades de buscar otro camino que de atacar una estructura. El camino que escogerá se decidirá mediante un algoritmo de "Pathfinding", el A*, hasta que lleguen a golpear a los jugadores o al cerebro.
 
 **Inteligencia artificial**
 Para la inteligencia artificial de los zombis se utilizará el algoritmo A*, en el que el zombi perseguirá a su objetivo más cercano, ya sea un jugador o el cerebro. 
@@ -84,8 +71,7 @@ inicio de una partida hasta finalizarla. Poco a poco vamos desgranando el funcio
 
 Los jugadores comienzan la partida y tienen unos segundos antes de que empiece la primera oleada. En este tiempo deberán analizar la pantalla, ver posible puntos fuertes y débiles, y mover el cerebro de Einstein si lo viesen necesario, aunque lo normal sería que no les diese tiempo antes de que la oleada comenzase.
 
-Comienza la primera oleada, la más sencilla de todas, y comienza la acción.  Una vez finalizada la primera oleada, tienen un poco de tiempo para relajarse, ver posibles fallos en su estrategia o en su estructura, antes de volver a ponerse a cubierto porque llega la siguiente oleada de zombis. Las oleadas son cada vez más y más complicadas hasta que los jugadores al final caen derrotados. En ese punto, se guarda la marca que han conseguido y se compara con otras posibles marcas que hayan podido conseguir.
-
+Comienza la primera oleada, la más sencilla de todas, y comienza la acción.  Una vez finalizada la primera oleada, tienen un poco de tiempo para relajarse, ver posibles fallos en su estrategia, antes de volver a ponerse a cubierto porque llega la siguiente oleada de zombis. Las oleadas son cada vez más y más complicadas hasta que los jugadores al final caen derrotados.
 Al acabar tendrán la opción de empezar otra partida o salir del juego.
 
 ## 4.Interfaz
