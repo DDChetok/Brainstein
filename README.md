@@ -141,9 +141,9 @@ Aquí los jugadores podrán jugar a la vez que pueden consultar de un vistazo in
 - Munición máxima
 
 Al ser derrotados, aparecerá un texto en mitad de la pantalla para informar a los jugadores de que han perdido.
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/banner%20derrota%201.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/banner%20derrota%201.png)
 *Versión 1 del texto de derrota*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/Brainstein/assets/readmeAssets/banner%20derrota%202.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/banner%20derrota%202.png)
 *Versión 2 del texto de derrota*
 
 ### 4.5 Opciones
