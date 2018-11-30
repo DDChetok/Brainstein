@@ -1,9 +1,17 @@
 var Brainstein = Brainstein || {};
 Brainstein.Game = function(){};
 
-//PARA ORGANIZAR MEJOR EL CÓDIGO, ESTAMOS USANDO LA EXTENSIÓN COLORES REGIONS, QUE PONE COLORES A LAS REGIONES 
+//PARA ORGANIZAR MEJOR EL CÓDIGO, ESTAMOS USANDO LA EXTENSIÓN COLORED REGIONS, QUE PONE COLORES A LAS REGIONES 
 //PARA QUE SEAN MÁS DINSTINGUIBLES A SIMPLE VISTA.
 //RECOMENDAMOS INSTALARLA PARA UNA MEJOR COMPRENSIÓN DEL CÓDIGO.
+
+var dataTypes = {
+	PLAYER: 0,
+	ENEMY: 1,
+	SHOT: 2,
+	DROP: 3,
+	BRAIN: 4
+}
 
 Brainstein.Game = {
 	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
@@ -113,6 +121,8 @@ Brainstein.Game = {
 		this.arrow.anchor.setTo(0, 0.5);
 		this.arrow.position.x = this.player.position.x;
 		this.arrow.position.y = this.player.position.y;
+
+		this.otherPlayer = this.createOtherPlayer((Brainstein.userID == 0) ? 1 : 0);
 
 		//----------------DROPS-------------------
 		this.dropTime = 2;
@@ -378,68 +388,59 @@ Brainstein.Game = {
 	},
 
 	//Creates the players recieved from the server
-	createOtherPlayers(){
-		var playersConnected;	
+    createOtherPlayer(ID){		
+		if(ID == 0){
+			var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "erwin");
+		}else{
+			var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "darwin");
+		}
 
-		$.get("/getPlayers", function(players){			
-			playersConnected = players;			
+		otherPlayer.anchor.setTo(0.25, 0.5);
 
-			for(var i = 0; i < playersConnected.length; i++){				
-				if(playersConnected[i].playerID != Brainstein.userID){
-					if(playersConnected[i].playerID == 0){
-						var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "erwin");
-					}else{
-						var otherPlayer = Brainstein.Game.game.add.sprite(0, 0, "darwin");
-					}
 
-					otherPlayer.anchor.setTo(0.25, 0.5);
+		otherPlayer.playerID =ID;
+		otherPlayer.posX = 0;
+		otherPlayer.posY = 0;
+		otherPlayer.hp = 30;
+		otherPlayer.actualHp = otherPlayer.hp;
 
-					//otherPlayer.playerID = Brainstein.Game.otherPlayers.length + 1;
+		otherPlayer.dead = false;
+	
+		otherPlayer.redHealthBar = Brainstein.Game.game.add.image(otherPlayer.x - 58, otherPlayer.y - 60, 'redHealthBar');
+		otherPlayer.redHealthBar.width = 115;
+		otherPlayer.redHealthBar.height = 10;
+		otherPlayer.healthBar = Brainstein.Game.game.add.image(otherPlayer.x - 58, otherPlayer.y - 60, 'healthBar');					
+		otherPlayer.healthBar.width = 115;
+		otherPlayer.healthBar.height = 10;
 
-					otherPlayer.playerID = playersConnected[i].playerID;
-					otherPlayer.posX = playersConnected[i].posX;
-					otherPlayer.posY = playersConnected[i].posY;
-					otherPlayer.hp = 30;
-					otherPlayer.actualHp = otherPlayer.hp;
+		otherPlayer.dead = false;
 
-					otherPlayer.dead = false;
-				
-					otherPlayer.redHealthBar = Brainstein.Game.game.add.image(otherPlayer.x - 58, otherPlayer.y - 60, 'redHealthBar');
-					otherPlayer.redHealthBar.width = 115;
-					otherPlayer.redHealthBar.height = 10;
-					otherPlayer.healthBar = Brainstein.Game.game.add.image(otherPlayer.x - 58, otherPlayer.y - 60, 'healthBar');					
-					otherPlayer.healthBar.width = 115;
-					otherPlayer.healthBar.height = 10;
+		otherPlayer.velX = 0;
+		otherPlayer.velY = 0;
 
-					otherPlayer.dead = false;
+		otherPlayer.previousPosX = 0;
+		otherPlayer.previousPosY = 0;
 
-					otherPlayer.velX = 0;
-					otherPlayer.velY = 0;
+		Brainstein.Game.game.physics.arcade.enable(otherPlayer);	
+		otherPlayer.body.collideWorldBounds = true;
 
-					otherPlayer.previousPosX = 0;
-					otherPlayer.previousPosY = 0;
+		/*if(otherPlayer.playerID == 1){
+			otherPlayer.loadTexture("darwin");
+		}*/
 
-					Brainstein.Game.game.physics.arcade.enable(otherPlayer);	
-					otherPlayer.body.collideWorldBounds = true;
+		if(otherPlayer.playerID == 0){
+			otherPlayer.sprites = ["erwin", "erwinAk", "erwinShotgun"];
+		} else	{
+			otherPlayer.sprites = ["darwin", "darwinAk", "darwinShotgun"];
+		}
 
-					/*if(otherPlayer.playerID == 1){
-						otherPlayer.loadTexture("darwin");
-					}*/
+		otherPlayer.deadSprite = "deadPlayer";
 
-					if(otherPlayer.playerID == 0){
-						otherPlayer.sprites = ["erwin", "erwinAk", "erwinShotgun"];
-					} else	{
-						otherPlayer.sprites = ["darwin", "darwinAk", "darwinShotgun"];
-					}
-
-					otherPlayer.deadSprite = "deadPlayer";
-
-					Brainstein.Game.otherPlayers[Brainstein.Game.otherPlayers.length] = otherPlayer;
-					
-					
-				}
-			}			
-		})	
+		return otherPlayer;
+			
+			
+		
+			
 	},
 
 	//Creates an enemy choosing a random coord according to a random spawnpoint
@@ -616,7 +617,7 @@ Brainstein.Game = {
 	update: function(){
 		//If there are no players from the server, create players 
 		if(this.otherPlayers.length == 0){
-			this.createOtherPlayers();
+			//this.createOtherPlayers();
 		}
 
 		if(this.newEnemiesAvaible){
@@ -672,7 +673,10 @@ Brainstein.Game = {
 		this.framesWithoutEnemiesInfo += 1;
 		this.recievedPlayerInfoThisFrame = false;
 		this.recievedEnemyInfoThisFrame = false;		
-		
+
+		connection.onmessage = function(data){
+			Brainstein.Game.handleDataRecieved(data);
+		}	
 	},
 
 	//Updates the main player
@@ -732,7 +736,7 @@ Brainstein.Game = {
 	},
 
 	//Updates the other players with the info received from the server
-	updateOtherPlayers(playersUpdated){
+	/*updateOtherPlayers(playersUpdated){
 		for(var i = 0; i < this.otherPlayers.length; i++){	
 			for(var j = 0; j < playersUpdated.length; j++){
 				if(this.otherPlayers[i].playerID == playersUpdated[j].playerID){					
@@ -778,6 +782,47 @@ Brainstein.Game = {
 			}
 		}	
 		this.framesWithoutPlayerInfo = 0;	
+	},*/
+
+	updateOtherPlayers(player){		
+		//this.otherPlayers[i].previousPosX = this.otherPlayers[i].position.x;
+		//this.otherPlayers[i].previousPosY = this.otherPlayers[i].position.y;				
+
+		//Position & Rotation
+		this.otherPlayer.position.x = player.posX;
+		this.otherPlayer.position.y = player.posY;
+		this.otherPlayer.rotation = player.rotation;
+
+		//if(this.framesWithoutPlayerInfo == 0) this.framesWithoutPlayerInfo = 1;
+
+		//this.otherPlayers[i].velX = (this.otherPlayers[i].position.x - this.otherPlayers[i].previousPosX) / this.framesWithoutPlayerInfo;
+		//this.otherPlayers[i].velY = (this.otherPlayers[i].position.y - this.otherPlayers[i].previousPosY) / this.framesWithoutPlayerInfo;					
+
+		//HP
+		this.otherPlayer.actualHp = player.hp;
+		this.healthBarPercent(this.otherPlayer, this.otherPlayer.actualHp);
+
+		this.otherPlayer.dead = player.dead;
+		if(this.otherPlayer.dead){
+			this.otherPlayer.loadTexture(this.otherPlayer.deadSprite); 
+		} 
+
+		//Shooting
+		this.otherPlayer.weapon = player.weapon;
+		if(!this.otherPlayer.dead){
+			switch(this.otherPlayer.weapon){
+				case ("pistol"):
+					this.otherPlayer.loadTexture(this.otherPlayer.sprites[0]);
+					break;
+				case ("ak"):
+					this.otherPlayer.loadTexture(this.otherPlayer.sprites[1]);
+					break;
+				case ("shotgun"):
+					this.otherPlayer.loadTexture(this.otherPlayer.sprites[2]);
+					break;
+			}
+		}
+		
 	},
 
 	//Updates an enemy position
@@ -1062,13 +1107,36 @@ Brainstein.Game = {
 			}
 		}
 	},
+	
 
 	//#endregion
 
 	//#region [rgba (155, 0, 255, 0.1)] SERVER METHODS
+	handleDataRecieved(data){
+		var parsedData = JSON.parse(data.data);
+
+		switch(parsedData.dataType){
+			case parsedData.dataType.PLAYER:
+				this.updateOtherPlayers(parsedData);
+				break;
+			case parsedData.dataType.ENEMY:
+				break;
+			case parsedData.dataType.SHOT:
+				break;
+			case parsedData.dataType.DROP:
+				break;
+			case parsedData.dataType.BRAIN:
+				break;
+		}
+
+		console.log(parsedData);
+	},
+
 	//Sends the client's player info to the server
 	sendPlayerInfo(){
 		var player = {
+			dataType: dataTypes.PLAYER,
+
 			playerID: this.player.playerID,
 			
 			posX: this.player.position.x,
@@ -1081,19 +1149,15 @@ Brainstein.Game = {
 
 			dead: this.player.dead,
 		};
+
+
 		player = JSON.stringify(player);
 
-		$.ajax("/updatePlayer", 
-		{
-			method: "POST",
-			data:  player,
-			processData: false,					
-			
-			headers:{
-				"Content-Type": "application/json"
-			},
+		if(Brainstein.userID == 0){
+			connection.send(player);
 		}
-	);
+
+
 	},
 
 	//Recieves the info from the other clients' players
@@ -2229,7 +2293,7 @@ Brainstein.Game = {
 		for(i = 0;i < this.otherPlayers.length;i++){
 			if(!this.otherPlayers[i].dead){
 				gameOver = false;
-			}s
+			}
 		}
 
 		if(gameOver) this.gameOver();
