@@ -69,7 +69,7 @@ Brainstein.Game = {
 
 		//-----------------PLAYER VARIABLES-----------------
 		//Create player		
-		this.player = this.createPlayer();		
+		this.player = this.createPlayer();	
 		
 		this.otherPlayers = [];
 
@@ -122,7 +122,11 @@ Brainstein.Game = {
 		this.arrow.position.x = this.player.position.x;
 		this.arrow.position.y = this.player.position.y;
 
-		this.otherPlayer = this.createOtherPlayer((Brainstein.userID == 0) ? 1 : 0);
+		if(Brainstein.userID == 0){
+			this.otherPlayer = this.createOtherPlayer(1);
+		}else{
+			this.otherPlayer = this.createOtherPlayer(0);
+		}
 
 		//----------------DROPS-------------------
 		this.dropTime = 2;
@@ -362,28 +366,7 @@ Brainstein.Game = {
 
 		//Get player ID		
 
-		//Posting the player in the server
-		var playerInfo = {
-			playerID: Brainstein.userID,
-			posX: player.position.x,
-			posY: player.position.y
-		}
-
-		playerInfo = JSON.stringify(playerInfo);
-
-		$.ajax("/initializePlayer", 
-			{
-				method: "POST",
-				data: playerInfo,
-				processData: false,					
-				
-				headers:{
-					"Content-Type": "application/json"
-				},
-			}
-		);
-
-		
+		//Posting the player in the server	
 		return player;
 	},
 
@@ -437,9 +420,6 @@ Brainstein.Game = {
 		otherPlayer.deadSprite = "deadPlayer";
 
 		return otherPlayer;
-			
-			
-		
 			
 	},
 
@@ -654,15 +634,15 @@ Brainstein.Game = {
 			this.checkIfResurrected();
 		}
 
-		this.sendPlayerInfo();	
-		this.recieveOtherPlayersInfo();
+		
+		//this.recieveOtherPlayersInfo();
 		this.receiveOtherPlayersShots();
 		this.receiveBrainInfo();			
 		this.receiveLastDropKilled();
 
-		if(!this.recievedPlayerInfoThisFrame){
+		/*if(!this.recievedPlayerInfoThisFrame){
 			this.updateOtherPlayersWithCurrentInfo();	
-		}
+		}*/
 
 		if(!this.recievedEnemyInfoThisFrame && Brainstein.userID != 0){
 			this.updateOtherEnemiesWithCurrentInfo();
@@ -674,9 +654,10 @@ Brainstein.Game = {
 		this.recievedPlayerInfoThisFrame = false;
 		this.recievedEnemyInfoThisFrame = false;		
 
+		this.sendPlayerInfo();	
 		connection.onmessage = function(data){
 			Brainstein.Game.handleDataRecieved(data);
-		}	
+		}
 	},
 
 	//Updates the main player
@@ -802,8 +783,9 @@ Brainstein.Game = {
 		this.otherPlayer.actualHp = player.hp;
 		this.healthBarPercent(this.otherPlayer, this.otherPlayer.actualHp);
 
-		this.otherPlayer.dead = player.dead;
-		if(this.otherPlayer.dead){
+		var isDead = player.dead.toLowerCase() == 'true' ? true : false; 
+		this.otherPlayer.dead = isDead;
+		if(this.otherPlayer.dead == "false"){
 			this.otherPlayer.loadTexture(this.otherPlayer.deadSprite); 
 		} 
 
@@ -1116,8 +1098,9 @@ Brainstein.Game = {
 		var parsedData = JSON.parse(data.data);
 
 		switch(parsedData.dataType){
-			case parsedData.dataType.PLAYER:
+			case "0"://parsedData.dataType.PLAYER"":
 				this.updateOtherPlayers(parsedData);
+				console.log(parsedData);
 				break;
 			case parsedData.dataType.ENEMY:
 				break;
@@ -1153,23 +1136,10 @@ Brainstein.Game = {
 
 		player = JSON.stringify(player);
 
-		if(Brainstein.userID == 0){
-			connection.send(player);
-		}
-
-
+		connection.send(player);
 	},
 
 	//Recieves the info from the other clients' players
-	recieveOtherPlayersInfo(){
-		var playersUpdated = [];
-		$.get("/getPlayers", function(players){
-			Brainstein.Game.recievedPlayerInfoThisFrame = true;
-			playersUpdated = players;			
-			Brainstein.Game.updateOtherPlayers(playersUpdated);		
-		})	
-	},
-
 	//Sends to the server a new Horde of enemies
 	sendNewHorde(newHorde){	
 		var horde = {
@@ -2300,10 +2270,10 @@ Brainstein.Game = {
 	},
 
 	gameOver: function(){	
-		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
 	},
 
 	fadeComplete: function(){
