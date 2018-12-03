@@ -54,9 +54,24 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		System.out.println("Message sent: " + node.toString());
 		
 		ObjectNode newNode = mapper.createObjectNode();
-		newNode = createPlayerInfo(newNode,node);
-		//newNode.put("name", node.get("name").asText());
-		//newNode.put("message", node.get("message").asText());
+		
+		switch(node.get("dataType").asText()) {
+			case "0":
+				newNode = createPlayerInfo(newNode,node);	
+				break;
+			case "1":
+				break;
+			case "2":
+				newNode = createShotInfo(newNode,node);	
+				break;
+			case "3":
+				break;
+			case "4":
+				break;
+		
+		}
+		
+			
 		
 		for(WebSocketSession participant : sessions.values()) {
 			if(!participant.getId().equals(session.getId())) {
@@ -67,15 +82,31 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	
 	public ObjectNode createPlayerInfo(ObjectNode newNode,JsonNode nodeReceived) {
 		newNode.put("dataType", nodeReceived.get("dataType").asText());
+		
 		newNode.put("playerID", nodeReceived.get("playerID").asText());
+		
 		newNode.put("posX", nodeReceived.get("posX").asText());
 		newNode.put("posY", nodeReceived.get("posY").asText());
 		newNode.put("rotation", nodeReceived.get("rotation").asText());
+		
 		newNode.put("hp", nodeReceived.get("hp").asText());
 		newNode.put("weapon", nodeReceived.get("weapon").asText());
 		newNode.put("dead", nodeReceived.get("dead").asText());
 		return newNode;
 	}
 	
+	public ObjectNode createShotInfo(ObjectNode newNode,JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());
+	
+		newNode.put("posX", nodeReceived.get("posX").asText());
+		newNode.put("posY", nodeReceived.get("posY").asText());
+		newNode.put("rotation", nodeReceived.get("rotation").asText());
+		
+		newNode.put("weaponName", nodeReceived.get("weaponName").asText());
+		newNode.put("playerShotingID", nodeReceived.get("playerShotingID").asText());
+		newNode.put("speed", nodeReceived.get("speed").asText());
+		
+		return newNode;
+	}
 }
 

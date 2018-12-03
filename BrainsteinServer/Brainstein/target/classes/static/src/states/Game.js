@@ -635,8 +635,7 @@ Brainstein.Game = {
 		}
 
 		
-		//this.recieveOtherPlayersInfo();
-		this.receiveOtherPlayersShots();
+		//this.recieveOtherPlayersInfo();		
 		this.receiveBrainInfo();			
 		this.receiveLastDropKilled();
 
@@ -707,15 +706,6 @@ Brainstein.Game = {
 		}			
 	},
 
-	//Updates the other players (the players from other clients) the frames we haven't received any info from the server.
-	//Updates the other players position with the velocity being calculated with the previous position of the Player
-	updateOtherPlayersWithCurrentInfo(){
-		for(var i = 0; i < this.otherPlayers.length; i++){	
-			this.otherPlayers[i].position.x += this.otherPlayers[i].velX;
-			this.otherPlayers[i].position.y += this.otherPlayers[i].velY;
-		}
-	},
-
 	//Updates the other players with the info received from the server
 	/*updateOtherPlayers(playersUpdated){
 		for(var i = 0; i < this.otherPlayers.length; i++){	
@@ -765,26 +755,19 @@ Brainstein.Game = {
 		this.framesWithoutPlayerInfo = 0;	
 	},*/
 
-	updateOtherPlayers(player){		
-		//this.otherPlayers[i].previousPosX = this.otherPlayers[i].position.x;
-		//this.otherPlayers[i].previousPosY = this.otherPlayers[i].position.y;				
-
+	updateOtherPlayers(player){				
 		//Position & Rotation
-		this.otherPlayer.position.x = player.posX;
-		this.otherPlayer.position.y = player.posY;
-		this.otherPlayer.rotation = player.rotation;
+		this.otherPlayer.position.x = JSON.parse(player.posX);
+		this.otherPlayer.position.y = JSON.parse(player.posY);
+		this.otherPlayer.rotation = JSON.parse(player.rotation);
 
-		//if(this.framesWithoutPlayerInfo == 0) this.framesWithoutPlayerInfo = 1;
-
-		//this.otherPlayers[i].velX = (this.otherPlayers[i].position.x - this.otherPlayers[i].previousPosX) / this.framesWithoutPlayerInfo;
-		//this.otherPlayers[i].velY = (this.otherPlayers[i].position.y - this.otherPlayers[i].previousPosY) / this.framesWithoutPlayerInfo;					
+		console.log(this.otherPlayer.position);				
 
 		//HP
-		this.otherPlayer.actualHp = player.hp;
+		this.otherPlayer.actualHp = JSON.parse(player.hp);
 		this.healthBarPercent(this.otherPlayer, this.otherPlayer.actualHp);
 
-		var isDead = player.dead.toLowerCase() == 'true' ? true : false; 
-		this.otherPlayer.dead = isDead;
+		this.otherPlayer.dead = JSON.parse(player.dead);		
 		if(this.otherPlayer.dead == "false"){
 			this.otherPlayer.loadTexture(this.otherPlayer.deadSprite); 
 		} 
@@ -943,14 +926,14 @@ Brainstein.Game = {
 		}
 
 		//OTROS JUGADORES
-		for(var i = 0; i < this.otherPlayers.length; i++){
+		
 			//Health Bars
-			this.otherPlayers[i].healthBar.x = this.otherPlayers[i].x - 58;
-			this.otherPlayers[i].healthBar.y = this.otherPlayers[i].y - 60;		
+			this.otherPlayer.healthBar.x = this.otherPlayer.x - 58;
+			this.otherPlayer.healthBar.y = this.otherPlayer.y - 60;		
 			
-			this.otherPlayers[i].redHealthBar.x = this.otherPlayers[i].x - 58;
-			this.otherPlayers[i].redHealthBar.y = this.otherPlayers[i].y - 60;
-		}
+			this.otherPlayer.redHealthBar.x = this.otherPlayer.x - 58;
+			this.otherPlayer.redHealthBar.y = this.otherPlayer.y - 60;
+		
 
 	},
 
@@ -1100,11 +1083,12 @@ Brainstein.Game = {
 		switch(parsedData.dataType){
 			case "0"://parsedData.dataType.PLAYER"":
 				this.updateOtherPlayers(parsedData);
-				console.log(parsedData);
+				//console.log(parsedData);
 				break;
 			case parsedData.dataType.ENEMY:
 				break;
-			case parsedData.dataType.SHOT:
+			case "2":
+				this.updateOtherPlayerShots(parsedData);
 				break;
 			case parsedData.dataType.DROP:
 				break;
@@ -1112,7 +1096,6 @@ Brainstein.Game = {
 				break;
 		}
 
-		console.log(parsedData);
 	},
 
 	//Sends the client's player info to the server
@@ -1221,36 +1204,16 @@ Brainstein.Game = {
 		})
 	},
 
-	//Receives the shots from the other clients
-	receiveOtherPlayersShots(){
-		var otherPlayerShots;
-		if(this.player.playerID == 0){
-			$.get("/getPlayer2Shots", function(player2Shots){
-				if(player2Shots.posX != -1){
-					otherPlayerShots = player2Shots;
-					Brainstein.Game.updateOtherPlayerShots(otherPlayerShots);
-				}
-			})	
-		}else{
-			$.get("/getPlayer1Shots", function(player1Shots){
-				if(player1Shots.posX != -1){
-					otherPlayerShots = player1Shots;
-					Brainstein.Game.updateOtherPlayerShots(otherPlayerShots);
-				}
-			})
-		}
-	},
-
 	//Updates the shots from the other clients, applying them physics
-	updateOtherPlayerShots(otherPlayerShots){
+	updateOtherPlayerShots(otherPlayerShots){		
 		if(otherPlayerShots.weaponName != "shotgun"){
 			var s = this.enemyBullets.getFirstDead();
-			s.x = otherPlayerShots.posX;
-			s.y = otherPlayerShots.posY;
-			s.rotation = otherPlayerShots.rotation;
-			s.speed = otherPlayerShots.speed;
+			s.x = JSON.parse(otherPlayerShots.posX);
+			s.y = JSON.parse(otherPlayerShots.posY);
+			s.rotation = JSON.parse(otherPlayerShots.rotation);
+			s.speed = JSON.parse(otherPlayerShots.speed);
 			s.weaponName = otherPlayerShots.weaponName;
-			s.lookAt = otherPlayerShots.rotation;
+			s.lookAt = JSON.parse(otherPlayerShots.rotation);
 
 			if(s.weaponName == "pistol"){
 				s.loadTexture('pistolBullet');
@@ -1277,10 +1240,10 @@ Brainstein.Game = {
 			
 				var s = this.enemyBullets.getFirstDead();
 
-				s.x = otherPlayerShots.posX;
-				s.y = otherPlayerShots.posY;
-				s.rotation = otherPlayerShots.rotation;
-				s.speed = otherPlayerShots.speed;
+				s.x = JSON.parse(otherPlayerShots.posX);
+				s.y = JSON.parse(otherPlayerShots.posY);
+				s.rotation = JSON.parse(otherPlayerShots.rotation);
+				s.speed = JSON.parse(otherPlayerShots.speed);
 				s.weaponName = otherPlayerShots.weaponName;
 				s.damage = this.player.shotgun.damage;
 				s.loadTexture('shotgunBullet');
@@ -1715,18 +1678,23 @@ Brainstein.Game = {
 			   
 			//Subir el disparo al servidor
 			   var shotInfo = {
-				posX: player.shot[player.actualShot].position.x,
-				posY: player.shot[player.actualShot].position.y,
-				rotation: player.shot[player.actualShot].rotation,
-				//lookAt : player.shot[player.actualShot].rotation,
-				weaponName : weapon.name,
-				playerShotingID : player.playerID,
-				speed: weapon.speed
+					dataType: dataTypes.SHOT,
 
-			};
-			   shotInfo = JSON.stringify(shotInfo);
+					posX: player.shot[player.actualShot].position.x,
+					posY: player.shot[player.actualShot].position.y,
+					rotation: player.shot[player.actualShot].rotation,
 
-				$.ajax("/postShots", 
+					//lookAt : player.shot[player.actualShot].rotation,
+
+					weaponName : weapon.name,
+					playerShotingID : player.playerID,
+					speed: weapon.speed
+				};
+			    shotInfo = JSON.stringify(shotInfo);
+
+				connection.send(shotInfo);
+
+				/*$.ajax("/postShots", 
 					{
 						method: "POST",
 						data: shotInfo,
@@ -1736,7 +1704,7 @@ Brainstein.Game = {
 							"Content-Type": "application/json"
 						},
 					}
-				);
+				);*/
 
 			player.actualShot++;
 
@@ -1789,6 +1757,8 @@ Brainstein.Game = {
 			}
 
 			var shotInfo = {
+				dataType: dataTypes.SHOT,
+
 				posX: player.shot[0].position.x,
 				posY: player.shot[0].position.y,
 				rotation: player.shot[0].rotation,
@@ -1797,19 +1767,10 @@ Brainstein.Game = {
 				playerShotingID : player.playerID,
 				speed: weapon.speed
 			}
-			   shotInfo = JSON.stringify(shotInfo);
 
-				$.ajax("/postShots", 
-					{
-						method: "POST",
-						data: shotInfo,
-						processData: false,					
-						
-						headers:{
-							"Content-Type": "application/json"
-						},
-					}
-				);
+			shotInfo = JSON.stringify(shotInfo);
+
+			connection.send(shotInfo);
 
 			weapon.fireRate = 600;
 			
