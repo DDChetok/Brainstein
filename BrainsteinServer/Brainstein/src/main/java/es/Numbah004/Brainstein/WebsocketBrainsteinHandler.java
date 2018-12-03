@@ -60,6 +60,7 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 				newNode = createPlayerInfo(newNode,node);	
 				break;
 			case "1":
+				newNode = createEnemyInfo(newNode,node);	
 				break;
 			case "2":
 				newNode = createShotInfo(newNode,node);	
@@ -69,6 +70,9 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 				break;
 			case "4":
 				newNode = createBrainInfo(newNode,node);	
+				break;
+			case "5":
+				newNode = createNewEnemyInfo(newNode,node);	
 				break;
 		}
 		
@@ -108,7 +112,7 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		return newNode;
 	}
 	
-	public ObjectNode createBrainInfo(ObjectNode newNode,JsonNode nodeReceived) {
+	public ObjectNode createBrainInfo(ObjectNode newNode, JsonNode nodeReceived) {
 		newNode.put("dataType", nodeReceived.get("dataType").asText());
 	
 		newNode.put("posX", nodeReceived.get("posX").asText());
@@ -117,7 +121,7 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		return newNode;
 	}
 
-	public ObjectNode createDropInfo(ObjectNode newNode,JsonNode nodeReceived) {
+	public ObjectNode createDropInfo(ObjectNode newNode, JsonNode nodeReceived) {
 		newNode.put("dataType", nodeReceived.get("dataType").asText());
 	
 		newNode.put("posX", nodeReceived.get("posX").asText());
@@ -128,6 +132,32 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		newNode.put("health", nodeReceived.get("health").asText());
 		
 		newNode.put("dropID", nodeReceived.get("dropID").asText());
+		
+		return newNode;
+	}
+	
+	public ObjectNode createNewEnemyInfo(ObjectNode newNode, JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());
+		
+		newNode.put("enemyID", nodeReceived.get("enemyID").asText());
+	
+		newNode.put("posX", nodeReceived.get("posX").asText());
+		newNode.put("posY", nodeReceived.get("posY").asText());
+		
+		newNode.put("rotation", nodeReceived.get("rotation").asText());	
+		
+		return newNode;
+	}
+	
+	public ObjectNode createEnemyInfo(ObjectNode newNode, JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());
+		
+		newNode.put("enemyID", nodeReceived.get("enemyID").asText());
+	
+		newNode.put("posX", nodeReceived.get("posX").asText());
+		newNode.put("posY", nodeReceived.get("posY").asText());
+		
+		newNode.put("rotation", nodeReceived.get("rotation").asText());	
 		
 		return newNode;
 	}
