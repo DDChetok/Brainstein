@@ -65,13 +65,12 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 				newNode = createShotInfo(newNode,node);	
 				break;
 			case "3":
+				newNode = createDropInfo(newNode,node);
 				break;
 			case "4":
+				newNode = createBrainInfo(newNode,node);	
 				break;
-		
 		}
-		
-			
 		
 		for(WebSocketSession participant : sessions.values()) {
 			if(!participant.getId().equals(session.getId())) {
@@ -108,5 +107,30 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		
 		return newNode;
 	}
+	
+	public ObjectNode createBrainInfo(ObjectNode newNode,JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());
+	
+		newNode.put("posX", nodeReceived.get("posX").asText());
+		newNode.put("posY", nodeReceived.get("posY").asText());
+		
+		return newNode;
+	}
+
+	public ObjectNode createDropInfo(ObjectNode newNode,JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());
+	
+		newNode.put("posX", nodeReceived.get("posX").asText());
+		newNode.put("posY", nodeReceived.get("posY").asText());
+		
+		newNode.put("shotgunAmmo", nodeReceived.get("shotgunAmmo").asText());
+		newNode.put("akAmmo", nodeReceived.get("akAmmo").asText());
+		newNode.put("health", nodeReceived.get("health").asText());
+		
+		newNode.put("dropID", nodeReceived.get("dropID").asText());
+		
+		return newNode;
+	}
+	
 }
 
