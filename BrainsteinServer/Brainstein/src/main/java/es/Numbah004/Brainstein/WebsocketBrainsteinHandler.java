@@ -74,6 +74,9 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 			case "5":
 				newNode = createNewEnemyInfo(newNode,node);	
 				break;
+			case "6":
+				newNode = createResurrectInfo(newNode,node);
+				break;
 		}
 		
 		for(WebSocketSession participant : sessions.values()) {
@@ -158,6 +161,14 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		newNode.put("posY", nodeReceived.get("posY").asText());
 		
 		newNode.put("rotation", nodeReceived.get("rotation").asText());	
+		
+		return newNode;
+	}
+	
+	public ObjectNode createResurrectInfo(ObjectNode newNode, JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());
+		
+		newNode.put("text", nodeReceived.get("text").asText());
 		
 		return newNode;
 	}

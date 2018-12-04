@@ -11,7 +11,8 @@ var dataTypes = {
 	SHOT: 2,
 	DROP: 3,
 	BRAIN: 4,
-	NEW_ENEMY: 5
+	NEW_ENEMY: 5,
+	RESURRECT: 6
 }
 
 Brainstein.Game = {
@@ -612,9 +613,9 @@ Brainstein.Game = {
 			this.sendEnemiesInfo();	
 		}	
 		
-		if(this.player.dead){
+		/*if(this.player.dead){
 			this.checkIfResurrected();
-		}
+		}*/
 
 		if(!this.recievedEnemyInfoThisFrame && Brainstein.userID != 0){
 			this.updateOtherEnemiesWithCurrentInfo();
@@ -998,6 +999,10 @@ Brainstein.Game = {
 			case "5":
 				this.createNewEnemies(parsedData);
 				break;
+			case "6":
+				this.checkIfResurrected(parsedData);
+			break;
+
 		}
 
 	},
@@ -1151,9 +1156,10 @@ Brainstein.Game = {
 	},
 
 	//Checks if this client's player has been resurrected
-	checkIfResurrected(){		
-		if(!this.player.dead){
-
+	checkIfResurrected(parsedData){		
+		if(parsedData.text = "resucitado"){
+			
+			Brainstein.Game.player.dead = false;
 			Brainstein.Game.player.body.enable = true;
 			Brainstein.Game.player.actualHp = Brainstein.Game.player.hp / 4;
 			Brainstein.Game.healthBarPercent(Brainstein.Game.player, Brainstein.Game.player.actualHp);
@@ -1172,26 +1178,6 @@ Brainstein.Game = {
 					break;
 			}
 
-			var player = {
-				dataType: dataTypes.PLAYER,
-	
-				playerID: this.player.playerID,
-				
-				posX: this.player.position.x,
-				posY: this.player.position.y,
-				rotation: this.player.rot,
-	
-				hp: this.player.actualHp,
-	
-				weapon: this.player.weapon,
-	
-				dead: this.player.dead,
-			};
-	
-	
-			player = JSON.stringify(player);
-	
-			connection.send(player);
 		}
 		
 		
@@ -1966,6 +1952,15 @@ Brainstein.Game = {
 		this.healthBarPercent(playerDead, playerDead.actualHp);
 
 		playerAlive.resurrecting = false;
+
+		var r = {
+			dataType: dataTypes.RESURRECT,
+
+			text: "resucitado"
+		};
+
+		r = JSON.stringify(r);
+		connection.send(r);
 		
 		this.resurrectharp.play();
 
