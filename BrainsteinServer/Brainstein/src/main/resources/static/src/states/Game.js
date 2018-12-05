@@ -12,7 +12,9 @@ var dataTypes = {
 	DROP: 3,
 	BRAIN: 4,
 	NEW_ENEMY: 5,
-	RESURRECT: 6
+	RESURRECT: 6,
+	GETID: 7,
+	CHECKOTHERPLAYERS: 8
 }
 
 Brainstein.Game = {

@@ -32,6 +32,9 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		System.out.println("New user: " + session.getId());
 		sessions.put(session.getId(), session);
+		
+		session.sendMessage(new TextMessage(Integer.toString(numPlayers)));
+		numPlayers++;
 	}
 	
 	@Override
@@ -80,10 +83,10 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 				newNode = createResurrectInfo(newNode,node);
 				break;
 			case "7":
-				newNode = createPlayer(newNode, node);
-				if(numPlayers >= 2) {
-					newNode.put("allReady", true);
-				}
+				//newNode = createPlayer(newNode, node);
+				break;
+			case "8":
+				sendInfoToAllParticipants();
 				break;
 		}
 		
@@ -94,7 +97,23 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		}
 	}
 	
-	public ObjectNode createPlayerInfo(ObjectNode newNode,JsonNode nodeReceived) {
+	public void sendInfoToAllParticipants() throws IOException{
+		ObjectNode newNode = mapper.createObjectNode();
+		newNode.put("dataType", 8);
+		if(numPlayers >= 2) {
+			newNode.put("allReady", true);
+		}else {
+			newNode.put("allReady", false);
+		}
+		for(WebSocketSession participant : sessions.values()) {
+				participant.sendMessage(new TextMessage(newNode.toString()));
+		}
+		
+		
+	}
+	
+	
+ 	public ObjectNode createPlayerInfo(ObjectNode newNode,JsonNode nodeReceived) {
 		newNode.put("dataType", nodeReceived.get("dataType").asText());
 		
 		newNode.put("playerID", nodeReceived.get("playerID").asText());
@@ -182,6 +201,8 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	}
 	
 	public ObjectNode createPlayer(ObjectNode newNode, JsonNode nodeReceived) {		
+		newNode.put("dataType", 7);	
+		
 		newNode.put("ID", numPlayers);		
 		numPlayers++;
 		

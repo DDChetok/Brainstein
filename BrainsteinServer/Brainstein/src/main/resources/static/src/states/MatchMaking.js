@@ -1,11 +1,21 @@
 var Brainstein = Brainstein || {};
 Brainstein.MatchMaking = function(){};
 
+var dataTypes = {
+	PLAYER: 0,
+	ENEMY: 1,
+	SHOT: 2,
+	DROP: 3,
+	BRAIN: 4,
+	NEW_ENEMY: 5,
+	RESURRECT: 6,
+	GETID: 7,
+	CHECKOTHERPLAYERS: 8
+}
+
 Brainstein.MatchMaking = {
 
-    create: function(){
-
-        Brainstein.userID;    
+    create: function(){   
         this.shouldChangeState = false; 
 
         this.game.stage.backgroundColor = '#39b5ad';
@@ -15,27 +25,30 @@ Brainstein.MatchMaking = {
         this.numberOfPlayersText.anchor.setTo(1, 1);
         this.playerText = this.game.add.text(this.game.width / 2, 150, "You are: ", { font: "40px Chakra Petch", fill: "#0a2239", align: "center" });
         this.playerText.anchor.setTo(0.5);
-
-        var x = {
-            dataType: dataTypes.MATCHMAKING,
-        }
-
-        connection.send(JSON.stringify(x));
-
-        this.getUserID();
-        this.connectUser();
     },
 
     update: function(){
-        connection.onmessage(data){
-            var parsedData = JSON.parse(data.data);
+        var x = {
+            dataType: dataTypes.CHECKOTHERPLAYERS,
+        }
+        
+        connection.send(JSON.stringify(x));
 
-            if(parsedData.dataType == "7"){
-                Brainstein.userID = parsedData.ID;
-                if(parsedData.allReady){
-                    this.state.start("LevelSelection");
-                }
-            }        
+        connection.onmessage = function(data){
+            var parsedData = JSON.parse(data.data);
+            switch(parsedData.dataType){
+
+               /* case "7":
+                    if(Brainstein.userID == -1) Brainstein.userID = parsedData.ID;   
+                    this.playerText.setText(Brainstein.userID); 
+                    break;
+*/
+                case "8":
+                    if(parsedData.allReady){
+                        this.state.start("LevelSelection");
+                    }
+                    break;
+            }       
         }     
     },  
 }

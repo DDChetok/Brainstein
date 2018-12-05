@@ -20,5 +20,11 @@ connection.onopen = function(){
     console.log("Abrido");
 }
 
+connection.onmessage = function(data){
+    var parsedData = JSON.parse(data.data);
+    
+    Brainstein.userID = JSON.parse(parsedData);
+};
+
 Brainstein.game.state.start('Boot');
 
