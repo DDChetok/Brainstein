@@ -26,6 +26,8 @@ Brainstein.Preload = {
 		this.load.image('menuDarwin','assets/images/menu_darwin_2.png');
 		this.load.image('menuErwin','assets/images/menu_erwin_2.png');
 		this.load.image('mano','assets/images/mano 1.png');
+		this.load.image('darwinmm', 'assets/images/darwin pistol.png');
+		this.load.image('erwinmm', 'assets/images/erwin pistol.png');
 
 		this.load.image('pauseMenu','assets/images/pause_menu_ph.png');
 		this.load.spritesheet('fuego','assets/images/fire_spritesheet.png',128,128,64);
@@ -33,6 +35,7 @@ Brainstein.Preload = {
 		this.load.image('menuLvl1','assets/images/menu_lvl_1.png');
 		this.load.image('menuLvl2','assets/images/menu_lvl_2.png');
 		this.load.image('menuLvl3','assets/images/menu_lvl_3.png');
+		this.load.image('brainmm','assets/images/cerebro_matchmaking.png');
 		this.load.image('darwin', 'assets/images/darwin pistol redim.png');
 		this.load.image('erwin', 'assets/images/erwin pistol redim.png');
 		this.load.image('darwinAk', 'assets/images/darwin rifle redim.png');
