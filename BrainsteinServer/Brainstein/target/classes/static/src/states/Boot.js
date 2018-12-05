@@ -1,6 +1,17 @@
 var Brainstein = Brainstein || {};
 Brainstein.Boot = function(){};
 
+var dataTypes = {
+	PLAYER: 0,
+	ENEMY: 1,
+	SHOT: 2,
+	DROP: 3,
+	BRAIN: 4,
+	NEW_ENEMY: 5,
+	RESURRECT: 6,
+	GETID: 7
+}
+
 //Setting game configuration and loading the assets for the loading screen
 Brainstein.Boot = {
 	preload: function(){

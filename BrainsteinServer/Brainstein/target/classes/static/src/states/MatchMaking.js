@@ -16,51 +16,26 @@ Brainstein.MatchMaking = {
         this.playerText = this.game.add.text(this.game.width / 2, 150, "You are: ", { font: "40px Chakra Petch", fill: "#0a2239", align: "center" });
         this.playerText.anchor.setTo(0.5);
 
+        var x = {
+            dataType: dataTypes.MATCHMAKING,
+        }
+
+        connection.send(JSON.stringify(x));
+
         this.getUserID();
         this.connectUser();
     },
 
     update: function(){
-        $.get("/matchMaking", function(playersConnected){
-            Brainstein.MatchMaking.numberOfPlayersText.setText("Players connected: " + playersConnected);
-            if(playersConnected >= 2){
-                Brainstein.MatchMaking.shouldChangeState = true;
-            }
-        })  
-        
-        if(this.shouldChangeState && Brainstein.userID != undefined){
-            this.game.state.start("LevelSelection");
-        }
-        
-        
-    },
+        connection.onmessage(data){
+            var parsedData = JSON.parse(data.data);
 
-    getUserID: function(){
-        $.get("/matchMaking", function(data){
-            Brainstein.userID = data;
-            Brainstein.MatchMaking.playerText.setText("You are PLAYER " + (data + 1));
-        })       
-    },
-
-    connectUser: function(){
-        var ID = {
-            ID: Brainstein.userID
-        };
-
-        ID = JSON.stringify(ID);
-
-        $.ajax("/matchMaking", 
-            {
-                method: "POST",
-                data:  ID,
-                processData: false,					
-                
-                headers:{
-                    "Content-Type": "application/json"
-                },
-            }
-        );
-    },
-
-   
+            if(parsedData.dataType == "7"){
+                Brainstein.userID = parsedData.ID;
+                if(parsedData.allReady){
+                    this.state.start("LevelSelection");
+                }
+            }        
+        }     
+    },  
 }

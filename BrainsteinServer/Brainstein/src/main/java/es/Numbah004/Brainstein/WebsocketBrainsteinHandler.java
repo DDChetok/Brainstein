@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @EnableWebSocket
 public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	
+	public int numPlayers = 0;
+	
 	private ObjectMapper mapper = new ObjectMapper();
 	private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 	
@@ -76,6 +78,12 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 				break;
 			case "6":
 				newNode = createResurrectInfo(newNode,node);
+				break;
+			case "7":
+				newNode = createPlayer(newNode, node);
+				if(numPlayers >= 2) {
+					newNode.put("allReady", true);
+				}
 				break;
 		}
 		
@@ -169,6 +177,13 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		newNode.put("dataType", nodeReceived.get("dataType").asText());
 		
 		newNode.put("text", nodeReceived.get("text").asText());
+		
+		return newNode;
+	}
+	
+	public ObjectNode createPlayer(ObjectNode newNode, JsonNode nodeReceived) {		
+		newNode.put("ID", numPlayers);		
+		numPlayers++;
 		
 		return newNode;
 	}
