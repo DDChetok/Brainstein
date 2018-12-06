@@ -13,10 +13,10 @@ var dataTypes = {
 	BRAIN: 4,
 	NEW_ENEMY: 5,
 	RESURRECT: 6,
-	GETID: 7,
-	CHECKOTHERPLAYERS: 8
+	ENTERINGMATCHMAKING: 7,
+    CHECKOTHERPLAYERS: 8,
+    CHANGELEVEL: 9
 }
-
 Brainstein.Game = {
 	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
 	init: function(){

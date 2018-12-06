@@ -15,16 +15,19 @@ console.log(connection);
 
 var isSocketOpen = false;
 
-connection.onopen = function(){
+connection.onopen = function(data){
     isSocketOpen = true;
     console.log("Abrido");
 }
 
 connection.onmessage = function(data){
     var parsedData = JSON.parse(data.data);
-    
-    Brainstein.userID = JSON.parse(parsedData);
-};
+
+    if(parsedData.dataType == "7"){
+        Brainstein.userID = JSON.parse(parsedData.ID);
+        console.log("User ID: " + Brainstein.userID);
+    }
+}
 
 Brainstein.game.state.start('Boot');
 

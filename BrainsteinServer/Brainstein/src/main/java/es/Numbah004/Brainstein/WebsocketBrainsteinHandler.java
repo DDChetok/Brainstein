@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	
 	public int numPlayers = 0;
+	public int avaibleID = 0;
 	
 	private ObjectMapper mapper = new ObjectMapper();
 	private Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
@@ -33,8 +34,13 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		System.out.println("New user: " + session.getId());
 		sessions.put(session.getId(), session);
 		
-		session.sendMessage(new TextMessage(Integer.toString(numPlayers)));
-		numPlayers++;
+		ObjectNode newNode = mapper.createObjectNode();
+		newNode.put("dataType", "7");
+		newNode.put("ID", Integer.toString(avaibleID));
+		
+		avaibleID++;
+		
+		session.sendMessage(new TextMessage(newNode.toString()));		
 	}
 	
 	@Override
@@ -83,10 +89,14 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 				newNode = createResurrectInfo(newNode,node);
 				break;
 			case "7":
-				//newNode = createPlayer(newNode, node);
+				numPlayers++;
+				System.out.println("NUMBER OF PLAYERS: " + numPlayers);
 				break;
 			case "8":
 				sendInfoToAllParticipants();
+				break;
+			case "9":
+				sendLevelSelectedInfo(newNode, node);
 				break;
 		}
 		
@@ -99,7 +109,7 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	
 	public void sendInfoToAllParticipants() throws IOException{
 		ObjectNode newNode = mapper.createObjectNode();
-		newNode.put("dataType", 8);
+		newNode.put("dataType", "8");
 		if(numPlayers >= 2) {
 			newNode.put("allReady", true);
 		}else {
@@ -199,12 +209,12 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 		
 		return newNode;
 	}
+
 	
-	public ObjectNode createPlayer(ObjectNode newNode, JsonNode nodeReceived) {		
-		newNode.put("dataType", 7);	
+	public ObjectNode sendLevelSelectedInfo(ObjectNode newNode,JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());
+		newNode.put("currentLevel", nodeReceived.get("level").asText());
 		
-		newNode.put("ID", numPlayers);		
-		numPlayers++;
 		
 		return newNode;
 	}

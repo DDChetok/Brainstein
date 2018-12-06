@@ -1,11 +1,26 @@
 var Brainstein = Brainstein || {};
 Brainstein.LevelSelection = function(){};
+
 var num = 0;
 var aux = 0;
+
+var dataTypes = {
+	PLAYER: 0,
+	ENEMY: 1,
+	SHOT: 2,
+	DROP: 3,
+	BRAIN: 4,
+	NEW_ENEMY: 5,
+	RESURRECT: 6,
+	ENTERINGMATCHMAKING: 7,
+    CHECKOTHERPLAYERS: 8,
+    CHANGELEVEL: 9
+}
+
 Brainstein.LevelSelection = {    
 	create: function(){
 		//Show background					
-		this.background = this.game.add.sprite(0, 0, 'mainMenuSplash');		
+		this.background = this.game.add.sprite(0, 0, 'menuLvl1');		
 		this.background.width = (this.game.width);
         this.background.height = (this.game.height);
 
@@ -52,42 +67,34 @@ Brainstein.LevelSelection = {
         if(Brainstein.userID == 0){
             if(this.game.input.keyboard.isDown(Phaser.Keyboard.ENTER)){
 
-                var levelSelected = JSON.stringify(-1);
+                var level = {
+                    dataType: dataTypes.CHANGELEVEL,
+                    level: -1                    
+                }
 
-                $.ajax("/levelSelection", 
-                {
-                    method: "POST",
-                    data:  levelSelected,
-                    processData: false,					
-                    
-                    headers:{
-                        "Content-Type": "application/json"
-                    },
-                });
+                connection.send(JSON.stringify(level));
 
                 this.game.switchOptionSound.play();
                 this.game.state.start('Game');
             }
+
             
             if(this.game.input.keyboard.justPressed(Phaser.Keyboard.RIGHT)){         
                 this.levelSelected++;
                 this.game.switchOptionSound.play();
+
                 if(this.levelSelected > this.levels.length - 1){
                     this.levelSelected = 0;
                 }       
 
-                var levelSelected = JSON.stringify(this.levelSelected);
+              
+                var level = {
+                    dataType: dataTypes.CHANGELEVEL,
+                    level: this.levelSelected                    
+                }
 
-                $.ajax("/levelSelection", 
-                {
-                    method: "POST",
-                    data:  levelSelected,
-                    processData: false,					
-                    
-                    headers:{
-                        "Content-Type": "application/json"
-                    },
-                });
+                connection.send(JSON.stringify(level));
+
             }
 
             if(this.game.input.keyboard.justPressed(Phaser.Keyboard.LEFT)){        
@@ -97,18 +104,12 @@ Brainstein.LevelSelection = {
                     this.levelSelected = this.levels.length - 1;
                 }
 
-                var levelSelected = JSON.stringify(this.levelSelected);
+                var level = {
+                    dataType: dataTypes.CHANGELEVEL,
+                    level: this.levelSelected                    
+                }
 
-                $.ajax("/levelSelection", 
-                {
-                    method: "POST",
-                    data:  levelSelected,
-                    processData: false,					
-                    
-                    headers:{
-                        "Content-Type": "application/json"
-                    },
-                })
+                connection.send(JSON.stringify(level));     
             }
             
             switch(this.levelSelected){
@@ -123,31 +124,33 @@ Brainstein.LevelSelection = {
                     break;     
             }
         } else {      
-            $.get("/levelSelection", function(currentLevel){
-                switch(currentLevel){
-                    case -1:
-                        Brainstein.game.state.start("Game");
-                        break;
-                    case 0:
-                        Brainstein.LevelSelection.background.loadTexture('menuLvl1');
-                        break;
-                    case 1:   
-                        Brainstein.LevelSelection.background.loadTexture('menuLvl2');
-                        break;
-                    case 2:
-                        Brainstein.LevelSelection.background.loadTexture('menuLvl3');
-                        break;     
+            connection.onmessage = function(data){
+                var parsedData = JSON.parse(data.data);
 
-                }
-
-                if(Brainstein.LevelSelection.levelSelected != currentLevel ){
+                if(parsedData.dataType == "9"){
                     Brainstein.game.switchOptionSound.play();
-                }
 
-                if(currentLevel != -1){
-                    Brainstein.LevelSelection.levelSelected = currentLevel;
+                    if(parsedData.currentLevel != "-1"){
+                        Brainstein.LevelSelection.levelSelected = JSON.parse(parsedData.currentLevel);
+                    }
+                   
+                    switch(JSON.parse(parsedData.currentLevel)){
+                        case -1:
+                            Brainstein.game.state.start("Game");
+                            break;
+                        case 0:
+                            Brainstein.LevelSelection.background.loadTexture('menuLvl1');
+                            break;
+                        case 1:   
+                            Brainstein.LevelSelection.background.loadTexture('menuLvl2');
+                            break;
+                        case 2:
+                            Brainstein.LevelSelection.background.loadTexture('menuLvl3');
+                            break;     
+
+                    }
                 }
-            })
+            }  
         }
     }
 }

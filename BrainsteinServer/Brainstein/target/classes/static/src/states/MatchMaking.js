@@ -1,6 +1,7 @@
 var Brainstein = Brainstein || {};
 Brainstein.MatchMaking = function(){};
 
+
 var dataTypes = {
 	PLAYER: 0,
 	ENEMY: 1,
@@ -9,15 +10,13 @@ var dataTypes = {
 	BRAIN: 4,
 	NEW_ENEMY: 5,
 	RESURRECT: 6,
-	GETID: 7,
-	CHECKOTHERPLAYERS: 8
+	ENTERINGMATCHMAKING: 7,
+    CHECKOTHERPLAYERS: 8,
+    CHANGELEVEL: 9
 }
-
 Brainstein.MatchMaking = {
 
-    create: function(){
-
-        Brainstein.userID = -1;    
+    create: function(){   
         this.shouldChangeState = false; 
 
         this.game.stage.backgroundColor = '#39b5ad';
@@ -27,17 +26,19 @@ Brainstein.MatchMaking = {
         this.numberOfPlayersText.anchor.setTo(1, 1);
         this.playerText = this.game.add.text(this.game.width / 2, 150, "You are: ", { font: "40px Chakra Petch", fill: "#0a2239", align: "center" });
         this.playerText.anchor.setTo(0.5);
+
+        var data = {
+            dataType: dataTypes.ENTERINGMATCHMAKING,
+        }
+
+        data = JSON.stringify(data);
+        
+
+        connection.send(data);
+  
     },
 
     update: function(){
-
-        var x = {
-            dataType: dataTypes.GETID,
-        }
-
-        connection.send(JSON.stringify(x));
-
-
         var x = {
             dataType: dataTypes.CHECKOTHERPLAYERS,
         }
@@ -45,17 +46,11 @@ Brainstein.MatchMaking = {
         connection.send(JSON.stringify(x));
 
         connection.onmessage = function(data){
-            var parsedData = JSON.parse(data.data);
-            switch(parsedData.dataType){
-
-                case "7":
-                    if(Brainstein.userID == -1) Brainstein.userID = parsedData.ID;   
-                    this.playerText.setText(Brainstein.userID); 
-                    break;
-
+            var parsedData = JSON.parse(data.data);          
+            switch(parsedData.dataType){          
                 case "8":
                     if(parsedData.allReady){
-                        this.state.start("LevelSelection");
+                        Brainstein.game.state.start("LevelSelection");
                     }
                     break;
             }       
