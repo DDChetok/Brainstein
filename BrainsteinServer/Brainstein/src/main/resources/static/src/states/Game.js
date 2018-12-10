@@ -15,10 +15,8 @@ var dataTypes = {
 	RESURRECT: 6,
 	ENTERINGMATCHMAKING: 7,
     CHECKOTHERPLAYERS: 8,
-	CHANGELEVEL: 9,
-	GAMEOVER: 10
+    CHANGELEVEL: 9
 }
-
 Brainstein.Game = {
 	//#region [ rgba (0, 205, 30, 0.1) ] CONSTRUCTOR METHODS
 	init: function(){
@@ -1913,10 +1911,10 @@ Brainstein.Game = {
 	},
 
 	gameOver: function(){	
-		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
 	},
 
 	fadeComplete: function(){
