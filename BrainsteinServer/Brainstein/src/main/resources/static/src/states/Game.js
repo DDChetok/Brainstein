@@ -141,7 +141,7 @@ Brainstein.Game = {
 		this.dropTimer = this.game.time.create(false);
 		this.dropTimer.add(1000,this.createDrop, this);
 		this.dropTimer.start();
-			//this.dropTimer.pause();	
+		this.dropTimer.pause();	
 		
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -1256,6 +1256,7 @@ Brainstein.Game = {
 		this.game.physics.arcade.overlap(this.enemies, this.brain, this.gameOver, null, this);
 		this.game.physics.arcade.collide(this.player, this.enemies, this.playerZombieColision,null,this);
 		this.game.physics.arcade.overlap(this.player,this.drops,this.playerDropColision,null,this);	
+		this.game.physics.arcade.overlap(this.otherPlayer,this.drops,this.playerDropColision,null,this);	
 		this.game.physics.arcade.collide(this.player, this.collisionLayer);				
 		this.game.physics.arcade.overlap(this.player.shot, this.enemies, this.bulletZombieColision,null,this);
 		this.game.physics.arcade.collide(this.player.shot, this.collisionLayer, this.bulletCollsionLayerCollision,null,this);
@@ -1332,20 +1333,22 @@ Brainstein.Game = {
 	},
 
 	playerDropColision: function(player,drop){
+		
 		var dropID = drop.dropID;
 		dropID = JSON.stringify(dropID);		
 		drop.kill();
 
 		this.dropsound.play();
-
-		player.shotgunActualAmmo += drop.shotgunAmmo;
-		player.akActualAmmo += drop.akAmmo;
-		player.resources += drop.resources;
-		player.actualHp += drop.health;
-		if(player.actualHp > 30) player.actualHp = 30;
-		this.healthBarPercent(player, player.actualHp);
-		player.dropCatchedTimer.resume();
-		player.dropCatchedText.setText(drop.shotgunAmmo + " Balas escopeta\n" + drop.akAmmo + " Balas AK");
+		if(Brainstein.userID == player.playerID){
+			player.shotgunActualAmmo += drop.shotgunAmmo;
+			player.akActualAmmo += drop.akAmmo;
+			player.resources += drop.resources;
+			player.actualHp += drop.health;
+			if(player.actualHp > 30) player.actualHp = 30;
+			this.healthBarPercent(player, player.actualHp);
+			player.dropCatchedTimer.resume();
+			player.dropCatchedText.setText(drop.shotgunAmmo + " Balas escopeta\n" + drop.akAmmo + " Balas AK");
+		}
 	},
 
 	bulletCollsionLayerCollision: function(bullet){
@@ -1829,7 +1832,7 @@ Brainstein.Game = {
 					connection.send(d);
 
 			}	
-			//this.dropTimer.pause();
+			this.dropTimer.pause();
 			this.dropTimer.add(5000, this.createDrop, this);
 		}
 	}
@@ -1913,10 +1916,10 @@ Brainstein.Game = {
 	},
 
 	gameOver: function(){	
-		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
 	},
 
 	fadeComplete: function(){

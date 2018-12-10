@@ -23,7 +23,7 @@ Brainstein.GameOver = {
 			dataType: dataTypes.GAMEOVER
 		}
 
-		message = JSON.stringify(dataType);
+		message = JSON.stringify(message);
 
 		connection.send(message);
 
