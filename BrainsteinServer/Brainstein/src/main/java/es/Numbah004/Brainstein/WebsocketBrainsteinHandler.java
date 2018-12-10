@@ -98,6 +98,9 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 			case "9":
 				sendLevelSelectedInfo(newNode, node);
 				break;
+			case "10":
+				numPlayers = 0;
+				break;
 		}
 		
 		for(WebSocketSession participant : sessions.values()) {
