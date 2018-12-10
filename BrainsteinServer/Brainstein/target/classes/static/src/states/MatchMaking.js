@@ -12,8 +12,10 @@ var dataTypes = {
 	RESURRECT: 6,
 	ENTERINGMATCHMAKING: 7,
     CHECKOTHERPLAYERS: 8,
-    CHANGELEVEL: 9
+	CHANGELEVEL: 9,
+	GAMEOVER: 10
 }
+
 Brainstein.MatchMaking = {
 
     create: function(){   
