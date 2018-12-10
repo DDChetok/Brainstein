@@ -1,13 +1,24 @@
 var Brainstein = Brainstein || {};
 Brainstein.MatchMaking = function(){};
 
+
+var dataTypes = {
+	PLAYER: 0,
+	ENEMY: 1,
+	SHOT: 2,
+	DROP: 3,
+	BRAIN: 4,
+	NEW_ENEMY: 5,
+	RESURRECT: 6,
+	ENTERINGMATCHMAKING: 7,
+    CHECKOTHERPLAYERS: 8,
+	CHANGELEVEL: 9,
+	GAMEOVER: 10
+}
+
 Brainstein.MatchMaking = {
 
-    create: function(){
-
-        Brainstein.userID;    
-        this.shouldChangeState = false; 
-
+    create: function(){   
         this.game.stage.backgroundColor = '#39b5ad';
 
         this.alphatime = 0;
@@ -29,10 +40,17 @@ Brainstein.MatchMaking = {
 
         this.darwinmm = this.game.add.sprite(this.game.width *0.9,this.game.height *0.6,'darwinmm');
         this.darwinmm.anchor.setTo(0.5, 0.5);
-        this.darwinmm.angle = 45;
+        this.darwinmm.angle = 45;       
+  
+
+        var data = {
+            dataType: dataTypes.ENTERINGMATCHMAKING,
+        }
+
+        data = JSON.stringify(data);        
         
-        this.getUserID();
-        this.connectUser();
+        connection.send(data);
+
     },
 
     update: function(){
@@ -41,49 +59,23 @@ Brainstein.MatchMaking = {
 
         this.darwinmm.alpha = Math.sin(this.alphatime);
 
-        this.alphatime += this.alphaspeed;
-        
-
-        $.get("/matchMaking", function(playersConnected){
-            Brainstein.MatchMaking.numberOfPlayersText.setText("Players connected: " + playersConnected);
-            if(playersConnected >= 2){
-                Brainstein.MatchMaking.shouldChangeState = true;
-            }
-        })  
-        
-        if(this.shouldChangeState && Brainstein.userID != undefined){
-            this.game.state.start("LevelSelection");
+        this.alphatime += this.alphaspeed; 
+    
+        var x = {
+            dataType: dataTypes.CHECKOTHERPLAYERS,
         }
         
-        
-    },
+        connection.send(JSON.stringify(x));
 
-    getUserID: function(){
-        $.get("/matchMaking", function(data){
-            Brainstein.userID = data;
-            Brainstein.MatchMaking.playerText.setText("You are PLAYER " + (data + 1));
-        })       
-    },
-
-    connectUser: function(){
-        var ID = {
-            ID: Brainstein.userID
-        };
-
-        ID = JSON.stringify(ID);
-
-        $.ajax("/matchMaking", 
-            {
-                method: "POST",
-                data:  ID,
-                processData: false,					
-                
-                headers:{
-                    "Content-Type": "application/json"
-                },
-            }
-        );
-    },
-
-   
+        connection.onmessage = function(data){
+            var parsedData = JSON.parse(data.data);          
+            switch(parsedData.dataType){          
+                case "8":
+                    if(parsedData.allReady){
+                        Brainstein.game.state.start("LevelSelection");
+                    }
+                    break;
+            }       
+        }       
+    }
 }

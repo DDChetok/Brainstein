@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Implementation-Title: Brainstein
 Implementation-Version: 0.0.1-SNAPSHOT
-Built-By: Pablo
+Built-By: pablo
 Implementation-Vendor-Id: es.Numbah004
 Build-Jdk: 1.8.0_192
 Implementation-URL: http://maven.apache.org
