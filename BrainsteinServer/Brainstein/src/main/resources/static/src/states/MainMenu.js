@@ -30,16 +30,17 @@ Brainstein.MainMenu = {
 		this.game.keyboardSound.play();
 		this.game.mainMenuMusic.play();
 		this.h = this.game.add.text(this.game.width / 2 - 100, this.game.height /2 + 20, "  ", style);
+		this.h.anchor.setTo(0, 0.5);
 		this.content = [
-						"...entiendes lo que te digo?", 
-						"Que nos vamos a morir todos ",
-						"¡¡QUE NOS MORIMOS!! Hazme caso",
-						"y huye o van a ir a por ti,",
-						"ahora vienen por el cerebro",
-						"y nosotros tenemos que ",
-						"defenderlo. Corre. Huye.",
-						"Ya vien.-.,l,sfdbfl.------sa",
-						 "ESTÁN AQUÍ"];
+						"Tinty Winky", 
+						"Dipsy",
+						"Laa Laa ",
+						"Po",
+						"Teletubbies",
+						"Teletubbies",
+						"Dicen hola ",
+						"¡HOLA!",						
+						];
 	
 		this.line = [];
 		this.wordIndex = 0;

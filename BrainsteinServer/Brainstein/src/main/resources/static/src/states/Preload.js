@@ -62,7 +62,7 @@ Brainstein.Preload = {
 		this.load.image('gameOverBanner', 'assets/images/defeat_banner.png');	
 		this.load.image('arrow', 'assets/images/flecha.png');
 		this.load.image('healthBar', 'assets/images/barra_vida.png');
-		this.load.image('redHealthBar', 'assets/images/barra_vida_roja.png');
+		this.load.image('redHealthBar', 'assets/images/barra_vida_roja.png');		
 
 		//Music
 		this.load.audio('keyboardSound', 'assets/music/keyboard sound2.mp3');

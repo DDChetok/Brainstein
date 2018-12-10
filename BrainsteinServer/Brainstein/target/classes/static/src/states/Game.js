@@ -1131,6 +1131,13 @@ Brainstein.Game = {
 	//Updates the position of the drops
 	updateDropsInfo(drop){
 		i = drop.dropID;
+
+		this.drops[i].revive();
+		this.drops[i].position.x = JSON.parse(drop.posX);
+		this.drops[i].position.y = JSON.parse(drop.posY);
+		//this.drops[i] = this.game.add.sprite(this.drops[i].posX, this.drops[i].posY, 'drop');
+		this.drops[i].shotgunAmmo = JSON.parse(drop.shotgunAmmo);
+		this.drops[i].akAmmo = JSON.parse(drop.akAmmo);
 		this.drops[i].health = JSON.parse(drop.health);
 
 		this.drops[i].dropID = JSON.parse(drop.dropID);
@@ -1900,7 +1907,8 @@ Brainstein.Game = {
 		if(this.player.dead && this.otherPlayer.dead){
 			gameOver = true;
 		}
-			
+
+	
 		if(gameOver) this.gameOver();
 	},
 

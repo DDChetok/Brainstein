@@ -26,9 +26,9 @@ Brainstein.MatchMaking = {
 
         this.matchMakingText = this.game.add.text(this.game.width / 2, 70, "MATCH MAKING", { font: "60px Chakra Petch", fill: "#0a2239", align: "center" });
         this.matchMakingText.anchor.setTo(0.5);
-        this.numberOfPlayersText = this.game.add.text(this.game.width - 70, this.game.height - 10, "Players connected: ", { font: "30px Chakra Petch", fill: "#0a2239", align: "center" });
+        this.numberOfPlayersText = this.game.add.text(this.game.width - 20, this.game.height - 10, "Waiting for DARWIN", { font: "30px Chakra Petch", fill: "#0a2239", align: "center" });
         this.numberOfPlayersText.anchor.setTo(1, 1);
-        this.playerText = this.game.add.text(this.game.width / 2, 150, "You are: ", { font: "40px Chakra Petch", fill: "#0a2239", align: "center" });
+        this.playerText = this.game.add.text(this.game.width * 0.1 + 70, this.game.height * 0.6 - 250 , "You are: ERWIN", { font: "40px Chakra Petch", fill: "#0a2239", align: "center" });
         this.playerText.anchor.setTo(0.5);
         //sprites
         this.brainmm = this.game.add.sprite(this.game.width/2,this.game.height/2,'brainmm');
