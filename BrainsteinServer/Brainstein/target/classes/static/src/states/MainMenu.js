@@ -29,24 +29,28 @@ Brainstein.MainMenu = {
 	start: function(){
 		this.game.keyboardSound.play();
 		this.game.mainMenuMusic.play();
-		this.h = this.game.add.text(this.game.width / 2 - 100, this.game.height /2 + 20, "  ", style);
+		this.h = this.game.add.text(this.game.width / 2 + 10, this.game.height /2 + 200, "  ", style);
 		this.h.anchor.setTo(0, 0.5);
 		this.content = [
-						"Tinty Winky", 
-						"Dipsy",
-						"Laa Laa ",
-						"Po",
-						"Teletubbies",
-						"Teletubbies",
-						"Dicen hola ",
-						"¡HOLA!",						
+						"Entry 17:", 
+						"Darker, darker, yet darker",
+						"The Darkness Keeps Growing",
+						"The Shadows Cutting Deeper",
+						"Photon Readings Negative",
+						"This Next Experiment",
+						"Seems",
+						"Very",
+						"Very",
+						"Interesting",
+						"...",
+						"What Do You Two Think?"						
 						];
 	
 		this.line = [];
 		this.wordIndex = 0;
 		this.lineIndex = 0;		
-		this.wordDelay = 150; //150
-		this.lineDelay = 250;	//250
+		this.wordDelay = 400; //150
+		this.lineDelay = 500; //250
 
 		this.content2 = ["PRESS ENTER"];
 
@@ -69,7 +73,7 @@ Brainstein.MainMenu = {
 			//  We're finished
 			this.game.keyboardSound.stop();
 			this.game.pressEnterSound.play();
-			this.text2 = this.game.add.text(this.game.width/2 - 110, this.game.height/2 + 170,this.content2,{font: "35px Chakra Petch", fill: '#04f31d', align:"center"});
+			this.text2 = this.game.add.text(this.game.width/2 - 110, this.game.height/2 + 250,this.content2,{font: "35px Chakra Petch", fill: '#04f31d', align:"center"});
 			this.text2.alpha = 0;
 			this.game.add.tween(this.text2).to( { alpha: 1 }, 3000, "Linear", true);
 			return;

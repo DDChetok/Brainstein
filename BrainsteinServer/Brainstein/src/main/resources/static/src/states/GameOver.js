@@ -46,6 +46,7 @@ Brainstein.GameOver = {
 
     update: function(){
 		if(this.game.input.keyboard.isDown(Phaser.Keyboard.R)){
+			this.gameOverMusic.stop();
 			this.game.state.start('MainMenu');			
 		}
 	}

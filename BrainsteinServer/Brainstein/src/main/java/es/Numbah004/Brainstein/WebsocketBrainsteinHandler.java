@@ -17,6 +17,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @SpringBootApplication
@@ -62,7 +63,7 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	
 	private void sendOtherParticipants(WebSocketSession session, JsonNode node) throws IOException {
 
-		System.out.println("Message sent: " + node.toString());
+    	System.out.println("Message sent: " + node.toString());
 		
 		ObjectNode newNode = mapper.createObjectNode();
 		
@@ -193,14 +194,13 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	}
 	
 	public ObjectNode createEnemyInfo(ObjectNode newNode, JsonNode nodeReceived) {
-		newNode.put("dataType", nodeReceived.get("dataType").asText());
-		
-		newNode.put("enemyID", nodeReceived.get("enemyID").asText());
+		newNode.put("dataType", nodeReceived.get("dataType").asText());			
 	
-		newNode.put("posX", nodeReceived.get("posX").asText());
-		newNode.put("posY", nodeReceived.get("posY").asText());
 		
-		newNode.put("rotation", nodeReceived.get("rotation").asText());	
+		newNode.put("enemies", (ArrayNode)nodeReceived.get("enemies"));	
+
+
+
 		
 		return newNode;
 	}

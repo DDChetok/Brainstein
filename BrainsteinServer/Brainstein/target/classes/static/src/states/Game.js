@@ -141,7 +141,7 @@ Brainstein.Game = {
 		this.dropTimer = this.game.time.create(false);
 		this.dropTimer.add(1000,this.createDrop, this);
 		this.dropTimer.start();
-			//this.dropTimer.pause();	
+		this.dropTimer.pause();	
 		
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -194,7 +194,7 @@ Brainstein.Game = {
 		this.emitter = this.game.add.emitter(0, 0, 100);
 		this.emitter.makeParticles("bulletParticle");	
 
-		this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.2, 0.2);
+		this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.4, 0.4);
 
 
 	
@@ -293,13 +293,13 @@ Brainstein.Game = {
 		player.actualShot = 0;
 		//Player weapons		
 		player.pistol = this.createWeapon("pistol",0,400,12,1,5,12,Number.POSITIVE_INFINITY,700,0);
-		player.shotgun = this.createWeapon("shotgun",0,600,12,3,8,12,50,700,0.25);
-		player.ak = this.createWeapon("ak",0,50,30,1,8,20,200,700,0);
+		player.shotgun = this.createWeapon("shotgun",0,600,12,3,8,0,50,700,0.25);
+		player.ak = this.createWeapon("ak",0,50,30,1,8,0,200,700,0);
 		player.weapon = "pistol";	
 		//Player ammo
 		player.pistolActualAmmo = Number.POSITIVE_INFINITY;		
-		player.shotgunActualAmmo = 2000;
-		player.akActualAmmo = 2000;
+		player.shotgunActualAmmo = 0;
+		player.akActualAmmo = 0;
 		//Reloading
 		player.reloadTimer = this.game.time.create(false);
 		player.reloadTimer.add(1000, this.reloadMethod, this,player);
@@ -739,15 +739,19 @@ Brainstein.Game = {
 	},	
 	
 	//Updates the enemies with the info received from the server
-	updateServerEnemies(enemy){	
-		for(var i = 0; i < this.enemies.length; i++){
-			var ID = JSON.parse(enemy.enemyID);
-			if(ID == this.enemies[i].pos){
-				this.enemies[i].position.x = JSON.parse(enemy.posX);
-				this.enemies[i].position.y = JSON.parse(enemy.posY);
-				this.enemies[i].rotation = JSON.parse(enemy.rotation);				
+	updateServerEnemies(serverEnemies){	
+
+		if(serverEnemies.enemies.length == this.enemies.length){
+			for(var i = 0; i < serverEnemies.enemies.length; i++){			
+				var enemy = serverEnemies.enemies[i];
+
+				this.enemies[enemy.enemyID].position.x = enemy.posX;
+				this.enemies[enemy.enemyID].position.y = enemy.posY;
+				this.enemies[enemy.enemyID].rotation = enemy.rotation;			
+			
 			}
-		
+		} else {
+			console.logWarning("No coinciden los tamaños de los arrays de zombies");
 		}
 		
 	},
@@ -1037,10 +1041,10 @@ Brainstein.Game = {
 
 	//Sends the enemies info to the server
 	sendEnemiesInfo(){		
+		var enemiesArray = [];
+
 		for(var i = 0; i < this.enemies.length; i++){
 			var enemy = {
-				dataType: dataTypes.ENEMY,
-
 				enemyID: this.enemies[i].pos,
 
 				posX: this.enemies[i].position.x,
@@ -1048,10 +1052,16 @@ Brainstein.Game = {
 				rotation: this.enemies[i].rotation,				
 			}
 
-			enemy = JSON.stringify(enemy);
-
-			connection.send(enemy);
+			enemiesArray[enemiesArray.length] = enemy;
 		}
+
+		var data = {
+			dataType: dataTypes.ENEMY,
+			enemies: enemiesArray
+		}
+
+		data = JSON.stringify(data);
+		connection.send(data)
 	}, 
 
 	//Updates the shots from the other clients, applying them physics
@@ -1204,6 +1214,8 @@ Brainstein.Game = {
 				if(this.enemies.length < this.zombiesPerRound){
 					this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght)-1 , this.createHorde, this);			
 				}
+
+				console.log("Zombies: " + this.enemies.length);
 			} 
 		}
 	},
@@ -1303,8 +1315,6 @@ Brainstein.Game = {
 		bloodSplash.rotation = this.game.physics.arcade.angleBetween(shot, zombie);	
 
 		if(zombie.actualHp <= 0){
-			zombie.kill();
-
 			this.muertezombie.play();
 
 			this.enemyCount--;		
@@ -1328,7 +1338,11 @@ Brainstein.Game = {
 				this.enemies = newEnemies;
 			}else{
 				this.enemies.length = 0; //Vaciamos el array
-			}		
+			}			
+
+			console.log("Zombie matao. Quedan: " + this.enemies.length);
+			
+			zombie.kill();
 		}
 	},
 
@@ -1832,7 +1846,7 @@ Brainstein.Game = {
 					connection.send(d);
 
 			}	
-			//this.dropTimer.pause();
+			this.dropTimer.pause();
 			this.dropTimer.add(5000, this.createDrop, this);
 		}
 	}
@@ -1916,10 +1930,10 @@ Brainstein.Game = {
 	},
 
 	gameOver: function(){	
-		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
+		this.camera.onFadeComplete.add(this.fadeComplete, this);
 	},
 
 	fadeComplete: function(){
