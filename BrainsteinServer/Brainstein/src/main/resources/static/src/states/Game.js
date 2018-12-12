@@ -739,21 +739,15 @@ Brainstein.Game = {
 	},	
 	
 	//Updates the enemies with the info received from the server
-	updateServerEnemies(serverEnemies){	
+	updateServerEnemies(serverEnemies){			
+		for(var i = 0; i < serverEnemies.enemies.length; i++){			
+			var enemy = serverEnemies.enemies[i];
 
-		if(serverEnemies.enemies.length == this.enemies.length){
-			for(var i = 0; i < serverEnemies.enemies.length; i++){			
-				var enemy = serverEnemies.enemies[i];
-
-				this.enemies[enemy.enemyID].position.x = enemy.posX;
-				this.enemies[enemy.enemyID].position.y = enemy.posY;
-				this.enemies[enemy.enemyID].rotation = enemy.rotation;			
-			
-			}
-		} else {
-			console.logWarning("No coinciden los tamaños de los arrays de zombies");
-		}
+			this.enemies[enemy.enemyID].position.x = enemy.posX;
+			this.enemies[enemy.enemyID].position.y = enemy.posY;
+			this.enemies[enemy.enemyID].rotation = enemy.rotation;			
 		
+		}		
 	},
 
 	//Updates the enemies the frames we haven't received any info from the server.
