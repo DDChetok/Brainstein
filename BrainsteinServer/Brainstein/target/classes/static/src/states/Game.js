@@ -16,7 +16,8 @@ var dataTypes = {
 	ENTERINGMATCHMAKING: 7,
     CHECKOTHERPLAYERS: 8,
 	CHANGELEVEL: 9,
-	GAMEOVER: 10
+	GAMEOVER: 10,
+	ROUNDINFO: 11
 }
 
 Brainstein.Game = {
@@ -138,10 +139,12 @@ Brainstein.Game = {
 		this.lastDropKilled = -1;
 		this.recievedDropThisFrame;
 
-		this.dropTimer = this.game.time.create(false);
-		this.dropTimer.add(1000,this.createDrop, this);
-		this.dropTimer.start();
-		this.dropTimer.pause();	
+		if(Brainstein.userID==0){
+			this.dropTimer = this.game.time.create(false);
+			this.dropTimer.add(1000,this.createDrop, this);
+			this.dropTimer.start();
+			this.dropTimer.pause();
+		}
 		
 		//-----------------PATHFINDING VARIABLES-----------------
 		this.easyStar = new EasyStar.js();
@@ -631,7 +634,9 @@ Brainstein.Game = {
 		this.recievedPlayerInfoThisFrame = false;
 		this.recievedEnemyInfoThisFrame = false;		
 
-		this.sendPlayerInfo();	
+		this.sendPlayerInfo();
+		if(Brainstein.userID == 0) this.sendRoundInfo();
+	
 		connection.onmessage = function(data){
 			Brainstein.Game.handleDataRecieved(data);
 		}
@@ -739,21 +744,15 @@ Brainstein.Game = {
 	},	
 	
 	//Updates the enemies with the info received from the server
-	updateServerEnemies(serverEnemies){	
+	updateServerEnemies(serverEnemies){			
+		for(var i = 0; i < serverEnemies.enemies.length; i++){			
+			var enemy = serverEnemies.enemies[i];
 
-		if(serverEnemies.enemies.length == this.enemies.length){
-			for(var i = 0; i < serverEnemies.enemies.length; i++){			
-				var enemy = serverEnemies.enemies[i];
-
-				this.enemies[enemy.enemyID].position.x = enemy.posX;
-				this.enemies[enemy.enemyID].position.y = enemy.posY;
-				this.enemies[enemy.enemyID].rotation = enemy.rotation;			
-			
-			}
-		} else {
-			console.logWarning("No coinciden los tamaños de los arrays de zombies");
-		}
+			this.enemies[enemy.enemyID].position.x = enemy.posX;
+			this.enemies[enemy.enemyID].position.y = enemy.posY;
+			this.enemies[enemy.enemyID].rotation = enemy.rotation;			
 		
+		}		
 	},
 
 	//Updates the enemies the frames we haven't received any info from the server.
@@ -831,7 +830,7 @@ Brainstein.Game = {
 				
 
 		if(this.resting == true){
-			this.restTimerText.setText(this.timeBetweenRounds);
+			this.restTimerText.setText((this.timeBetweenRounds != 0) ? this.timeBetweenRounds : "");
 		} else {
 			this.restTimerText.setText("");
 		}
@@ -981,6 +980,7 @@ Brainstein.Game = {
 		}
 	},
 	
+	
 
 	//#endregion
 
@@ -1009,7 +1009,10 @@ Brainstein.Game = {
 				break;
 			case "6":
 				this.checkIfResurrected(parsedData);
-			break;
+				break;
+			case "11":
+				this.updateRoundInfo(parsedData);
+				break;
 
 		}
 
@@ -1192,18 +1195,33 @@ Brainstein.Game = {
 					break;
 			}
 
+		}		
+	},
+
+	sendRoundInfo(){
+		var info = {
+			dataType: dataTypes.ROUNDINFO,
+
+			round: this.actualRound,
+			timeBetweenRounds: this.timeBetweenRounds
 		}
-		
-		
+
+		connection.send(JSON.stringify(info));
+	},
+
+	updateRoundInfo(data){
+		this.actualRound = data.round;
+		this.timeBetweenRounds = data.timeBetweenRounds;
 	},
 	//#endregion
 
 	//#region [ rgba (200, 0, 200, 0.1)] ROUND LOOP METHODS
 	startRound: function(){
 		if(this.timeBetweenRounds > 0){
-			this.timeBetweenRounds -= 1;
-			this.restTimer.add(1000, this.startRound, this);
-			
+			if(Brainstein.userID == 0){
+				this.timeBetweenRounds -= 1;
+				this.restTimer.add(1000, this.startRound, this);
+			}			
 		}else{ //Empieza la ronda cuando se acaba el tiempo de descanso
 			this.restTimer.pause();	
 			this.restTimer.add(1000, this.startRound, this);		
@@ -1213,9 +1231,7 @@ Brainstein.Game = {
 				this.createHorde();
 				if(this.enemies.length < this.zombiesPerRound){
 					this.game.time.events.repeat(Phaser.Timer.SECOND * 0.50, Math.ceil(this.zombiesPerRound / this.enemyHordeLenght)-1 , this.createHorde, this);			
-				}
-
-				console.log("Zombies: " + this.enemies.length);
+				}			
 			} 
 		}
 	},
@@ -1225,13 +1241,14 @@ Brainstein.Game = {
 			this.resting = true; 
 			this.timeBetweenRounds = 25;
 			this.zombiesPerRound += 5;
-			this.restTimer.resume();
-			this.actualRound++;
+			this.restTimer.resume();			
 			
-			this.dropTimer.resume();
+			if(Brainstein.userID==0)this.dropTimer.resume();
+			
 			
 			if(Brainstein.userID == 0){
 				this.teleportBrain();
+				this.actualRound++;
 			}	
 		}
 
@@ -1930,10 +1947,10 @@ Brainstein.Game = {
 	},
 
 	gameOver: function(){	
-		this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
+		/*this.game.camera.follow(this.brain, Phaser.Camera.FOLLOW_LOCKON, 0.05, 0.05);	
 		this.camera.shake(0.02, 3000);		
 		this.camera.fade('#ff0000', 3000);
-		this.camera.onFadeComplete.add(this.fadeComplete, this);
+		this.camera.onFadeComplete.add(this.fadeComplete, this);*/
 	},
 
 	fadeComplete: function(){

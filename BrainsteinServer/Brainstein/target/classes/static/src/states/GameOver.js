@@ -12,7 +12,8 @@ var dataTypes = {
 	ENTERINGMATCHMAKING: 7,
     CHECKOTHERPLAYERS: 8,
 	CHANGELEVEL: 9,
-	GAMEOVER: 10
+	GAMEOVER: 10,
+	ROUNDINFO: 11
 }
 
 Brainstein.GameOver = {

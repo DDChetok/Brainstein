@@ -1,7 +1,6 @@
 var Brainstein = Brainstein || {};
 Brainstein.MatchMaking = function(){};
 
-
 var dataTypes = {
 	PLAYER: 0,
 	ENEMY: 1,
@@ -13,7 +12,8 @@ var dataTypes = {
 	ENTERINGMATCHMAKING: 7,
     CHECKOTHERPLAYERS: 8,
 	CHANGELEVEL: 9,
-	GAMEOVER: 10
+	GAMEOVER: 10,
+	ROUNDINFO: 11
 }
 
 Brainstein.MatchMaking = {

@@ -102,7 +102,10 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 			case "10":
 				numPlayers = 0;
 				break;
-		}
+			case "11":
+				newNode = createRoundInfo(newNode,node);
+				break;
+		}	
 		
 		for(WebSocketSession participant : sessions.values()) {
 			if(!participant.getId().equals(session.getId())) {
@@ -194,13 +197,17 @@ public class WebsocketBrainsteinHandler extends TextWebSocketHandler{
 	}
 	
 	public ObjectNode createEnemyInfo(ObjectNode newNode, JsonNode nodeReceived) {
-		newNode.put("dataType", nodeReceived.get("dataType").asText());			
-	
-		
+		newNode.put("dataType", nodeReceived.get("dataType").asText());				
 		newNode.put("enemies", (ArrayNode)nodeReceived.get("enemies"));	
-
-
-
+		
+		return newNode;
+	}
+	
+	public ObjectNode createRoundInfo(ObjectNode newNode, JsonNode nodeReceived) {
+		newNode.put("dataType", nodeReceived.get("dataType").asText());	
+		
+		newNode.put("round", nodeReceived.get("round"));	
+		newNode.put("timeBetweenRounds", nodeReceived.get("timeBetweenRounds"));
 		
 		return newNode;
 	}
