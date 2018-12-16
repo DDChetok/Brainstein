@@ -1,6 +1,7 @@
 # Brainstein
 Un juego desarrollado por *Numbah004*.
-[Gameplay del juego](https://pages.github.com/).
+
+[Gameplay del juego](https://www.youtube.com/watch?v=P8iuEMHScWQ).
 
 
 ## 1. Introducción
