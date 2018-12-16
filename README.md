@@ -119,7 +119,7 @@ Lista y descripción de todos los componentes del *Menú principal*:
 - Botón salir: al pulsarlo lleva de vuelta al Sistema Operativo. 
 ![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/Nuevos%20assets/Menu%20Principal.png)
 *Menú principal del juego*
-![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/Nuevos%20assets/Match%20Making.png)
+![alt text](https://github.com/DDChetok/Brainstein/blob/master/BrainsteinServer/Brainstein/src/main/resources/static/assets/readmeAssets/Nuevos%20assets/matchmakingBueno.png)
 *Cambios en el menú*
 
 ### 4.2 Asignación de personajes
