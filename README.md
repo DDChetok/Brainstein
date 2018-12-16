@@ -1,6 +1,8 @@
 # Brainstein
 Un juego desarrollado por *Numbah004*.
 
+[Gameplay del juego](https://www.youtube.com/watch?v=P8iuEMHScWQ).
+
 
 ## 1. Introducción
 Este documento tiene como objetivo principal plasmar el diseño y los elementos que debe incluir el videojuego *Brainstein*. Este videojuego esta pensado para ser jugado en navegadores web de ordenadores.
